@@ -1,0 +1,1 @@
+I’d expect a doc on how to think computationally about these systems: interference simulation, field design, inverse problems, wave propagation, and maybe optimization of holographic patterns or dynamic gratings. A lot of the ideas feel like they would live or die first in simulation.
