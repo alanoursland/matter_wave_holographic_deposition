@@ -224,8 +224,7 @@ class IntegratedQuantumSubstrate:
                         R     = np.sqrt((X-x0)**2 + (Y-y0)**2 + 1e-30)
                         theta = np.arctan2(Y-y0, X-x0)
                         sign  = (-1)**(i + j)
-                        w     = 1 - np.exp(-R**2 / (2*core**2))
-                        phase += sign * theta * w
+                        phase += sign * theta
                         count += 1
             if verbose:
                 print(f"    Vortex lattice: a={a*1e9:.1f}nm "

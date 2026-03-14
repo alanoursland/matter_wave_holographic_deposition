@@ -2,7 +2,7 @@
 
 ## Abstract
 
-This report documents v9 of the Integrated Quantum Substrate Deposition Simulator, which models a multi-stage pipeline for deterministic atomic deposition using matter-wave holography and topological pattern protection. The central advance in v9 is the replacement of the Lieb lattice caging stage with a 2D diamond network that provides genuine, flux-dependent Aharonov-Bohm (AB) caging. The previous implementation (v8) contained three compounding errors in its lattice physics that prevented the simulation from running. With the corrected lattice, v9 demonstrates complete AB caging at Φ=π (localization = 1.0, all bands flat), multi-species spatial sorting (SSIM = 0.092 between species), and disorder-robust pattern protection (localization > 87% at W = 2J).
+This report documents v9 of the Integrated Quantum Substrate Deposition Simulator, which models a multi-stage pipeline for deterministic atomic deposition using matter-wave holography and topological pattern protection. The central advance in v9 is the replacement of the Lieb lattice caging stage with a 2D diamond network that provides genuine, flux-dependent Aharonov-Bohm (AB) caging. The previous implementation (v8) contained three compounding errors in its lattice physics that prevented the simulation from running. With the corrected lattice, v9 demonstrates complete AB caging at Φ=π (localization = 1.0, all bands flat), multi-species spatial sorting (SSIM = 0.118 between species), and disorder-robust pattern protection (localization > 89% at W = 2J).
 
 ## 1. Introduction
 
@@ -33,11 +33,7 @@ The v8 simulation aborted at the Lieb lattice validation gate with 11 unique eig
 
 The Lieb lattice is replaced by a 2D diamond network (decorated square lattice). Each bond of a square lattice of hub sites (A) is replaced by a two-path diamond with upper and lower intermediate sites. The unit cell contains 5 sites: A (hub), B_up and B_down (horizontal diamond), C_up and C_down (vertical diamond).
 
-Each diamond encloses flux Φ, distributed symmetrically as ±Φ/4 per bond. The Hamiltonian is:
-
-$$H = \sum_{\text{diamonds}} J \left[ e^{i\Phi/4} |A\rangle\langle B_u| + e^{-i\Phi/4} |A\rangle\langle B_d| + e^{i\Phi/4} |B_u\rangle\langle A'| + e^{-i\Phi/4} |B_d\rangle\langle A'| + \text{h.c.} \right]$$
-
-At Φ = π, all 5 bands are flat with exactly 3 unique eigenvalues at E ∈ {−2√2, 0, +2√2}J. This produces complete Aharonov-Bohm caging: a state initialized on A-sites remains confined within the initial diamonds indefinitely. At Φ = 0, the bands are dispersive and the state diffuses freely.
+Each diamond encloses flux Φ, distributed symmetrically as ±Φ/4 per bond. At Φ = π, all 5 bands are flat with exactly 3 unique eigenvalues at E ∈ {−2√2, 0, +2√2}J. This produces complete Aharonov-Bohm caging: a state initialized on A-sites remains confined within the initial diamonds indefinitely. At Φ = 0, the bands are dispersive and the state diffuses freely.
 
 ## 3. Pipeline Results
 
@@ -47,24 +43,24 @@ The simulation was run with He-4 atoms at 1.0 mK (λ = 48.91 nm) on a 256 × 256
 
 ### 3.1 Beam and Phase Imprinting
 
-Kuramoto synchronization achieved an order parameter of r = 0.890. The vortex lattice (a = 97.8 nm, 23 vortices) imprinted a geometric phase φ ∈ [−2.85, 2.85] after cosine-squared apodization at 15% margin. The apodization eliminates the boundary artifact identified in v7, where the drive potential V(x,y) peaked at the substrate edges rather than at the interior vortex cores.
+Kuramoto synchronization achieved an order parameter of r = 0.890. The vortex lattice (a = 97.8 nm, 23 vortices) imprinted a geometric phase φ ∈ [−5.70, 5.70] after cosine-squared apodization at 15% margin (raw phase range [−8.43, 8.43] before apodization). The apodization eliminates the boundary artifact identified in v7, where the drive potential V(x,y) peaked at the substrate edges rather than at the interior vortex cores.
 
 ### 3.2 Floquet Dressing and Binding
 
-At V_max = 0.90 ℏω, the beam-averaged sideband populations are dominated by n = 0 (95.1%), with small tails at n = ±1 (1.4%) and n = ±2 (1.0%). The Floquet entropy is S = 0.263. The Lorentzian binding filter at n_resonant = 0 passes 94.7% of the beam.
+At V_max = 0.90 ℏω, the beam-averaged sideband populations are dominated by n = 0 (84.6%), with tails at n = ±1 (4.1%) and n = ±2 (3.6%). The Floquet entropy is S = 0.644, indicating moderate sideband mixing — the wider phase range produces greater population in the higher-order modes than earlier configurations. The Lorentzian binding filter at n_resonant = 0 passes 83.8% of the beam.
 
 ### 3.3 AB Caging
 
-The deposited pattern was loaded onto a 16 × 16 diamond lattice with 7 density peaks on A-sites. Results:
+The deposited pattern was loaded onto a 16 × 16 diamond lattice with 11 density peaks on A-sites. Results:
 
 | Metric | Φ = π (caged) | Φ = 0 (free) | Gap |
 |--------|--------------|-------------|-----|
-| Localization | 1.0000 | 0.2433 | 0.757 |
-| Fidelity | 0.9897 | 0.0267 | 0.963 |
-| Spread (cells) | 6.80 → 6.80 | 6.80 → 6.24 | — |
-| Flat bands | 3 unique eigenvalues | 337 unique eigenvalues | — |
+| Localization | 1.0000 | 0.2967 | 0.703 |
+| Fidelity | 0.9897 | 0.0001 | 0.990 |
+| Spread (cells) | 7.52 → 7.52 | 7.52 → 6.59 | — |
+| Flat bands | 3 unique eigenvalues | dispersive | — |
 
-The Φ = π caged pattern snapshots at t = 0 and t = T are visually identical. The fidelity shows rapid oscillations (phase beating between the three flat bands) but the localization probability remains constant at 1.0, confirming that fidelity oscillation reflects sublattice redistribution within each diamond, not spatial diffusion.
+The Φ = π caged pattern snapshots at t = 0 and t = T are visually identical. The fidelity plot shows rapid oscillations (phase beating between the three flat bands at E = −2√2, 0, +2√2) but the localization probability remains constant at 1.0, confirming that the oscillation reflects sublattice redistribution within each diamond, not spatial diffusion.
 
 ## 4. Sideband Selectivity
 
@@ -76,13 +72,13 @@ The SSIM matrix quantifies spatial distinctness between patterns:
 
 | | n=−2 | n=−1 | n=0 | n=+1 | n=+2 |
 |---|---|---|---|---|---|
-| n=−2 | 1.000 | 0.464 | 0.074 | 0.339 | 0.952 |
-| n=−1 | 0.464 | 1.000 | 0.218 | 0.897 | 0.559 |
-| n=0 | 0.074 | 0.218 | 1.000 | 0.320 | 0.092 |
-| n=+1 | 0.339 | 0.897 | 0.320 | 1.000 | 0.419 |
-| n=+2 | 0.952 | 0.559 | 0.092 | 0.419 | 1.000 |
+| n=−2 | 1.000 | 0.578 | 0.097 | 0.472 | 0.960 |
+| n=−1 | 0.578 | 1.000 | 0.232 | 0.922 | 0.668 |
+| n=0 | 0.097 | 0.232 | 1.000 | 0.318 | 0.118 |
+| n=+1 | 0.472 | 0.922 | 0.318 | 1.000 | 0.553 |
+| n=+2 | 0.960 | 0.668 | 0.118 | 0.553 | 1.000 |
 
-The n = 0 and n = ±2 patterns are nearly uncorrelated (SSIM = 0.074 and 0.092), confirming that different sidebands deposit at spatially distinct locations. The n = ±2 sidebands deposit at vortex-core regions with a smaller minimum feature size (56.5 nm vs 89.4 nm for n = 0), consistent with the tight spatial confinement of the high-|φ| vortex core regions. Symmetry-conjugate pairs (n = +2 and n = −2) produce near-identical patterns (SSIM = 0.952), as expected from the symmetric Floquet Hamiltonian.
+The n = 0 and n = ±2 patterns are nearly uncorrelated (SSIM = 0.097 and 0.118), confirming that different sidebands deposit at spatially distinct locations. The n = ±2 sidebands deposit at vortex-core regions with a smaller minimum feature size (31.4 nm vs 53.3 nm for n = 0), consistent with the tight spatial confinement of the high-|φ| vortex core regions. Symmetry-conjugate pairs (n = +2 and n = −2) produce near-identical patterns (SSIM = 0.960), as expected from the symmetric Floquet Hamiltonian. Adsorption fractions range from 83.8% (n = 0, dominant sideband) down to 3.1% (n = +2), reflecting the beam-averaged sideband populations.
 
 ## 5. Multi-Species Deposition
 
@@ -95,29 +91,30 @@ Two atomic species with different binding resonances were deposited simultaneous
 
 | Metric | Species A (n=0) | Species B (n=+2) |
 |--------|----------------|-----------------|
-| Adsorption fraction | 0.946 | 0.010 |
-| Michelson contrast | 0.969 | 0.994 |
-| Feature size (nm) | 89 | 57 |
+| Adsorption fraction | 0.838 | 0.031 |
+| Michelson contrast | 0.971 | 0.998 |
+| Feature size (nm) | 53 | 31 |
 
-Spatial separation: SSIM(A,B) = 0.092, overlap = 0.661. The low SSIM confirms that the two species deposit at structurally distinct locations determined by the local sideband distribution, which in turn is set by the phase map V(x,y). Species B has a higher contrast because it selects only the sharpest vortex-core features.
+Spatial separation: SSIM(A,B) = 0.118, overlap = 0.596. The low SSIM confirms that the two species deposit at structurally distinct locations determined by the local sideband distribution, which in turn is set by the phase map V(x,y). Species B has a higher contrast and smaller feature size because it selects only the sharpest vortex-core features. The cross-section plot shows clear anti-correlation: where Species A has low density, Species B peaks, and vice versa.
 
 ## 6. Disorder Robustness
 
 On-site energy disorder δε ∼ U(−W/2, W/2) was applied to all sites of the 2D diamond lattice for W ranging from 0 to 2J. Each data point is averaged over 5 disorder realizations.
 
-![Disorder robustness: localization vs disorder, fidelity vs disorder, and localization ratio showing consistent 3.5–4× caging advantage.](v9/v9_disorder.png)
+![Disorder robustness: localization vs disorder, fidelity vs disorder, and localization ratio showing consistent 2.7–3.4× caging advantage.](v9/v9_disorder.png)
 
 | W/J | Localization (Φ=π) | Localization (Φ=0) | Ratio |
 |-----|-------------------|-------------------|-------|
-| 0.00 | 1.000 | 0.241 | 4.1× |
-| 0.44 | 0.984 | 0.239 | 4.1× |
-| 0.89 | 0.922 | 0.238 | 3.9× |
-| 1.33 | 0.877 | 0.231 | 3.8× |
-| 2.00 | 0.873 | 0.247 | 3.5× |
+| 0.00 | 1.000 | 0.297 | 3.4× |
+| 0.22 | 0.998 | 0.301 | 3.3× |
+| 0.44 | 0.988 | 0.309 | 3.2× |
+| 0.89 | 0.947 | 0.314 | 3.0× |
+| 1.33 | 0.914 | 0.315 | 2.9× |
+| 2.00 | 0.894 | 0.326 | 2.7× |
 
-At Φ = π, localization degrades gradually from 1.0 to 0.87 across the full disorder range, maintaining above 87% even at W = 2J. The Φ = 0 baseline sits near 24% throughout (set by the geometric overlap of the initial peak neighborhoods with the full lattice). The caging advantage (ratio) is 3.5–4× across the sweep.
+At Φ = π, localization degrades gradually from 1.0 to 0.89 across the full disorder range, maintaining above 89% even at W = 2J. The Φ = 0 baseline sits near 30% throughout (set by the geometric overlap of the initial peak neighborhoods with the full lattice). The caging advantage (ratio) is 2.7–3.4× across the sweep.
 
-Fidelity is more fragile: it drops from 0.99 to approximately 0.08 by W ≈ 0.5J. This is expected because fidelity is sensitive to phase shifts between eigenstates, which disorder disrupts even when spatial localization is maintained. The localization metric captures the physically relevant quantity — whether atoms stay where they were placed — and is the appropriate primary diagnostic.
+Fidelity is more fragile: it drops from 0.99 to approximately 0.14 by W = 0.22J and continues decaying. This is expected because fidelity is sensitive to phase shifts between eigenstates, which disorder disrupts even when spatial localization is maintained. The localization metric captures the physically relevant quantity — whether atoms stay where they were placed — and is the appropriate primary diagnostic.
 
 ## 7. Decoherence Sweep
 
@@ -125,9 +122,9 @@ The spatial coherence length L_c was swept from infinity (fully coherent) to app
 
 ![Decoherence sweep: Michelson contrast and minimum feature size vs coherence length.](v9/v9_decoherence.png)
 
-Contrast is insensitive to coherence length, remaining above 0.94 across the full sweep. This is because the Gaussian beam envelope dominates the density profile at the length scales relevant to the Michelson percentile metric.
+Contrast is insensitive to coherence length, remaining above 0.96 across the full sweep. At very short L_c (< 100 nm), contrast actually increases slightly to 0.979–0.980. This occurs because the coherence envelope suppresses the outer regions of the beam, effectively concentrating the density and sharpening the contrast metric.
 
-Feature size is the diagnostic that reveals coherence requirements. It remains near 90 nm for L_c above approximately 200 nm (about 2a), then jumps sharply to 260–310 nm as L_c drops below the vortex spacing. The threshold is clear: resolving individual vortex features requires L_c ≥ a.
+Feature size holds steady at 53.3 nm for L_c above approximately 120 nm, then drops to 33–47 nm at shorter coherence lengths. The decrease in measured feature size at short L_c reflects beam constriction rather than improved resolution — the coherence envelope narrows the illuminated area, and the FWHM measurement picks up narrower peaks from the truncated beam profile. The physically meaningful regime is L_c ≥ a ≈ 98 nm, where the beam is coherent over at least one vortex lattice period and the feature size (53 nm) genuinely reflects the holographic pattern.
 
 ## 8. Ablation Study
 
@@ -137,18 +134,18 @@ Five configurations were tested to isolate the contribution of each pipeline com
 
 | Configuration | SSIM vs Full | Contrast | Interpretation |
 |--------------|-------------|----------|---------------|
-| Full pipeline | 1.000 | 0.969 | Reference |
-| No Floquet | 0.961 | 0.968 | Small Floquet contribution |
-| Poor coherence (K=0.5) | 0.828 | 0.968 | Coherence is second-order |
-| No A-B phase | 0.302 | 0.268 | Phase is the primary driver |
-| Sideband n=+2 | 0.092 | 0.994 | Completely different spatial region |
+| Full pipeline | 1.000 | 0.971 | Reference |
+| No Floquet | 0.854 | 0.963 | Floquet adds measurable structure |
+| Poor coherence (K=0.5) | 0.840 | 0.968 | Coherence degradation comparable |
+| No A-B phase | 0.192 | 0.268 | Phase is the primary driver |
+| Sideband n=+2 | 0.118 | 0.998 | Completely different spatial region |
 
 The ablation hierarchy is:
 
-1. **A-B phase imprinting** is the primary mechanism. Removing it collapses the SSIM to 0.30 and contrast to 0.27, producing a featureless Gaussian envelope.
-2. **Beam coherence** is second-order. Poor Kuramoto coupling (K = 0.5, r = 0.085) degrades the SSIM to 0.83 by introducing phase noise that blurs the holographic fringe pattern.
-3. **Floquet dressing** provides refinement. At V_max = 0.9 with the n = 0 filter capturing 95% of the beam, removing Floquet has a small effect (ΔSSIM = 0.039). Its contribution grows when selecting higher-order sidebands.
-4. **Sideband selection** determines spatial placement. Switching from n = 0 to n = +2 gives SSIM = 0.092 against the reference, confirming that different sidebands access spatially distinct substrate regions.
+1. **A-B phase imprinting** is the primary mechanism. Removing it collapses the SSIM to 0.19 and contrast to 0.27, producing a featureless Gaussian envelope. The ΔSSIM of +0.809 is the largest single-factor effect.
+2. **Beam coherence** has a significant impact. Poor Kuramoto coupling (K = 0.5, r = 0.085) degrades the SSIM to 0.840 (ΔSSIM = +0.160) by introducing phase noise that blurs the holographic fringe pattern.
+3. **Floquet dressing** provides comparable structure. Removing Floquet drops the SSIM to 0.854 (ΔSSIM = +0.146), indicating that the sideband decomposition shapes the deposition pattern beyond what the raw phase map provides. This is a meaningful effect due to the strong phase range (φ up to ±5.70), which populates higher sidebands and gives the Floquet filter something to work with.
+4. **Sideband selection** determines spatial placement. Switching from n = 0 to n = +2 gives SSIM = 0.118 (ΔSSIM = +0.882), confirming that different sidebands access spatially distinct substrate regions.
 
 ## 9. Known Limitations and Future Work
 
@@ -162,7 +159,7 @@ The ablation hierarchy is:
 
 ## 10. Conclusions
 
-The v9 simulation corrects three fundamental errors in the lattice caging stage and demonstrates a complete, self-consistent pipeline from beam preparation through topologically protected deposition. The 2D diamond network provides genuine Aharonov-Bohm caging with exactly 3 unique eigenvalues at Φ = π, perfect spatial localization (1.0), and robust pattern protection under disorder (87% retention at W = 2J). The multi-species deposition demonstrates deterministic spatial sorting of two atomic species through a single substrate pass, and the ablation study confirms that A-B phase imprinting is the primary patterning mechanism.
+The v9 simulation corrects three fundamental errors in the lattice caging stage and demonstrates a complete, self-consistent pipeline from beam preparation through topologically protected deposition. The 2D diamond network provides genuine Aharonov-Bohm caging with exactly 3 unique eigenvalues at Φ = π, perfect spatial localization (1.0), and robust pattern protection under disorder (89% retention at W = 2J). The multi-species deposition demonstrates deterministic spatial sorting of two atomic species through a single substrate pass (SSIM = 0.118), and the ablation study confirms that A-B phase imprinting is the primary patterning mechanism (ΔSSIM = 0.809), with Floquet dressing and beam coherence providing secondary contributions of comparable magnitude (ΔSSIM ≈ 0.15 each).
 
 ## Appendix: Simulation Parameters
 
