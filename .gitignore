@@ -1,2 +1,3 @@
 src/results/
 .claude
+__pycache__
