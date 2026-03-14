@@ -62,12 +62,14 @@ Pipeline (v9):
 import os
 import sys
 import numpy as np
-from scipy.ndimage import gaussian_filter, maximum_filter, zoom
+from scipy.ndimage import gaussian_filter
 from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import warnings
 warnings.filterwarnings('ignore')
+
+from diamond_caging import DiamondNetworkSimulator
 
 os.makedirs('results', exist_ok=True)
 
@@ -111,89 +113,6 @@ def validate_floquet(N_side=2, V_frac=0.9, abort_on_fail=True):
 
 
 # ===========================================================================
-# 2D DIAMOND NETWORK VALIDATION  (replaces Lieb lattice validation)
-# ===========================================================================
-
-def build_2d_diamond_hamiltonian(Lx, Ly, phi, J=1.0, disorder_W=0.0):
-    """
-    2D Diamond network with Aharonov-Bohm flux.
-
-    Unit cell (5 sites):
-      A  — hub site at square lattice vertex
-      Bu, Bd — upper/lower path on horizontal bond (A → A_right)
-      Cu, Cd — upper/lower path on vertical   bond (A → A_up)
-
-    Each diamond (4 bonds forming a rhombus) encloses flux phi.
-    Phase distributed symmetrically: ±phi/4 per bond.
-
-    At phi=π:  all bands flat → complete AB caging.
-    At phi=0:  dispersive bands → free propagation.
-    """
-    n_sites = 5
-    dim = n_sites * Lx * Ly
-    H = np.zeros((dim, dim), dtype=complex)
-
-    def s(ix, iy, t):
-        return n_sites * ((ix % Lx) * Ly + (iy % Ly)) + t
-
-    p  = np.exp( 1j * phi / 4)
-    pc = np.exp(-1j * phi / 4)
-
-    for ix in range(Lx):
-        for iy in range(Ly):
-            ix1 = (ix + 1) % Lx
-            iy1 = (iy + 1) % Ly
-            a  = s(ix, iy, 0)
-            bu = s(ix, iy, 1);  bd = s(ix, iy, 2)
-            cu = s(ix, iy, 3);  cd = s(ix, iy, 4)
-            a_right = s(ix1, iy, 0)
-            a_up    = s(ix, iy1, 0)
-
-            # Horizontal diamond:  A —(Bu,Bd)— A_right
-            H[a,  bu] = J * p;   H[bu, a]  = J * pc
-            H[a,  bd] = J * pc;  H[bd, a]  = J * p
-            H[bu, a_right] = J * p;   H[a_right, bu] = J * pc
-            H[bd, a_right] = J * pc;  H[a_right, bd] = J * p
-
-            # Vertical diamond:  A —(Cu,Cd)— A_up
-            H[a,  cu] = J * p;   H[cu, a]  = J * pc
-            H[a,  cd] = J * pc;  H[cd, a]  = J * p
-            H[cu, a_up] = J * p;   H[a_up, cu] = J * pc
-            H[cd, a_up] = J * pc;  H[a_up, cd] = J * p
-
-    # On-site disorder
-    if disorder_W > 0:
-        dis = np.random.uniform(-disorder_W / 2, disorder_W / 2, dim)
-        np.fill_diagonal(H, H.diagonal() + dis)
-
-    return H
-
-
-def validate_diamond_spectrum(Lx, Ly, phi=np.pi, J=1.0, abort_on_fail=True):
-    """
-    Hard gate: at Φ=π, the 2D diamond network must have exactly
-    3 unique eigenvalues (all 5 bands flat).
-
-    Expected band energies: {−2√2, 0, +2√2} · J ≈ {−2.83, 0, +2.83}.
-    """
-    H = build_2d_diamond_hamiltonian(Lx, Ly, phi, J)
-    evals = np.linalg.eigvalsh(H)
-    n_uniq = len(np.unique(np.round(evals, 2)))
-    ok = n_uniq <= 5  # 3 ideal; allow small rounding tolerance
-
-    print(f"\n  DIAMOND SPECTRUM CHECK  ({Lx}×{Ly}, Φ={phi/np.pi:.1f}π)")
-    print(f"  Unique eigenvalues: {n_uniq}  "
-          f"({'OK (all flat)' if ok else 'FAIL'})")
-    if ok:
-        bands = np.unique(np.round(evals, 2))
-        print(f"  Band energies: {bands}")
-    if not ok and abort_on_fail:
-        sys.exit(f"ABORT: Diamond flat-band check failed "
-                 f"({n_uniq} unique eigenvalues, need ≤5).")
-    return ok, H, evals
-
-
-# ===========================================================================
 # CORE SIMULATOR
 # ===========================================================================
 
@@ -223,8 +142,6 @@ class IntegratedQuantumSubstrate:
 
         self.Lx        = N_diamond_cells_x
         self.Ly        = N_diamond_cells_y
-        self.n_sites   = 5   # sites per unit cell for diamond network
-        self.lattice_dim = self.n_sites * self.Lx * self.Ly
 
     def info(self):
         print("=" * 65)
@@ -308,7 +225,7 @@ class IntegratedQuantumSubstrate:
                         theta = np.arctan2(Y-y0, X-x0)
                         sign  = (-1)**(i + j)
                         w     = 1 - np.exp(-R**2 / (2*core**2))
-                        phase += sign * np.pi * theta / (2*np.pi) * w
+                        phase += sign * theta * w
                         count += 1
             if verbose:
                 print(f"    Vortex lattice: a={a*1e9:.1f}nm "
@@ -365,7 +282,8 @@ class IntegratedQuantumSubstrate:
         if verbose:
             print("\n  STAGE 2: Spatial Floquet dressing")
 
-        V_map     = V_max * np.abs(phase_map) / (np.abs(phase_map).max() + 1e-30)
+        V_map_raw = np.sin(phase_map / 2)**2
+        V_map     = V_max * V_map_raw / (V_map_raw.max() + 1e-30)
         V_levels  = np.linspace(0.0, V_max, n_levels + 1)
         V_indices = np.clip(np.digitize(V_map, V_levels) - 1, 0, n_levels - 1)
 
@@ -436,154 +354,6 @@ class IntegratedQuantumSubstrate:
         return psi_ads, ads_frac, weights
 
     # -----------------------------------------------------------------------
-    # STAGE 4: 2D Diamond Network AB caging  (replaces Lieb lattice)
-    # -----------------------------------------------------------------------
-    def _diamond_site(self, ix, iy, t):
-        """Map (cell_x, cell_y, sublattice) → flat index."""
-        return self.n_sites * ((ix % self.Lx) * self.Ly + (iy % self.Ly)) + t
-
-    def stage4_diamond_caging(self, density_2d, phi_cage=np.pi,
-                               J_hop=1.0, T_evolve=40, dt=0.05,
-                               n_peaks=16, disorder_W=0.0,
-                               verbose=True):
-        """
-        2D Diamond network AB caging.
-
-        At Φ=π: all bands flat → state spatially caged.
-        At Φ=0: dispersive → state diffuses.
-
-        Loads deposition density peaks onto A-sites (sublattice 0).
-        Measures: fidelity (overlap), RMS spread, localization probability.
-        """
-        if verbose:
-            print(f"\n  STAGE 4: 2D Diamond caging  "
-                  f"[Φ={phi_cage/np.pi:.2f}π, "
-                  f"{self.Lx}×{self.Ly}"
-                  + (f", W={disorder_W:.2f}J" if disorder_W > 0 else "") + "]")
-
-        Lx, Ly = self.Lx, self.Ly
-        dim = self.lattice_dim
-        s = self._diamond_site
-
-        # Build Hamiltonian
-        H = build_2d_diamond_hamiltonian(Lx, Ly, phi_cage, J_hop,
-                                          disorder_W=disorder_W)
-
-        # Spectrum check (clean Φ=π only)
-        flat_ok = True
-        if abs(phi_cage - np.pi) < 0.01 and disorder_W == 0:
-            evals_chk = np.linalg.eigvalsh(H)
-            n_uniq    = len(np.unique(np.round(evals_chk, 2)))
-            flat_ok   = (n_uniq <= 5)
-            if verbose:
-                print(f"    Spectrum: {n_uniq} unique eigenvalues  "
-                      f"({'ALL FLAT OK' if flat_ok else 'FAIL'})")
-                if flat_ok:
-                    bv = np.unique(np.round(evals_chk, 2))
-                    print(f"    Band energies: {bv}")
-
-        # Peak-load 2D density onto A-sites
-        scale_x = Lx / self.N
-        scale_y = Ly / self.N
-        density_ds = np.maximum(zoom(density_2d, (scale_x, scale_y),
-                                      order=1), 0)
-        d_smooth   = gaussian_filter(density_ds, sigma=1)
-        local_max  = maximum_filter(d_smooth, size=3) == d_smooth
-        peak_mask  = local_max & (d_smooth > 0.1 * d_smooth.max())
-        peak_idx   = np.argwhere(peak_mask)
-        peak_vals  = d_smooth[peak_mask]
-        order_     = np.argsort(peak_vals)[::-1]
-        peak_idx   = peak_idx[order_[:n_peaks]]
-
-        psi_lattice = np.zeros(dim, dtype=complex)
-        for px, py in peak_idx:
-            ix_ = min(px, Lx - 1)
-            iy_ = min(py, Ly - 1)
-            psi_lattice[s(ix_, iy_, 0)] += np.sqrt(d_smooth[px, py])
-
-        norm = np.sqrt(np.sum(np.abs(psi_lattice)**2))
-        if norm < 1e-12:
-            for ix_ in range(Lx):
-                for iy_ in range(Ly):
-                    psi_lattice[s(ix_, iy_, 0)] = 1.0 / np.sqrt(Lx * Ly)
-        else:
-            psi_lattice /= norm
-
-        psi0_lattice = psi_lattice.copy()
-        init_dens = np.abs(psi_lattice)**2
-
-        # Exact time evolution via eigendecomposition
-        evals_H, evecs_H = np.linalg.eigh(H)
-        times  = np.arange(0, T_evolve, dt)
-        fid_h, spr_h, loc_h, snaps = [], [], [], []
-        snap_t = [0, T_evolve * 0.25, T_evolve * 0.5, T_evolve]
-
-        site_x = np.zeros(dim, dtype=float)
-        site_y = np.zeros(dim, dtype=float)
-        for ix_ in range(Lx):
-            for iy_ in range(Ly):
-                for t_ in range(self.n_sites):
-                    site_x[s(ix_, iy_, t_)] = float(ix_)
-                    site_y[s(ix_, iy_, t_)] = float(iy_)
-
-        # Build localization mask: sites within ±1 cell of any peak
-        local_mask = np.zeros(dim, dtype=bool)
-        for px, py in peak_idx:
-            ix_ = min(px, Lx - 1)
-            iy_ = min(py, Ly - 1)
-            for dx in [-1, 0, 1]:
-                for dy in [-1, 0, 1]:
-                    for t_ in range(self.n_sites):
-                        local_mask[s(ix_ + dx, iy_ + dy, t_)] = True
-
-        coeff = evecs_H.conj().T @ psi_lattice
-
-        for t in times:
-            psi_t = evecs_H @ (np.exp(-1j * evals_H * t) * coeff)
-            probs = np.abs(psi_t)**2
-            fid_h.append(np.abs(np.dot(psi0_lattice.conj(), psi_t))**2)
-            mu_x  = np.dot(site_x, probs)
-            mu_y  = np.dot(site_y, probs)
-            spr_h.append(np.sqrt(np.dot(
-                (site_x - mu_x)**2 + (site_y - mu_y)**2, probs)))
-            loc_h.append(np.sum(probs[local_mask]))
-            for st in snap_t:
-                if abs(t - st) < dt / 2:
-                    ad = np.zeros((Lx, Ly))
-                    for ixx in range(Lx):
-                        for iyy in range(Ly):
-                            ad[ixx, iyy] = probs[s(ixx, iyy, 0)]
-                    snaps.append((t, ad.copy()))
-
-        final_fid = fid_h[-1]
-        final_loc = loc_h[-1]
-        if verbose:
-            print(f"    {len(peak_idx)} peaks loaded onto A-sites")
-            print(f"    Fidelity:      {final_fid:.4f}  "
-                  f"({'PRESERVED' if final_fid > 0.5 else 'decayed'})")
-            print(f"    Localization:  {final_loc:.4f}  "
-                  f"({'CAGED' if final_loc > 0.8 else 'spread'})")
-            print(f"    Spread: {spr_h[0]:.2f} → {spr_h[-1]:.2f}  "
-                  f"(Δ={spr_h[-1]-spr_h[0]:+.2f} cells)")
-
-        init_2d = np.zeros((Lx, Ly))
-        for ix_ in range(Lx):
-            for iy_ in range(Ly):
-                init_2d[ix_, iy_] = init_dens[s(ix_, iy_, 0)]
-
-        return {
-            'times':         times,
-            'fidelity':      np.array(fid_h),
-            'spread':        np.array(spr_h),
-            'localization':  np.array(loc_h),
-            'init_2d':       init_2d,
-            'snapshots':     snaps,
-            'phi':           phi_cage,
-            'n_peaks':       len(peak_idx),
-            'flat_ok':       flat_ok,
-        }
-
-    # -----------------------------------------------------------------------
     # Propagator
     # -----------------------------------------------------------------------
     def _propagate(self, psi, distance):
@@ -629,9 +399,10 @@ class IntegratedQuantumSubstrate:
         density_prop  = np.abs(psi_prop)**2
         density_final = np.abs(psi_ads)**2
 
-        cage_pi = self.stage4_diamond_caging(
+        diamond_sim = DiamondNetworkSimulator(Lx=self.Lx, Ly=self.Ly, N_grid=self.N)
+        cage_pi = diamond_sim.evolve_caging(
             density_final, phi_cage=np.pi, verbose=verbose)
-        cage_0  = self.stage4_diamond_caging(
+        cage_0  = diamond_sim.evolve_caging(
             density_final, phi_cage=0.0, verbose=verbose)
 
         return {
@@ -817,15 +588,17 @@ def disorder_robustness(seed=42, n_W=10, W_max=2.0, T_evolve=40):
     loc_pi, loc_0 = [], []
     n_trials = 5
 
+    diamond_sim = DiamondNetworkSimulator(Lx=sim.Lx, Ly=sim.Ly, N_grid=sim.N)
+
     for W in W_values:
         fp_t, f0_t = [], []
         lp_t, l0_t = [], []
         for trial in range(n_trials):
             np.random.seed(seed + trial * 100)
-            r_pi = sim.stage4_diamond_caging(
+            r_pi = diamond_sim.evolve_caging(
                 density, phi_cage=np.pi, T_evolve=T_evolve,
                 disorder_W=W, verbose=False)
-            r_0  = sim.stage4_diamond_caging(
+            r_0  = diamond_sim.evolve_caging(
                 density, phi_cage=0.0, T_evolve=T_evolve,
                 disorder_W=W, verbose=False)
             fp_t.append(r_pi['fidelity'][-1])
@@ -1553,7 +1326,7 @@ def main():
     print("STEP 0: VALIDATION GATES")
     print("="*65)
     validate_floquet(N_side=2, V_frac=0.9, abort_on_fail=True)
-    validate_diamond_spectrum(Lx=4, Ly=4, phi=np.pi, abort_on_fail=True)
+    DiamondNetworkSimulator(Lx=4, Ly=4).validate_spectrum(phi=np.pi, abort_on_fail=True)
 
     # ── Main pipeline ─────────────────────────────────────────────────
     print("\n" + "="*65)

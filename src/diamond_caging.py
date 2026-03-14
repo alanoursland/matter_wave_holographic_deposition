@@ -97,9 +97,9 @@ class DiamondNetworkSimulator:
             
         return ok, H, evals
 
-    def evolve_caging(self, density_2d: np.ndarray, phi_cage: float = np.pi, 
-                      J_hop: float = 1.0, T_evolve: float = 40.0, dt: float = 0.05, 
-                      n_peaks: int = 16, disorder_W: float = 0.0, 
+    def evolve_caging(self, density_2d: np.ndarray, phi_cage: float = np.pi,
+                      J_hop: float = 1.0, T_evolve: float = 40.0, dt: float = 0.05,
+                      n_peaks: int = 16, disorder_W: float = 0.0,
                       disorder_frac: float = 1.0, verbose: bool = True) -> Dict[str, Any]:
         """
         Executes time evolution, correctly loading the peaks onto the A (hub) sites.
@@ -108,65 +108,114 @@ class DiamondNetworkSimulator:
             print(f"\n  STAGE 4: 2D Diamond Caging  [Φ={phi_cage/np.pi:.2f}π, "
                   f"{self.Lx}×{self.Ly}" + (f", W={disorder_W:.2f}J" if disorder_W > 0 else "") + "]")
 
-        try:
-            flat_ok, H, evals_H = self.validate_spectrum(phi=phi_cage, J=J_hop, abort_on_fail=False)
-        except RuntimeError:
-            flat_ok = False
-            H = self.build_hamiltonian(phi_cage, J_hop, disorder_W, disorder_frac)
+        Lx, Ly = self.Lx, self.Ly
 
-        scale_x = self.Lx / self.N_grid
-        scale_y = self.Ly / self.N_grid
+        # Spectrum check (clean Φ=π only)
+        flat_ok = True
+        if abs(phi_cage - np.pi) < 0.01 and disorder_W == 0:
+            flat_ok, _, _ = self.validate_spectrum(phi=phi_cage, J=J_hop, abort_on_fail=False)
+
+        # Build the actual Hamiltonian (with disorder if requested)
+        H = self.build_hamiltonian(phi=phi_cage, J=J_hop,
+                                   disorder_W=disorder_W,
+                                   disorder_frac=disorder_frac)
+
+        scale_x = Lx / self.N_grid
+        scale_y = Ly / self.N_grid
         density_ds = np.maximum(zoom(density_2d, (scale_x, scale_y), order=1), 0)
         d_smooth = gaussian_filter(density_ds, sigma=1)
-        
+
         local_max = maximum_filter(d_smooth, size=3) == d_smooth
         peak_mask = local_max & (d_smooth > 0.1 * d_smooth.max())
         peak_idx = np.argwhere(peak_mask)
         peak_vals = d_smooth[peak_mask]
-        
+
         order_ = np.argsort(peak_vals)[::-1]
         peak_idx = peak_idx[order_[:n_peaks]]
 
         psi_diamond = np.zeros(self.dim, dtype=complex)
         for px, py in peak_idx:
-            ix_ = min(px, self.Lx - 1)
-            iy_ = min(py, self.Ly - 1)
-            # Load directly onto the A-sites (t=0)
+            ix_ = min(px, Lx - 1)
+            iy_ = min(py, Ly - 1)
             psi_diamond[self._site(ix_, iy_, 0)] += np.sqrt(d_smooth[px, py])
 
         norm = np.linalg.norm(psi_diamond)
         if norm < 1e-12:
-            psi_diamond[::5] = 1.0 / np.sqrt(self.Lx * self.Ly)
+            psi_diamond[::5] = 1.0 / np.sqrt(Lx * Ly)
         else:
             psi_diamond /= norm
 
         psi0_diamond = psi_diamond.copy()
-        
+        init_dens = np.abs(psi_diamond)**2
+
         evals_H, evecs_H = np.linalg.eigh(H)
         times = np.arange(0, T_evolve, dt)
-        fid_h, spr_h = [], []
+        fid_h, spr_h, loc_h, snaps = [], [], [], []
+        snap_t = [0, T_evolve * 0.25, T_evolve * 0.5, T_evolve]
 
-        # Map sites to approximate spatial coordinates for spread calculation
-        site_x = np.array([ix + (0.5 if t in [1,2] else 0.0) for ix in range(self.Lx) for iy in range(self.Ly) for t in range(5)])
-        site_y = np.array([iy + (0.5 if t in [3,4] else 0.0) for ix in range(self.Lx) for iy in range(self.Ly) for t in range(5)])
+        site_x = np.zeros(self.dim, dtype=float)
+        site_y = np.zeros(self.dim, dtype=float)
+        for ix_ in range(Lx):
+            for iy_ in range(Ly):
+                for t_ in range(5):
+                    site_x[self._site(ix_, iy_, t_)] = float(ix_)
+                    site_y[self._site(ix_, iy_, t_)] = float(iy_)
+
+        # Localization mask: sites within ±1 cell of any peak
+        local_mask = np.zeros(self.dim, dtype=bool)
+        for px, py in peak_idx:
+            ix_ = min(px, Lx - 1)
+            iy_ = min(py, Ly - 1)
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    for t_ in range(5):
+                        local_mask[self._site((ix_ + dx) % Lx, (iy_ + dy) % Ly, t_)] = True
 
         coeff = evecs_H.conj().T @ psi_diamond
 
         for t in times:
             psi_t = evecs_H @ (np.exp(-1j * evals_H * t) * coeff)
             probs = np.abs(psi_t)**2
-            
+
             fid_h.append(np.abs(np.dot(psi0_diamond.conj(), psi_t))**2)
-            
+
             mu_x = np.dot(site_x, probs)
             mu_y = np.dot(site_y, probs)
             spr_h.append(np.sqrt(np.dot((site_x - mu_x)**2 + (site_y - mu_y)**2, probs)))
+            loc_h.append(np.sum(probs[local_mask]))
+
+            for st in snap_t:
+                if abs(t - st) < dt / 2:
+                    ad = np.zeros((Lx, Ly))
+                    for ixx in range(Lx):
+                        for iyy in range(Ly):
+                            ad[ixx, iyy] = probs[self._site(ixx, iyy, 0)]
+                    snaps.append((t, ad.copy()))
+
+        final_fid = fid_h[-1]
+        final_loc = loc_h[-1]
+        if verbose:
+            print(f"    {len(peak_idx)} peaks loaded onto A-sites")
+            print(f"    Fidelity:      {final_fid:.4f}  "
+                  f"({'PRESERVED' if final_fid > 0.5 else 'decayed'})")
+            print(f"    Localization:  {final_loc:.4f}  "
+                  f"({'CAGED' if final_loc > 0.8 else 'spread'})")
+            print(f"    Spread: {spr_h[0]:.2f} → {spr_h[-1]:.2f}  "
+                  f"(Δ={spr_h[-1]-spr_h[0]:+.2f} cells)")
+
+        init_2d = np.zeros((Lx, Ly))
+        for ix_ in range(Lx):
+            for iy_ in range(Ly):
+                init_2d[ix_, iy_] = init_dens[self._site(ix_, iy_, 0)]
 
         return {
-            'times': times,
-            'fidelity': np.array(fid_h),
-            'spread': np.array(spr_h),
-            'phi': phi_cage,
-            'n_peaks': len(peak_idx),
-            'flat_ok': flat_ok,
+            'times':         times,
+            'fidelity':      np.array(fid_h),
+            'spread':        np.array(spr_h),
+            'localization':  np.array(loc_h),
+            'init_2d':       init_2d,
+            'snapshots':     snaps,
+            'phi':           phi_cage,
+            'n_peaks':       len(peak_idx),
+            'flat_ok':       flat_ok,
         }
