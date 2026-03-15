@@ -62,6 +62,7 @@ Pipeline (v9):
 import os
 import sys
 import numpy as np
+import torch
 from scipy.ndimage import gaussian_filter
 from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
@@ -70,6 +71,9 @@ import warnings
 warnings.filterwarnings('ignore')
 
 from diamond_caging import DiamondNetworkSimulator
+
+# GPU device selection
+_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 os.makedirs('results', exist_ok=True)
 
@@ -83,33 +87,36 @@ m_He = 6.6464731e-27
 # ===========================================================================
 
 def validate_floquet(N_side=2, V_frac=0.9, abort_on_fail=True):
-    n_vals = np.arange(-N_side, N_side + 1, dtype=float)
+    n_vals = torch.arange(-N_side, N_side + 1, dtype=torch.float64, device=_device)
     fl_dim = len(n_vals)
-    H = np.diag(n_vals.copy())
+    H = torch.diag(n_vals.clone()).to(dtype=torch.complex128)
     for i in range(fl_dim - 1):
         H[i, i+1] = H[i+1, i] = V_frac
-    evals, evecs = np.linalg.eigh(H)
-    U     = evecs @ np.diag(np.exp(-1j * evals * 2*np.pi)) @ evecs.conj().T
-    psi0  = np.zeros(fl_dim, dtype=complex)
+    evals, evecs = torch.linalg.eigh(H)
+    U     = evecs @ torch.diag(torch.exp(-1j * evals * 2*np.pi)) @ evecs.conj().T
+    psi0  = torch.zeros(fl_dim, dtype=torch.complex128, device=_device)
     psi0[N_side] = 1.0
     c_n   = U @ psi0
-    pops  = np.abs(c_n)**2
-    u_err = np.max(np.abs(U @ U.conj().T - np.eye(fl_dim)))
-    pnz   = pops[pops > 1e-12]
-    S     = -np.sum(pnz * np.log(pnz))
+    pops  = torch.abs(c_n)**2
+    u_err = float(torch.max(torch.abs(U @ U.conj().T - torch.eye(fl_dim, dtype=torch.complex128, device=_device))).item())
+    pops_np = pops.cpu().numpy()
+    pnz   = pops_np[pops_np > 1e-12]
+    S     = float(-np.sum(pnz * np.log(pnz)))
     ok    = (u_err < 1e-12 and S > 0.1 and S < np.log(fl_dim))
 
+    n_vals_np = n_vals.cpu().numpy()
     print("\n  FLOQUET VALIDATION")
-    print(f"  N_side={N_side}, V={V_frac:.2f}ℏω")
+    print(f"  N_side={N_side}, V={V_frac:.2f}hbar*omega")
     print(f"  Unitarity err: {u_err:.2e}  {'OK' if u_err<1e-12 else 'FAIL'}")
     print(f"  Entropy: {S:.4f}  (bounds: 0.1 < S < {np.log(fl_dim):.2f})")
     pop_str = '  '.join(f'n={int(n):+d}:{p:.3f}'
-                         for n, p in zip(n_vals, pops))
+                         for n, p in zip(n_vals_np, pops_np))
     print(f"  Pops: {pop_str}")
     print(f"  Validation: {'PASS' if ok else 'FAIL'}")
     if not ok and abort_on_fail:
         sys.exit("ABORT: Floquet validation failed.")
-    return ok, c_n, S
+    c_n_np = c_n.cpu().numpy()
+    return ok, c_n_np, S
 
 
 # ===========================================================================
@@ -143,6 +150,10 @@ class IntegratedQuantumSubstrate:
         self.Lx        = N_diamond_cells_x
         self.Ly        = N_diamond_cells_y
 
+        # GPU grid tensors for vectorized stages
+        self.X_t = torch.tensor(self.X, dtype=torch.float64, device=_device)
+        self.Y_t = torch.tensor(self.Y, dtype=torch.float64, device=_device)
+
     def info(self):
         print("=" * 65)
         print("INTEGRATED QUANTUM SUBSTRATE  v9")
@@ -152,7 +163,8 @@ class IntegratedQuantumSubstrate:
         print(f"  Grid: {self.N}×{self.N}, dx={self.dx*1e9:.2f}nm, "
               f"λ/dx={self.lam/self.dx:.1f}")
         print(f"  Floquet: N_side={self.N_side}, spatial dressing")
-        print(f"  2D Diamond: {self.Lx}×{self.Ly} (AB caging)")
+        print(f"  2D Diamond: {self.Lx}x{self.Ly} (AB caging)")
+        print(f"  PyTorch device: {_device}")
 
     # -----------------------------------------------------------------------
     # STAGE 0: Beam + Kuramoto
@@ -178,18 +190,21 @@ class IntegratedQuantumSubstrate:
 
         r     = order_hist[-1]
         sigma = 0.35 * self.L
-        psi   = (np.exp(-(self.X**2 + self.Y**2) / (2*sigma**2))
-                 * np.exp(1j * self.k0 * self.X))
+        psi_t = (torch.exp(-(self.X_t**2 + self.Y_t**2) / (2*sigma**2))
+                 * torch.exp(1j * self.k0 * self.X_t))
 
+        # gaussian_filter requires CPU/numpy
         noise = (1 - r) * np.random.normal(0, np.pi, (self.N, self.N))
         noise = gaussian_filter(noise, sigma=3)
-        psi  *= np.exp(1j * noise)
+        noise_t = torch.tensor(noise, dtype=torch.float64, device=_device)
+        psi_t = psi_t * torch.exp(1j * noise_t)
 
         if L_coherence is not None:
-            R2 = self.X**2 + self.Y**2
-            psi *= np.exp(-R2 / (2 * L_coherence**2))
+            R2_t = self.X_t**2 + self.Y_t**2
+            psi_t = psi_t * torch.exp(-R2_t / (2 * L_coherence**2))
 
-        psi /= np.sqrt(np.sum(np.abs(psi)**2) * self.dx**2)
+        psi_t = psi_t / torch.sqrt(torch.sum(torch.abs(psi_t)**2) * self.dx**2)
+        psi = psi_t.cpu().numpy()
 
         if verbose:
             lc_str = (f", L_c={L_coherence*1e9:.0f}nm"
@@ -215,21 +230,36 @@ class IntegratedQuantumSubstrate:
             a    = kw.get('a',    2 * self.lam)
             core = kw.get('core', 0.6 * self.lam)
             n_max = int(self.L / (2 * a)) + 2
-            count = 0
-            for i in range(-n_max, n_max + 1):
-                for j in range(-n_max, n_max + 1):
-                    x0 = a * (i + 0.5 * (j % 2))
-                    y0 = a * np.sqrt(3) / 2 * j
-                    if abs(x0) < self.L/2*1.1 and abs(y0) < self.L/2*1.1:
-                        R     = np.sqrt((X-x0)**2 + (Y-y0)**2 + 1e-30)
-                        theta = np.arctan2(Y-y0, X-x0)
-                        sign  = (-1)**(i + j)
-                        phase += sign * theta
-                        count += 1
+
+            # Build vortex center arrays
+            i_vals = np.arange(-n_max, n_max + 1)
+            j_vals = np.arange(-n_max, n_max + 1)
+            II, JJ = np.meshgrid(i_vals, j_vals, indexing='ij')
+            II_f = II.ravel()
+            JJ_f = JJ.ravel()
+            x0_all = a * (II_f + 0.5 * (JJ_f % 2))
+            y0_all = a * np.sqrt(3) / 2 * JJ_f
+            signs  = np.where((II_f + JJ_f) % 2 == 0, 1.0, -1.0)
+
+            # Filter to vortices inside domain
+            keep = (np.abs(x0_all) < self.L/2*1.1) & (np.abs(y0_all) < self.L/2*1.1)
+            x0_v = torch.tensor(x0_all[keep], dtype=torch.float64, device=_device)
+            y0_v = torch.tensor(y0_all[keep], dtype=torch.float64, device=_device)
+            signs_v = torch.tensor(signs[keep], dtype=torch.float64, device=_device)
+            count = int(keep.sum())
+
+            # Vectorized: broadcasting over (N, N, V) then sum over V
+            # X_t, Y_t: (N, N) -> (N, N, 1);  x0_v: (V,) -> (1, 1, V)
+            dx = self.X_t.unsqueeze(-1) - x0_v  # (N, N, V)
+            dy = self.Y_t.unsqueeze(-1) - y0_v
+            theta_all = torch.atan2(dy, dx)      # (N, N, V)
+            phase_t = (signs_v * theta_all).sum(dim=-1)  # (N, N)
+            phase = phase_t.cpu().numpy()
+
             if verbose:
                 print(f"    Vortex lattice: a={a*1e9:.1f}nm "
                       f"({count} vortices), "
-                      f"φ∈[{phase.min():.2f},{phase.max():.2f}]")
+                      f"phi in [{phase.min():.2f},{phase.max():.2f}]")
 
         elif pattern == 'ring_array':
             spacing = kw.get('spacing', 3 * self.lam)
@@ -237,39 +267,54 @@ class IntegratedQuantumSubstrate:
             width   = kw.get('width',   0.3 * self.lam)
             flux    = kw.get('flux',    0.5)
             n_max   = int(self.L / (2 * spacing)) + 1
-            count   = 0
-            for i in range(-n_max, n_max + 1):
-                for j in range(-n_max, n_max + 1):
-                    x0, y0 = i*spacing, j*spacing
-                    if abs(x0) < self.L/2*1.1 and abs(y0) < self.L/2*1.1:
-                        R     = np.sqrt((X-x0)**2 + (Y-y0)**2)
-                        theta = np.arctan2(Y-y0, X-x0)
-                        w     = np.exp(-(R - r_ring)**2 / (2*width**2))
-                        phase += w * flux * theta
-                        count += 1
+
+            i_vals = np.arange(-n_max, n_max + 1)
+            j_vals = np.arange(-n_max, n_max + 1)
+            II, JJ = np.meshgrid(i_vals, j_vals, indexing='ij')
+            x0_all = (II * spacing).ravel()
+            y0_all = (JJ * spacing).ravel()
+            keep = (np.abs(x0_all) < self.L/2*1.1) & (np.abs(y0_all) < self.L/2*1.1)
+            x0_v = torch.tensor(x0_all[keep], dtype=torch.float64, device=_device)
+            y0_v = torch.tensor(y0_all[keep], dtype=torch.float64, device=_device)
+            count = int(keep.sum())
+
+            dx = self.X_t.unsqueeze(-1) - x0_v
+            dy = self.Y_t.unsqueeze(-1) - y0_v
+            R_all = torch.sqrt(dx**2 + dy**2)
+            theta_all = torch.atan2(dy, dx)
+            w_all = torch.exp(-(R_all - r_ring)**2 / (2*width**2))
+            phase_t = (w_all * flux * theta_all).sum(dim=-1)
+            phase = phase_t.cpu().numpy()
+
             if verbose:
                 print(f"    Ring array: {count} rings")
 
         elif pattern == 'sinusoidal':
             period = kw.get('period', 2 * self.lam)
             amp    = kw.get('amp',    np.pi)
-            phase  = amp * np.cos(2*np.pi*X/period) * np.cos(2*np.pi*Y/period)
+            phase_t = amp * torch.cos(2*np.pi*self.X_t/period) * torch.cos(2*np.pi*self.Y_t/period)
+            phase = phase_t.cpu().numpy()
             if verbose:
                 print(f"    Sinusoidal: period={period*1e9:.1f}nm")
 
         if apodize:
             margin = apod_margin * self.L
-            def _env(coord):
-                d = self.L/2 - np.abs(coord)
-                return np.where(d < margin,
-                    np.cos(np.pi/2 * (margin - d) / margin)**2, 1.0)
-            env = _env(X) * _env(Y)
-            phase = phase * env
+            phase_t = torch.tensor(phase, dtype=torch.float64, device=_device)
+            def _env_t(coord_t):
+                d = self.L/2 - torch.abs(coord_t)
+                return torch.where(d < margin,
+                    torch.cos(torch.tensor(np.pi/2) * (margin - d) / margin)**2,
+                    torch.ones_like(d))
+            env_t = _env_t(self.X_t) * _env_t(self.Y_t)
+            phase_t = phase_t * env_t
+            phase = phase_t.cpu().numpy()
             if verbose:
                 print(f"    Apodization: margin={apod_margin*100:.0f}% "
-                      f"→ φ∈[{phase.min():.2f},{phase.max():.2f}] after")
+                      f"-> phi in [{phase.min():.2f},{phase.max():.2f}] after")
 
-        psi_out = psi_in * np.exp(1j * phase)
+        psi_in_t = torch.tensor(psi_in, dtype=torch.complex128, device=_device)
+        phase_t = torch.tensor(phase, dtype=torch.float64, device=_device)
+        psi_out = (psi_in_t * torch.exp(1j * phase_t)).cpu().numpy()
         return psi_out, phase
 
     # -----------------------------------------------------------------------
@@ -281,38 +326,55 @@ class IntegratedQuantumSubstrate:
         if verbose:
             print("\n  STAGE 2: Spatial Floquet dressing")
 
-        V_map_raw = np.sin(phase_map / 2)**2
-        V_map     = V_max * V_map_raw / (V_map_raw.max() + 1e-30)
-        V_levels  = np.linspace(0.0, V_max, n_levels + 1)
-        V_indices = np.clip(np.digitize(V_map, V_levels) - 1, 0, n_levels - 1)
+        phase_map_t = torch.tensor(phase_map, dtype=torch.float64, device=_device)
+        V_map_raw_t = torch.sin(phase_map_t / 2)**2
+        V_map_t     = V_max * V_map_raw_t / (V_map_raw_t.max() + 1e-30)
+        V_map       = V_map_t.cpu().numpy()
 
-        c_n_cache = {}
-        for lvl in range(n_levels):
-            V_val = V_levels[lvl]
-            H = np.diag(self.n_vals.copy())
-            for i in range(self.fl_dim - 1):
-                H[i, i+1] = H[i+1, i] = V_val
-            evals, evecs = np.linalg.eigh(H)
-            U  = evecs @ np.diag(np.exp(-1j * evals * 2*np.pi)) @ evecs.conj().T
-            psi0 = np.zeros(self.fl_dim, dtype=complex)
-            psi0[self.N_side] = 1.0
-            c_n_cache[lvl] = U @ psi0
+        V_levels_t = torch.linspace(0.0, V_max, n_levels + 1, dtype=torch.float64, device=_device)
+        V_idx_t    = torch.clamp(torch.bucketize(V_map_t, V_levels_t) - 1, 0, n_levels - 1)
 
-        psi_dressed = np.zeros((self.N, self.N, self.fl_dim), dtype=complex)
-        for lvl in np.unique(V_indices):
-            mask = (V_indices == lvl)
-            c_n  = c_n_cache[int(lvl)]
-            psi_dressed[mask] = psi_in[mask, np.newaxis] * c_n[np.newaxis, :]
+        # Batched Floquet diagonalization on GPU: stack all n_levels Hamiltonians
+        n_vals_t = torch.tensor(self.n_vals, dtype=torch.complex128, device=_device)
+        V_vals_t = V_levels_t[:n_levels].to(dtype=torch.complex128)
 
-        intensity_total = np.sum(np.abs(psi_in)**2) + 1e-30
-        avg_pops = np.zeros(self.fl_dim)
-        for lvl in np.unique(V_indices):
-            mask   = (V_indices == lvl)
-            w      = np.sum(np.abs(psi_in[mask])**2) / intensity_total
-            avg_pops += w * np.abs(c_n_cache[int(lvl)])**2
+        # Build batch of (n_levels, fl_dim, fl_dim) Hamiltonians
+        H_batch = torch.zeros((n_levels, self.fl_dim, self.fl_dim),
+                               dtype=torch.complex128, device=_device)
+        diag_idx = torch.arange(self.fl_dim, device=_device)
+        H_batch[:, diag_idx, diag_idx] = n_vals_t.unsqueeze(0)
+        off_idx = torch.arange(self.fl_dim - 1, device=_device)
+        H_batch[:, off_idx, off_idx + 1] = V_vals_t.unsqueeze(1)
+        H_batch[:, off_idx + 1, off_idx] = V_vals_t.unsqueeze(1)
+
+        evals_b, evecs_b = torch.linalg.eigh(H_batch)  # (n_levels, fl_dim), (n_levels, fl_dim, fl_dim)
+        # Floquet propagator: U = V @ diag(exp(-i*E*2pi)) @ V^H
+        phase_diag = torch.exp(-1j * evals_b * 2 * np.pi)  # (n_levels, fl_dim)
+        # U @ psi0 where psi0 = e_{N_side}
+        # = V @ (phase_diag * V^H[:, N_side])
+        # = V @ (phase_diag * V[N_side, :]^*)
+        vh_col = evecs_b[:, self.N_side, :].conj()  # (n_levels, fl_dim)
+        c_n_all = torch.einsum('bij,bj->bi', evecs_b, phase_diag * vh_col)  # (n_levels, fl_dim)
+
+        # Vectorized dressing using index lookup (V_idx_t already on GPU)
+        psi_in_t = torch.tensor(psi_in, dtype=torch.complex128, device=_device)
+        # c_n for each pixel: (N, N, fl_dim)
+        c_n_map = c_n_all[V_idx_t.reshape(-1).long()].reshape(self.N, self.N, self.fl_dim)
+        psi_dressed_t = psi_in_t.unsqueeze(-1) * c_n_map
+        psi_dressed = psi_dressed_t.cpu().numpy()
+
+        # Beam-averaged populations (fully on GPU)
+        psi_in_abs2 = torch.abs(psi_in_t)**2
+        intensity_total = psi_in_abs2.sum() + 1e-30
+        # For each pixel, get |c_n|^2 from its level: (N, N, fl_dim)
+        c_n_abs2_map = torch.abs(c_n_all[V_idx_t.reshape(-1).long()].reshape(
+            self.N, self.N, self.fl_dim))**2
+        # Weight by pixel intensity and sum: (fl_dim,)
+        avg_pops_t = (psi_in_abs2.unsqueeze(-1) * c_n_abs2_map).sum(dim=(0, 1)) / intensity_total
+        avg_pops = avg_pops_t.cpu().numpy()
 
         pnz     = avg_pops[avg_pops > 1e-12]
-        entropy = -np.sum(pnz * np.log(pnz))
+        entropy = float(-np.sum(pnz * np.log(pnz)))
 
         if verbose:
             print(f"    V_max={V_max:.2f}ℏω, {n_levels} levels")
@@ -337,10 +399,13 @@ class IntegratedQuantumSubstrate:
             width_frac**2 / ((n - n_resonant)**2 + width_frac**2)
             for n in self.n_vals
         ])
-        psi_ads  = np.sum(weights[np.newaxis, np.newaxis, :] * psi_dressed,
-                          axis=2)
-        norm_in  = np.sum(np.abs(psi_dressed)**2) * self.dx**2
-        norm_out = np.sum(np.abs(psi_ads)**2)      * self.dx**2
+        # GPU weighted sum over sideband axis
+        psi_d_t = torch.tensor(psi_dressed, dtype=torch.complex128, device=_device)
+        w_t = torch.tensor(weights, dtype=torch.float64, device=_device)
+        psi_ads_t = (w_t * psi_d_t).sum(dim=-1)
+        psi_ads = psi_ads_t.cpu().numpy()
+        norm_in  = float(torch.sum(torch.abs(psi_d_t)**2).item()) * self.dx**2
+        norm_out = float(torch.sum(torch.abs(psi_ads_t)**2).item()) * self.dx**2
         ads_frac = norm_out / norm_in if norm_in > 0 else 0.0
 
         if verbose:
@@ -356,14 +421,16 @@ class IntegratedQuantumSubstrate:
     # Propagator
     # -----------------------------------------------------------------------
     def _propagate(self, psi, distance):
-        kx = np.fft.fftfreq(self.N, self.dx) * 2*np.pi
-        ky = np.fft.fftfreq(self.N, self.dx) * 2*np.pi
-        KX, KY = np.meshgrid(kx, ky, indexing='ij')
+        psi_t = torch.tensor(psi, dtype=torch.complex128, device=_device)
+        kx = torch.fft.fftfreq(self.N, self.dx, device=_device, dtype=torch.float64) * 2*np.pi
+        ky = torch.fft.fftfreq(self.N, self.dx, device=_device, dtype=torch.float64) * 2*np.pi
+        KX, KY = torch.meshgrid(kx, ky, indexing='ij')
         kz_sq  = self.k0**2 - KX**2 - KY**2
         valid  = kz_sq > 0
-        kz     = np.where(valid, np.sqrt(np.maximum(kz_sq, 0)), 0.0)
-        H_prop = np.where(valid, np.exp(1j * kz * distance), 0.0)
-        return np.fft.ifft2(np.fft.fft2(psi) * H_prop)
+        kz     = torch.where(valid, torch.sqrt(torch.clamp(kz_sq, min=0)), torch.zeros_like(kz_sq))
+        H_prop = torch.where(valid, torch.exp(1j * kz * distance), torch.zeros_like(kz, dtype=torch.complex128))
+        result = torch.fft.ifft2(torch.fft.fft2(psi_t) * H_prop)
+        return result.cpu().numpy()
 
     # -----------------------------------------------------------------------
     # Full pipeline
