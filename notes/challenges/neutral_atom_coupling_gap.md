@@ -12,13 +12,36 @@ The holographic deposition pipeline works in three stages:
 2. That flux is converted into a phase screen applied to the incoming matter wave.
 3. Fresnel propagation carries the phase-modulated wave to a target plane, where interference produces the desired deposition pattern.
 
-Stages 2 and 3 are mathematically sound. The inverse holography solver (Gerchberg-Saxton, gradient descent) correctly finds phase screens that produce target intensity distributions. The angular spectrum propagator correctly models free-space diffraction.
+The beam source is assumed to be an **atom laser** — a coherent outcoupled beam from a Bose-Einstein condensate. This provides the macroscopic spatial coherence required for holographic control: the entire beam occupies a single quantum state, giving a well-defined phase across its full transverse extent. Without this coherence, the phase screen would have nothing to act on.
 
-**The problem is stage 2.** The conversion from magnetic flux to matter-wave phase requires a physical coupling mechanism. The simulation assumes the Aharonov-Bohm effect, which requires electric charge. Helium-4 has none. Until a valid coupling mechanism is identified, the simulation is a self-consistent mathematical framework that does not describe a physical process.
+Stages 2 and 3 are mathematically sound. The inverse holography solver (Gerchberg-Saxton, gradient descent) correctly finds phase screens that produce target intensity distributions. The angular spectrum propagator correctly models free-space diffraction. The atom laser provides a coherent input wavefunction with the long coherence length these algorithms require.
+
+**The problem is stage 2.** The conversion from magnetic flux to matter-wave phase requires a physical coupling mechanism. The simulation assumes the Aharonov-Bohm effect, which requires electric charge. Helium-4 has none. The atom laser solves the coherence problem but not the coupling problem — a perfectly coherent beam of neutral, spin-0 atoms still has no channel through which to acquire a phase from a vector potential.
 
 ---
 
-## 2. The Aharonov-Bohm effect requires charge
+## 2. The beam source: atom lasers and what they provide
+
+An atom laser is the matter-wave analogue of an optical laser. A BEC trapped in a magnetic or optical potential serves as the gain medium; an output coupler (RF spin-flip, Raman transition, or gravity) extracts a coherent beam of atoms that all share the condensate's macroscopic wavefunction.
+
+### What an atom laser gives you
+
+- **First-order coherence** across the full beam cross-section. The mutual coherence function $g^{(1)}(\mathbf{r}_1, \mathbf{r}_2)$ remains close to unity over distances far exceeding the holographic feature size. This is essential — the phase screen imprints a pattern that only produces the correct target intensity if the input beam has a well-defined phase everywhere.
+- **Narrow momentum distribution.** The BEC's momentum width $\Delta p \sim \hbar/R_{\text{TF}}$ (where $R_{\text{TF}}$ is the Thomas-Fermi radius) is far smaller than the thermal spread of a non-condensed beam. This gives a long longitudinal coherence length and minimal chromatic aberration in the Fresnel propagator.
+- **Bosonic statistics.** Multiple atoms occupy the same mode, enabling high flux without degrading coherence. For He-4 (a boson), Bose enhancement in the condensate is natural.
+
+### What an atom laser does NOT give you
+
+- **A coupling mechanism.** Coherence means the atoms respond collectively to a phase perturbation, but it does not create a perturbation where none exists. If the atom has no electromagnetic coupling channel (no charge, no magnetic moment), the SQUID array's flux pattern is invisible to it regardless of how coherent the beam is.
+- **Internal state structure.** A He-4 BEC atom laser produces ground-state $1^1S_0$ atoms. Unlike alkali BECs (which have hyperfine sublevels), He-4 offers no internal degrees of freedom for Raman dressing or spin-dependent potentials.
+
+### Physical Intuition
+
+An atom laser is like a perfectly collimated, monochromatic light beam. It is the ideal input for a hologram. But a hologram still needs a medium that modulates the beam — a glass plate, a spatial light modulator, *something*. The atom laser is the beam; the coupling mechanism is the modulator. We have the beam. We do not have the modulator.
+
+---
+
+## 3. The Aharonov-Bohm effect requires charge
 
 The Aharonov-Bohm (AB) phase acquired by a particle traversing a region with vector potential $\mathbf{A}$ is:
 
@@ -46,7 +69,7 @@ The simulation implicitly sets $q/\hbar = 1$, which has no physical meaning for 
 
 ---
 
-## 3. The Aharonov-Casher effect requires a magnetic moment
+## 4. The Aharonov-Casher effect requires a magnetic moment
 
 The dual of the AB effect for neutral particles is the **Aharonov-Casher (AC) effect** (see `aharonov_bohm_effect.md` §5). A particle with magnetic dipole moment $\boldsymbol{\mu}$ moving through an electric field $\mathbf{E}$ acquires a topological phase:
 
@@ -70,11 +93,11 @@ The AB effect couples to charge. The AC effect couples to magnetic moment. He-4 
 
 ---
 
-## 4. Candidate coupling mechanisms
+## 5. Candidate coupling mechanisms
 
-The holographic machinery (phase retrieval, Fresnel propagation, optimization) is **mechanism-agnostic** — it needs only *some* way to write a spatially varying phase onto the matter wave. The following mechanisms could provide that.
+The holographic machinery (phase retrieval, Fresnel propagation, optimization) is **mechanism-agnostic** — it needs only *some* way to write a spatially varying phase onto the matter wave. The atom laser provides the coherent input. The following mechanisms could provide the missing modulator.
 
-### 4a. AC Stark shift (optical dipole potential)
+### 5a. AC Stark shift (optical dipole potential)
 
 A far-detuned laser field creates a conservative potential for any polarizable atom through the AC Stark effect (see `phase_accumulation_and_scalar_potentials.md` §4):
 
@@ -90,7 +113,7 @@ $$\Delta \varphi(\mathbf{r}) = -\frac{1}{\hbar} V_{\text{dip}}(\mathbf{r}) \cdot
 
 **Experimental challenge:** Generating programmable VUV light patterns at the nanometer scale is extremely difficult. Moving to an alkali species with optical transitions in the visible/NIR would be far more practical.
 
-### 4b. Synthetic gauge fields via Raman dressing
+### 5b. Synthetic gauge fields via Raman dressing
 
 Two counter-propagating laser beams driving a two-photon Raman transition create a momentum-dependent coupling between internal atomic states. In the dressed-state picture, the atom behaves as though it carries an effective charge in an effective vector potential:
 
@@ -100,55 +123,57 @@ where $k_R$ is the Raman recoil wavevector and $f$ depends on the Rabi frequency
 
 $$\Delta \varphi = \frac{m}{\hbar} \int \mathbf{A}_{\text{eff}} \cdot d\mathbf{r}$$
 
-**Works for He-4?** No. Raman coupling requires two or more accessible internal states connected by optical transitions. Ground-state He-4 ($1^1S_0$) is a closed-shell singlet with no low-lying magnetic sublevels.
+**Works for He-4?** No. Raman coupling requires two or more accessible internal states connected by optical transitions. Ground-state He-4 ($1^1S_0$) is a closed-shell singlet with no low-lying magnetic sublevels. A He-4 atom laser cannot be Raman-dressed.
 
-**Works for alkali atoms?** Yes. This is a mature technique for $^{87}$Rb, $^{23}$Na, and other alkalis with hyperfine structure. Spatial patterning of $\Omega(\mathbf{r})$ and $\delta(\mathbf{r})$ gives a programmable gauge field.
+**Works for alkali atom lasers?** Yes. This is a mature technique for $^{87}$Rb, $^{23}$Na, and other alkalis with hyperfine structure. An alkali BEC atom laser would provide both the coherence *and* the internal degrees of freedom needed. Spatial patterning of $\Omega(\mathbf{r})$ and $\delta(\mathbf{r})$ gives a programmable gauge field.
 
-### 4c. Switch to charged species
+### 5c. Switch to a species with electromagnetic coupling
 
-If the beam particle carries electric charge, the existing AB phase formalism is physically valid as written. Options:
+If the atom laser produces particles with charge or a magnetic moment, the existing phase formalism becomes physically valid. The BEC source determines which couplings are available:
 
-- **He$^+$ ions:** $q = e$. Full AB coupling. Straightforward ion optics (well-developed technology). The simulation needs only a charge parameter added to the phase prefactor: $\Delta\varphi = (e/\hbar)\Phi$.
-- **Metastable He$^*$ ($2^3S_1$):** Neutral but has $J=1$, giving a magnetic moment $\mu \approx 2\mu_B$. The Aharonov-Casher effect becomes available. Also has optical transitions at 1083 nm (easily accessible), enabling AC Stark and Raman schemes.
-- **Electrons:** The original AB effect was proposed for electrons. The current simulation parameters (de Broglie wavelength, propagation distances) would need adjustment, but the formalism is exact.
-
-**What changes in the code:** For He$^+$, add a charge parameter to the phase conversion: `screen = (q / hbar) * flux_screen` instead of treating the phase as dimensionless. For He$^*$, choose between AC effect (electric field design) or optical potentials (laser pattern design).
+- **He$^+$ ion beam:** Not a BEC atom laser in the traditional sense (ions in a Paul trap don't easily Bose-condense at high density), but coherent ion sources exist. $q = e$ gives full AB coupling. The simulation needs only a charge parameter: $\Delta\varphi = (e/\hbar)\Phi$.
+- **Metastable He$^*$ ($2^3S_1$) atom laser:** He$^*$ BECs have been demonstrated (Aspect group, Orsay, 2001). The $2^3S_1$ state has $J=1$, giving a magnetic moment $\mu \approx 2\mu_B$. This opens Aharonov-Casher coupling, plus optical transitions at 1083 nm for AC Stark and (in principle) Raman schemes. Retains helium's low mass ($\lambda_{\text{dB}} \approx 49$ nm at 1 mK) and chemical inertness. **This is the most natural extension** — it's still a helium atom laser, but one that can see the SQUID array.
+- **Alkali atom laser ($^{87}$Rb, $^{23}$Na):** The standard platform for atom laser experiments. Rich internal structure enables AC Stark, Raman, and microwave coupling. The tradeoff is different mass and de Broglie wavelength ($\lambda_{\text{dB}} \approx 25$ nm for Rb at 1 $\mu$K), requiring re-parameterization of the simulation.
 
 ---
 
-## 5. Summary
+## 6. Summary
 
-| Mechanism | Works for He-4? | Phase formula | Key requirement | Spatial resolution |
+| Mechanism | Works for He-4 atom laser? | Phase formula | Key requirement | Spatial resolution |
 |-----------|:-:|---|---|---|
 | Aharonov-Bohm | No | $(q/\hbar)\Phi$ | Electric charge | Set by loop pitch |
 | Aharonov-Casher | No | $(\hbar c^2)^{-1}\oint(\mathbf{E}\times\boldsymbol{\mu})\cdot d\mathbf{r}$ | Magnetic moment | Set by electrode geometry |
 | AC Stark shift | Yes (weak) | $-V_{\text{dip}}\tau/\hbar$ | Polarizability + laser | Diffraction limit of light |
 | Raman gauge field | No | $(m/\hbar)\int\mathbf{A}_{\text{eff}}\cdot d\mathbf{r}$ | Internal state structure | Laser wavelength |
-| Charged species (He$^+$) | N/A (different species) | $(e/\hbar)\Phi$ | Ion source + optics | Set by loop pitch |
-| Metastable He$^*$ | N/A (different state) | Multiple options | Metastable source | Depends on mechanism |
+| He$^*$ atom laser + AC | N/A (different state) | Multiple options | Metastable He BEC | Depends on mechanism |
+| Alkali atom laser + Raman | N/A (different species) | $(m/\hbar)\int\mathbf{A}_{\text{eff}}\cdot d\mathbf{r}$ | Alkali BEC source | Laser wavelength |
 
 ---
 
-## 6. Implications for the simulation
+## 7. Implications for the simulation
 
 The inverse holography code (`src/inverse_holography.py`) is already structured in a mechanism-agnostic way: `phases_to_screen` produces a phase map, `phase_screen_to_transmission` converts it to a transmission operator, and the propagator handles the rest. The only mechanism-specific piece is the relationship between the control hardware (SQUID currents, laser intensities, electrode voltages) and the resulting phase map.
+
+The simulation currently models the beam as a Kuramoto-synchronized Gaussian wavepacket (`sim_v9.py`, stage 0). This is a rough stand-in for an atom laser. The key properties it captures — spatial coherence across the beam, narrow momentum distribution, well-defined phase — are the right ones. What it omits (trap geometry, output coupling dynamics, mean-field interactions in the condensate) are upstream details that do not affect the holographic control problem.
 
 The recommended path forward is to:
 
 1. **Acknowledge the gap explicitly** in the simulation output and documentation.
 2. **Parameterize the phase-imprinting stage** so different physical mechanisms can be swapped in without rewriting the holography solver.
-3. **Choose a species/mechanism pair** as the primary design target. The simplest self-consistent options are:
-   - **He$^+$ + AB effect** — minimal code changes, but requires ion optics and charge neutralization at the substrate.
-   - **Alkali atom (e.g. Rb) + AC Stark** — mature experimental techniques, rich internal structure, but different mass and wavelength than He-4.
-   - **He$^*$ ($2^3S_1$) + AC Stark at 1083 nm** — retains helium's low mass and chemical inertness while providing optical access and a magnetic moment.
+3. **Choose a species/mechanism pair** as the primary design target. The BEC source determines the available couplings:
+   - **He$^*$ ($2^3S_1$) atom laser + AC Stark at 1083 nm** — retains helium's low mass and chemical inertness, provides optical access and a magnetic moment, demonstrated BEC source. Most natural evolution of the current design.
+   - **Alkali atom laser (Rb) + Raman gauge field** — most mature experimental platform, richest control toolbox, but different mass and wavelength.
+   - **He$^+$ ion beam + AB effect** — minimal code changes, but moves away from the atom-laser paradigm.
 
 The choice among these is a physics and engineering decision, not a computational one. The simulation framework accommodates all of them.
 
 ---
 
-## 7. What to remember going forward
+## 8. What to remember going forward
 
+- An atom laser provides the **coherence** needed for holographic control. This is a solved problem — He-4 BECs and atom lasers have been demonstrated.
+- The atom laser does **not** provide a **coupling mechanism**. A perfectly coherent beam of ground-state He-4 still cannot acquire a phase from a vector potential.
 - The current simulation's phase screen has **no physical coupling** to ground-state He-4. This is the single largest gap between the model and reality.
 - The mathematical machinery (phase retrieval, Fresnel propagation, optimization) is **valid and reusable** regardless of which coupling mechanism is chosen.
-- Closing this gap requires choosing a **species-mechanism pair**. Each choice propagates different constraints into the experimental design (light sources, vacuum requirements, detection methods, substrate compatibility).
+- Closing this gap requires choosing a **species-mechanism pair**. The BEC source species determines which coupling channels are physically available. Each choice propagates different constraints into the experimental design (light sources, vacuum requirements, detection methods, substrate compatibility).
 - The gap is documented in `open_questions.md` as an existential open question. Resolution is prerequisite to any claim of physical feasibility.
