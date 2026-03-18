@@ -2,7 +2,7 @@ Catalog of what hasn't been calculated, simulated, or demonstrated. Organized by
 
 Key gaps:
 
-- **Can AB phase control create sufficient spatial selectivity for atomic deposition?** (Existential) — needs quantitative calculation of phase-dependent sticking coefficients.
+- **What physical mechanism couples the SQUID flux to the matter wave?** (Existential) — the Aharonov-Bohm effect requires charge; He-4 is neutral and spin-0. The simulation's phase-imprinting step has no valid physical basis for ground-state helium. A species-mechanism pair must be chosen (He⁺ + AB, alkali + AC Stark, He* + optical, etc.) before spatial selectivity can even be evaluated. See `neutral_atom_coupling_gap.md` for full analysis.
 - **What substrate thickness allows adequate field penetration?** (Severe) — near-field decay length vs. practical substrate requirements.
 - **Can the loop array be fabricated at the required density?** (Significant) — current superconducting nanofabrication limits.
 - **What species work best?** (Significant) — ions vs. neutral atoms vs. molecules; paramagnetic vs. diamagnetic; polarizability requirements.

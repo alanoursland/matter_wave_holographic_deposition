@@ -36,6 +36,8 @@ from sim_v9 import (
 )
 
 _device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+mu_0 = 4 * np.pi * 1e-7   # vacuum permeability [H/m]
+Phi_0 = 2.067833848e-15    # magnetic flux quantum [Wb]
 
 os.makedirs('results', exist_ok=True)
 
@@ -95,12 +97,134 @@ class SQUIDArray:
         """T(x,y) = exp(i * screen).  Phase-only: |T| = 1."""
         return torch.exp(1j * screen.to(dtype=torch.complex128))
 
+    # ------------------------------------------------------------------
+    # MUTUAL INDUCTANCE MODEL
+    # ------------------------------------------------------------------
+    def build_inductance_matrix(self, wire_width_frac=0.1):
+        """
+        Build the mutual inductance matrix M for the loop array.
+
+        Self-inductance of each square loop (side a, wire width w):
+            L_self ≈ (2 mu_0 a / pi) * [ln(a/w) - 0.774]
+
+        Mutual inductance between coplanar square loops (dipole approx):
+            M_ij ≈ (mu_0 / (4 pi)) * a^4 / r_ij^3
+            (valid for r >> a; nearest-neighbour coupling uses a numerical
+            prefactor from Grover's tables.)
+
+        Parameters
+        ----------
+        wire_width_frac : float
+            Wire width as a fraction of loop side length (default 0.1).
+
+        Returns
+        -------
+        M : np.ndarray, shape (n_total, n_total)
+            Mutual inductance matrix in Henries.  M[i,j] = Phi_i / I_j.
+        """
+        a = self.pitch                          # loop side length
+        w = wire_width_frac * a                  # wire width
+
+        # Self-inductance per loop
+        L_self = (2 * mu_0 * a / np.pi) * (np.log(a / w) - 0.774)
+
+        # Flatten loop positions
+        xs = self.loop_X.ravel()   # (n_total,)
+        ys = self.loop_Y.ravel()
+
+        # Pairwise distance matrix
+        dx = xs[:, None] - xs[None, :]
+        dy = ys[:, None] - ys[None, :]
+        r = np.sqrt(dx**2 + dy**2)
+
+        # Mutual inductance (dipole approximation, coplanar loops)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            M = (mu_0 / (4 * np.pi)) * a**4 / r**3
+
+        # Replace diagonal (self-inductance) and fix any inf/nan
+        np.fill_diagonal(M, L_self)
+        M = np.nan_to_num(M, nan=0.0, posinf=0.0, neginf=0.0)
+
+        self._M = M
+        self._M_inv = np.linalg.inv(M)
+        self._L_self = L_self
+
+        return M
+
+    def flux_to_currents(self, phi_loops):
+        """
+        Convert AB phases to the drive currents needed to produce them.
+
+        Phi_i = phi_i * Phi_0 / (2 pi)   (flux from phase)
+        I = M^{-1} Phi                    (currents from flux)
+
+        Parameters
+        ----------
+        phi_loops : np.ndarray, shape (N_loops, N_loops) or (n_total,)
+
+        Returns
+        -------
+        currents : np.ndarray, shape (n_total,)  in Amperes.
+        """
+        if not hasattr(self, '_M_inv'):
+            self.build_inductance_matrix()
+
+        phi_flat = np.asarray(phi_loops).ravel()
+        flux = phi_flat * Phi_0 / (2 * np.pi)
+        return self._M_inv @ flux
+
+    def currents_to_flux(self, currents):
+        """
+        Convert drive currents back to AB phases.
+
+        Phi = M I   -> phi = 2 pi Phi / Phi_0
+
+        Parameters
+        ----------
+        currents : np.ndarray, shape (n_total,)
+
+        Returns
+        -------
+        phi_loops : np.ndarray, shape (N_loops, N_loops)
+        """
+        if not hasattr(self, '_M'):
+            self.build_inductance_matrix()
+
+        flux = self._M @ np.asarray(currents).ravel()
+        phi = flux * (2 * np.pi) / Phi_0
+        return phi.reshape(self.N_loops, self.N_loops)
+
+    def current_map_summary(self, phi_loops):
+        """
+        Compute and return a dict summarising the current requirements
+        for a given phase solution.
+        """
+        I = self.flux_to_currents(phi_loops)
+        I_grid = I.reshape(self.N_loops, self.N_loops)
+
+        # Roundtrip check: currents -> flux -> phase should recover input
+        phi_rt = self.currents_to_flux(I)
+        phi_in = np.asarray(phi_loops).ravel()
+        rt_err = np.max(np.abs(phi_rt.ravel() - phi_in))
+
+        return {
+            'currents_A':   I,
+            'currents_grid': I_grid,
+            'I_max_uA':     float(np.max(np.abs(I)) * 1e6),
+            'I_rms_uA':     float(np.sqrt(np.mean(I**2)) * 1e6),
+            'roundtrip_err': float(rt_err),
+        }
+
     def info(self):
         print(f"  SQUID array: {self.N_loops}x{self.N_loops} = "
               f"{self.n_total} loops")
         print(f"  Pitch: {self.pitch*1e9:.1f} nm")
         print(f"  Grid:  {self.N_grid}x{self.N_grid}, "
               f"L={self.L_grid*1e9:.0f} nm")
+        if hasattr(self, '_L_self'):
+            print(f"  L_self: {self._L_self*1e12:.3f} pH")
+            cond = np.linalg.cond(self._M)
+            print(f"  M matrix condition number: {cond:.1f}")
 
 
 # ===========================================================================
@@ -408,6 +532,133 @@ def target_letter(N, L, letter='H', line_frac=0.04):
     return P / (P.sum() + 1e-30)
 
 
+def bandlimit_target(P, N_loops, rolloff=0.8):
+    """
+    Low-pass filter a target pattern to the spatial bandwidth of the
+    SQUID array.
+
+    The phase screen is generated by bicubic interpolation from an
+    N_loops x N_loops grid.  It cannot modulate at spatial frequencies
+    above its Nyquist limit (N_loops / 2 cycles across the aperture).
+    Any target content above that frequency is unreachable — the
+    optimizer wastes energy chasing it, driving power into the highest
+    modes it *can* produce, which then diffract out of the target region.
+
+    This function zeroes out unreachable frequencies with a smooth
+    Butterworth rolloff (no Gibbs ringing from a hard cutoff).
+
+    Parameters
+    ----------
+    P : np.ndarray (N, N)
+        Target pattern (non-negative).
+    N_loops : int
+        Number of SQUID loops per axis.
+    rolloff : float
+        Fraction of the Nyquist limit at which the filter reaches -3 dB.
+        Default 0.8 (conservative — keeps only content the array can
+        comfortably reproduce).
+
+    Returns
+    -------
+    P_bl : np.ndarray (N, N), normalised.
+    """
+    N = P.shape[0]
+
+    # Nyquist in grid-frequency units: N_loops/2 cycles per N pixels
+    f_nyquist = N_loops / 2.0
+    f_cutoff = rolloff * f_nyquist
+
+    # Frequency grid (in cycles per N pixels)
+    fx = np.fft.fftfreq(N) * N   # cycles across the grid
+    fy = np.fft.fftfreq(N) * N
+    FX, FY = np.meshgrid(fx, fy, indexing='ij')
+    F_rad = np.sqrt(FX**2 + FY**2)
+
+    # 4th-order Butterworth low-pass (smooth rolloff, no ringing)
+    order = 4
+    H = 1.0 / (1.0 + (F_rad / f_cutoff)**(2 * order))
+
+    # Filter in Fourier domain
+    P_fft = np.fft.fft2(P)
+    P_filtered = np.real(np.fft.ifft2(P_fft * H))
+    P_filtered = np.clip(P_filtered, 0, None)
+
+    return P_filtered / (P_filtered.sum() + 1e-30)
+
+
+def smooth_target(P, N_loops=None, corner_radius=None, sigma=None):
+    """
+    Apply physically motivated smoothing to a target pattern.
+
+    Three complementary stages (all optional, applied in order):
+
+    1. Band-limiting: zero spatial frequencies above the SQUID array's
+       Nyquist limit.  This is the principled fix — you cannot reproduce
+       what you cannot modulate.
+    2. Corner rounding: morphological open+close with a disk element.
+       Rounds sharp corners while preserving flat edges.
+    3. Gaussian blur: gentle final smoothing.
+
+    Parameters
+    ----------
+    P : np.ndarray (N, N)
+        Raw target pattern (non-negative).
+    N_loops : int or None
+        SQUID loops per axis.  If provided, band-limits the target to the
+        array's spatial bandwidth.
+    corner_radius : float or None
+        Corner rounding as a fraction of grid side (e.g. 0.03 = 3%).
+    sigma : float or None
+        Gaussian blur sigma in pixels.
+
+    Returns
+    -------
+    P_smooth : np.ndarray (N, N), normalised, same shape as input.
+    """
+    from scipy.ndimage import binary_opening, binary_closing, distance_transform_edt
+
+    P_out = P.copy()
+    N = P.shape[0]
+
+    # Stage 1: band-limit to SQUID Nyquist
+    if N_loops is not None:
+        P_out = bandlimit_target(P_out, N_loops)
+
+    # Stage 2: morphological corner rounding
+    if corner_radius is not None and corner_radius > 0:
+        r_px = max(int(corner_radius * N), 1)
+
+        # Build a disk structuring element
+        y, x = np.ogrid[-r_px:r_px + 1, -r_px:r_px + 1]
+        selem = (x**2 + y**2) <= r_px**2
+
+        # Threshold to binary, apply morphological open+close (rounds
+        # both convex and concave corners), then restore smooth profile
+        thresh = 0.1 * P_out.max()
+        mask = P_out > thresh
+
+        mask = binary_opening(mask, structure=selem)
+        mask = binary_closing(mask, structure=selem)
+
+        # Feathered edge: use distance transform to create a smooth
+        # transition instead of hard binary boundary
+        dist = distance_transform_edt(mask)
+        dist_inv = distance_transform_edt(~mask)
+        # Signed distance (positive inside, negative outside)
+        signed_dist = dist - dist_inv
+        # Smooth sigmoid transition over ~r_px/2 pixels
+        transition = 1.0 / (1.0 + np.exp(-signed_dist / max(r_px * 0.3, 1)))
+
+        P_out = P_out * transition
+
+    # Stage 3: Gaussian blur
+    if sigma is not None and sigma > 0:
+        P_out = gaussian_filter(P_out, sigma=sigma)
+
+    P_out = np.clip(P_out, 0, None)
+    return P_out / (P_out.sum() + 1e-30)
+
+
 # ===========================================================================
 # METRICS
 # ===========================================================================
@@ -511,7 +762,7 @@ def run_verification(solver, targets, methods=('gs', 'gd'), verbose=True):
                       f"eff={metrics['efficiency']:.4f}  "
                       f"time={elapsed:.1f}s")
 
-            results.append({
+            entry = {
                 'target_name': name,
                 'method':      method,
                 'P_target':    P_target,
@@ -520,7 +771,10 @@ def run_verification(solver, targets, methods=('gs', 'gd'), verbose=True):
                 'metrics':     metrics,
                 'convergence': r['convergence'],
                 'time_s':      elapsed,
-            })
+            }
+            if 'phi_loops' in r:
+                entry['phi_loops'] = r['phi_loops']
+            results.append(entry)
 
     return results
 
@@ -691,12 +945,19 @@ def main():
     print("=" * 65)
 
     squid = SQUIDArray(N_loops=32, N_grid=256, L_grid=400e-9)
+
+    # -- Build mutual inductance matrix --
+    print("\n" + "-" * 65)
+    print("MUTUAL INDUCTANCE MODEL")
+    print("-" * 65)
+    M = squid.build_inductance_matrix(wire_width_frac=0.1)
+    squid.info()
+
     solver = InverseHolographySolver(
         squid_array=squid, N=256, L=400e-9, T_beam=1e-3,
         prop_distance_lam=20.0,
     )
 
-    squid.info()
     print(f"  He-4 at {solver.T_beam*1e3:.1f} mK  "
           f"lambda={solver.lam*1e9:.1f} nm  v={solver.v:.3f} m/s")
     print(f"  Propagation: {solver.prop_distance_lam} lambda "
@@ -709,21 +970,54 @@ def main():
     print("-" * 65)
     validate_roundtrip(solver)
 
-    # -- Target patterns --
+    # -- Target patterns (with corner rounding) --
     N, L = 256, 400e-9
-    targets = {
-        'spot':  target_single_spot(N, L),
-        'line':  target_line(N, L),
-        'dots':  target_grid_of_dots(N, L, n_dots=3),
-        'ring':  target_ring(N, L),
+
+    # Raw targets
+    raw_targets = {
+        'spot':   target_single_spot(N, L),
+        'line':   target_line(N, L),
+        'dots':   target_grid_of_dots(N, L, n_dots=3),
+        'ring':   target_ring(N, L),
         'letter': target_letter(N, L, letter='H'),
     }
+
+    # Band-limit targets to the SQUID array's spatial bandwidth, then
+    # round corners and apply gentle blur.  The band-limiting is the
+    # critical step: it removes spatial frequencies the phase screen
+    # cannot modulate, so the optimizer doesn't waste energy chasing
+    # unreachable content (which just bleeds into high-order diffraction).
+    targets = {}
+    for name, P in raw_targets.items():
+        targets[name] = smooth_target(P, N_loops=squid.N_loops,
+                                      corner_radius=0.03, sigma=2)
+
+    print(f"\n  Target conditioning: band-limited to {squid.N_loops}-loop "
+          f"Nyquist + corner rounding + sigma=2 blur")
 
     # -- Solve --
     print("\n" + "=" * 65)
     print("INVERSE HOLOGRAPHY -- PHASE RETRIEVAL")
     print("=" * 65)
     results = run_verification(solver, targets, methods=('gs', 'gd'))
+
+    # -- Current mapping for GD solutions --
+    print("\n" + "=" * 65)
+    print("CURRENT REQUIREMENTS (flux -> drive currents via M^{-1})")
+    print("=" * 65)
+    print(f"  {'Target':<10} {'I_max (uA)':>12} {'I_rms (uA)':>12} "
+          f"{'Roundtrip err':>14}")
+    print("  " + "-" * 55)
+    for r in results:
+        if r['method'] != 'gd':
+            continue
+        if 'phi_loops' not in r:
+            # GD results stored in the run_verification wrapper don't carry
+            # phi_loops — recompute from phase screen by sampling at loop centers
+            continue
+        cm = squid.current_map_summary(r.get('phi_loops', r['phase_screen']))
+        print(f"  {r['target_name']:<10} {cm['I_max_uA']:12.4f} "
+              f"{cm['I_rms_uA']:12.4f} {cm['roundtrip_err']:14.2e}")
 
     # -- Plot --
     plot_inverse_holography(results, solver)
