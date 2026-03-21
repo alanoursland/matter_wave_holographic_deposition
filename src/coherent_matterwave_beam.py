@@ -78,7 +78,8 @@ class CavityGeometry:
     """
 
     def __init__(self, AK_gap=0.1e-3, width=1e-6, depth=0.1e-6,
-                 n_cavities=10, n_channels=4, pressure_Pa=101325, T_gas=300):
+                 n_cavities=10, n_channels=4, pressure_Pa=101325, T_gas=300,
+                 cavity_Q=1000):
         self.AK_gap     = AK_gap       # cathode-to-anode distance [m]
         self.width      = width         # cavity width (perpendicular to E) [m]
         self.depth      = depth         # cavity depth (perpendicular to E and B) [m]
@@ -86,6 +87,7 @@ class CavityGeometry:
         self.n_channels = n_channels
         self.pressure   = pressure_Pa
         self.T_gas      = T_gas
+        self.cavity_Q   = cavity_Q     # cavity quality factor (max bounces)
 
     def mean_free_path(self, cross_section=3e-24):
         """Kinetic-theory mfp: λ = k_B T / (√2 π d² p)."""
@@ -95,12 +97,32 @@ class CavityGeometry:
         mfp = self.mean_free_path(cross_section)
         return self.AK_gap < mfp, mfp
 
+    def effective_passes(self, cross_section=3e-24):
+        """Number of effective cavity passes before decoherence.
+
+        The particle bounces in the resonant cavity, accumulating AB phase
+        each pass.  The effective number of passes is limited by either:
+          - cavity_Q (geometric/reflective quality factor), or
+          - mfp / AK_gap (mean free path limits — gas collisions randomize phase)
+
+        Returns (n_eff, limit_type) where limit_type is 'Q' or 'collision'.
+        """
+        mfp = self.mean_free_path(cross_section)
+        n_collision = mfp / self.AK_gap
+        if self.cavity_Q <= n_collision:
+            return self.cavity_Q, 'Q'
+        else:
+            return n_collision, 'collision'
+
     def info(self):
         ballistic, mfp = self.is_ballistic()
+        n_eff, limit = self.effective_passes()
         print(f"  Cavity: AK gap = {self.AK_gap*1e3:.2f} mm, "
               f"mfp = {mfp*1e3:.2f} mm  "
               f"{'[ballistic]' if ballistic else '[WARNING: not ballistic]'}")
-        print(f"  {self.n_cavities} cavities × {self.n_channels} channels")
+        print(f"  {self.n_cavities} cavities × {self.n_channels} channels, "
+              f"Q = {self.cavity_Q}")
+        print(f"  n_eff = {n_eff:.1f} passes ({limit}-limited)")
 
 
 # ---------------------------------------------------------------------------
@@ -181,11 +203,21 @@ class CoherentMatterwaveBeam:
         self.N_per_volume = max(10, int(N_total / self.n_volumes))
 
         # (e) Dimensionless coupling from AB phase per transit
-        # K_phys = β × τ_transit = total AB phase accumulated per pass [rad]
+        # φ_single = β × τ_transit = AB phase accumulated per single pass [rad]
         # This is species-independent for same charge, B, cavity geometry
         # (velocity cancels: β ∝ v, τ_transit ∝ 1/v)
+        self.phi_single = self.beta * self.transit_time
+
+        # Multi-pass cavity resonance: particle bounces n_eff times,
+        # accumulating AB phase each pass.  n_eff is limited by either
+        # cavity Q or collision mean free path.
+        n_eff, K_limit = self.cavity.effective_passes()
+        self.n_eff = n_eff
+        self.K_limit = K_limit
+
+        # K_phys = φ_single × n_eff = total accumulated AB phase [rad]
         # K_dim = K_phys / (2π) puts it in natural Kuramoto units
-        self.K_phys = self.beta * self.transit_time
+        self.K_phys = self.phi_single * self.n_eff
         self.K_dim = self.K_phys / (2 * np.pi)
 
         # (d) Single-transit scattering probability
@@ -217,7 +249,9 @@ class CoherentMatterwaveBeam:
         print(f"  Transit time = {self.transit_time*1e9:.3f} ns")
         print(f"  p_scatter = {self.p_scatter:.4f} "
               f"(AK_gap/mfp = {self.cavity.AK_gap / self.cavity.mean_free_path():.4f})")
-        print(f"  K_phys = {self.K_phys:.2f} rad/transit, "
+        print(f"  phi_single = {self.phi_single:.4f} rad/transit, "
+              f"n_eff = {self.n_eff:.1f} ({self.K_limit}-limited)")
+        print(f"  K_phys = {self.K_phys:.2f} rad (total), "
               f"K_dim = {self.K_dim:.3f}")
         self.cavity.info()
 
@@ -298,8 +332,8 @@ class CoherentMatterwaveBeam:
         order_hist = np.empty(n_steps)
 
         if verbose:
-            print(f"\n  Kuramoto synchronization: N={N}, K={K_eff:.1f}, "
-                  f"α={alpha}, σ_ω={omega_spread_dim:.4f}, "
+            print(f"\n  Kuramoto synchronization: N={N}, K_eff={K_eff:.2f}, "
+                  f"n_eff={self.n_eff:.0f}, α={alpha}, σ_ω={omega_spread_dim:.4f}, "
                   f"p_scat={self.p_scatter:.4f}, T_dim={T_sync_dim}")
 
         for i in range(n_steps):
@@ -535,6 +569,8 @@ class CoherentMatterwaveBeam:
             ['τ_sync',       f'{self.tau_sync*1e9:.2f} ns'],
             ['ΔE/E',         f'{self.dE_frac:.2%}'],
             ['σ_ω (dim)',    f'{self.omega_spread_dim_default:.4f}'],
+            ['φ/transit',    f'{self.phi_single:.4f} rad'],
+            ['n_eff',        f'{self.n_eff:.1f} ({self.K_limit})'],
             ['K_dim',        f'{self.K_dim:.3f}'],
             ['N_per_vol',    f'{self.N_per_volume}'],
             ['p_scatter',    f'{self.p_scatter:.4f}'],
@@ -591,6 +627,8 @@ class CoherentMatterwaveBeam:
                 f'{sim.beta:.3e}',
                 f'{sim.tau_sync*1e9:.2f}',
                 f'{sim.omega_spread_dim_default:.4f}',
+                f'{sim.phi_single:.4f}',
+                f'{sim.n_eff:.0f}',
                 f'{sim.K_dim:.3f}',
                 f'{sim.N_per_volume}',
                 f'{sim.p_scatter:.4f}',
@@ -598,7 +636,7 @@ class CoherentMatterwaveBeam:
             ])
         col_labels = ['Species', 'Mass [kg]', 'v [m/s]', 'λ_dB [pm]',
                       'β [s⁻¹]', 'τ_sync [ns]', 'σ_ω (dim)',
-                      'K_dim', 'N_vol', 'p_scat', 'r_final']
+                      'φ/pass', 'n_eff', 'K_dim', 'N_vol', 'p_scat', 'r_final']
         table = ax2.table(cellText=rows, colLabels=col_labels,
                           loc='center', cellLoc='center')
         table.auto_set_font_size(False)
@@ -713,28 +751,54 @@ if __name__ == '__main__':
     plt.close(fig)
     print("  Saved: results/cmb_he_beam_wavefunction.png")
 
-    # --- B-field comparison ---
+    # --- B-field comparison (vacuum cavity to see multi-pass effect) ---
     print("\n" + "="*65)
     print("DEMO 6: Effect of B-field on coupling and synchronization")
     print("="*65)
     B_fields = [0.001, 0.005, 0.01, 0.05, 0.1]
+    cav_vac = CavityGeometry(pressure_Pa=100)
     fig, ax = plt.subplots(figsize=(8, 5))
     for B in B_fields:
         sim = CoherentMatterwaveBeam(species='electron', E_kinetic_eV=1.0,
-                                     B_field=B)
+                                     B_field=B, cavity=cav_vac)
         res = sim.synchronize(seed=42, verbose=False)
         t_ns = res['times'] * 1e9
         ax.plot(t_ns, res['order_hist'], linewidth=1.5,
-                label=f'B={B*1e4:.0f} G, K={sim.K_dim:.2f}')
+                label=f'B={B*1e4:.0f} G, K={sim.K_dim:.2f}, n={sim.n_eff:.0f}')
     ax.axhline(0.95, color='k', ls='--', alpha=0.3)
     ax.set_xlabel('Time [ns]')
     ax.set_ylabel('Order parameter r')
-    ax.set_title('Electron Beam: B-field → Coupling Strength')
+    ax.set_title('Electron Beam: B-field → Coupling Strength (vacuum cavity)')
     ax.legend()
     ax.grid(True, alpha=0.3)
     fig.tight_layout()
     fig.savefig('results/cmb_B_field_sweep.png', dpi=150, bbox_inches='tight')
     plt.close(fig)
     print("  Saved: results/cmb_B_field_sweep.png")
+
+    # --- Pressure sweep ---
+    print("\n" + "="*65)
+    print("DEMO 7: Pressure sweep — collision-limited vs Q-limited")
+    print("="*65)
+    pressures = [1e-3, 1.0, 100, 10000, 101325]
+    fig, ax = plt.subplots(figsize=(8, 5))
+    for P in pressures:
+        cav = CavityGeometry(pressure_Pa=P)
+        sim = CoherentMatterwaveBeam(species='electron', E_kinetic_eV=1.0,
+                                     B_field=0.01, cavity=cav)
+        res = sim.synchronize(seed=42, verbose=False)
+        t_ns = res['times'] * 1e9
+        label = f'P={P:.0e} Pa, n={sim.n_eff:.0f} ({sim.K_limit}), K={sim.K_dim:.2f}'
+        ax.plot(t_ns, res['order_hist'], linewidth=1.5, label=label)
+    ax.axhline(0.95, color='k', ls='--', alpha=0.3)
+    ax.set_xlabel('Time [ns]')
+    ax.set_ylabel('Order parameter r')
+    ax.set_title('Electron Beam: Pressure → Effective Passes → Synchronization')
+    ax.legend(fontsize=7)
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+    fig.savefig('results/cmb_pressure_sweep.png', dpi=150, bbox_inches='tight')
+    plt.close(fig)
+    print("  Saved: results/cmb_pressure_sweep.png")
 
     print("\n  All demos complete.")

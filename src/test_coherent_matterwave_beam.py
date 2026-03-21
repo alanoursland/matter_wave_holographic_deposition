@@ -216,9 +216,10 @@ class TestSynchronizationDynamics:
 
     def test_smaller_ensemble_syncs_faster(self):
         """Fewer particles should reach higher r in the same time."""
+        # Use moderate coupling so both don't saturate immediately
         sim = CoherentMatterwaveBeam(
-            species='electron', dE_frac=0.001, B_field=1.0,
-            cavity=CavityGeometry(pressure_Pa=100)
+            species='electron', dE_frac=0.01, B_field=0.01,
+            cavity=CavityGeometry(pressure_Pa=101325)
         )
 
         res_small = sim.synchronize(N_particles=20, seed=42,
@@ -425,11 +426,17 @@ class TestSpeciesComparison:
 class TestCouplingDerivation:
     """Verify K_dim is derived correctly from physics."""
 
-    def test_K_dim_from_beta_and_transit(self):
-        """K_dim = beta * tau_transit / (2*pi)."""
+    def test_K_dim_from_phi_single_and_n_eff(self):
+        """K_dim = phi_single * n_eff / (2*pi)."""
         sim = CoherentMatterwaveBeam(species='electron')
-        expected = sim.beta * sim.transit_time / (2 * np.pi)
+        expected = sim.phi_single * sim.n_eff / (2 * np.pi)
         assert abs(sim.K_dim - expected) < 1e-10
+
+    def test_phi_single_from_beta_and_transit(self):
+        """phi_single = beta * tau_transit."""
+        sim = CoherentMatterwaveBeam(species='electron')
+        expected = sim.beta * sim.transit_time
+        assert abs(sim.phi_single - expected) < 1e-10
 
     def test_K_dim_independent_of_species(self):
         """For singly-charged ions at same B and cavity, K_dim is the same."""
@@ -448,11 +455,18 @@ class TestCouplingDerivation:
         assert abs(sim_hi.K_dim / sim_lo.K_dim - 10.0) < 0.01
 
     def test_K_dim_scales_with_AK_gap(self):
-        """K_dim is proportional to AK_gap."""
-        cav_short = CavityGeometry(AK_gap=0.05e-3)
-        cav_long  = CavityGeometry(AK_gap=0.20e-3)
+        """K_dim is proportional to AK_gap (through both phi_single and n_eff).
+
+        phi_single ∝ AK_gap (longer gap → more phase per pass)
+        n_eff(collision) = mfp / AK_gap ∝ 1/AK_gap (longer gap → fewer passes)
+        At atmospheric pressure, n_eff is collision-limited, so these cancel.
+        Use vacuum to make n_eff Q-limited, then K_dim ∝ AK_gap.
+        """
+        cav_short = CavityGeometry(AK_gap=0.05e-3, pressure_Pa=1e-3)
+        cav_long  = CavityGeometry(AK_gap=0.20e-3, pressure_Pa=1e-3)
         sim_short = CoherentMatterwaveBeam(species='electron', cavity=cav_short)
         sim_long  = CoherentMatterwaveBeam(species='electron', cavity=cav_long)
+        # In vacuum, n_eff = Q for both, so K_dim ∝ phi_single ∝ AK_gap
         assert abs(sim_long.K_dim / sim_short.K_dim - 4.0) < 0.01
 
     def test_low_B_prevents_full_sync(self):
@@ -490,3 +504,71 @@ class TestCouplingDerivation:
         sim = CoherentMatterwaveBeam(species='electron')
         res = sim.synchronize(K=20.0, seed=42, verbose=False)
         assert res['r_final'] > 0.99
+
+
+# ===================================================================
+# Multi-pass cavity resonance tests
+# ===================================================================
+
+class TestMultiPassCavity:
+    """Verify multi-pass cavity resonance model."""
+
+    def test_vacuum_is_Q_limited(self):
+        """In hard vacuum, n_eff should equal cavity_Q."""
+        cav = CavityGeometry(pressure_Pa=1e-3, cavity_Q=1000)
+        sim = CoherentMatterwaveBeam(species='electron', cavity=cav)
+        assert sim.n_eff == 1000
+        assert sim.K_limit == 'Q'
+
+    def test_atmospheric_is_collision_limited(self):
+        """At atmospheric pressure, n_eff should be mfp/AK_gap < Q."""
+        cav = CavityGeometry(pressure_Pa=101325, cavity_Q=1000)
+        sim = CoherentMatterwaveBeam(species='electron', cavity=cav)
+        mfp = cav.mean_free_path()
+        expected_n = mfp / cav.AK_gap
+        assert abs(sim.n_eff - expected_n) < 0.01
+        assert sim.K_limit == 'collision'
+        assert sim.n_eff < cav.cavity_Q
+
+    def test_n_eff_increases_K_dim(self):
+        """Multi-pass should multiply the single-pass coupling."""
+        cav_vac = CavityGeometry(pressure_Pa=1e-3, cavity_Q=1000)
+        sim = CoherentMatterwaveBeam(species='electron', cavity=cav_vac)
+        # K_dim = phi_single * n_eff / (2*pi), n_eff = 1000
+        assert sim.K_dim > 1.0, (
+            f"In vacuum with Q=1000, K_dim={sim.K_dim:.3f} should be > 1.0"
+        )
+
+    def test_higher_Q_increases_K_in_vacuum(self):
+        """Higher cavity Q should increase K_dim when Q-limited."""
+        cav_lo = CavityGeometry(pressure_Pa=1e-3, cavity_Q=100)
+        cav_hi = CavityGeometry(pressure_Pa=1e-3, cavity_Q=1000)
+        sim_lo = CoherentMatterwaveBeam(species='electron', cavity=cav_lo)
+        sim_hi = CoherentMatterwaveBeam(species='electron', cavity=cav_hi)
+        assert abs(sim_hi.K_dim / sim_lo.K_dim - 10.0) < 0.01
+
+    def test_pressure_reduces_n_eff(self):
+        """Higher pressure → shorter mfp → fewer effective passes."""
+        cav_lo = CavityGeometry(pressure_Pa=1000, cavity_Q=10000)
+        cav_hi = CavityGeometry(pressure_Pa=100000, cavity_Q=10000)
+        sim_lo = CoherentMatterwaveBeam(species='electron', cavity=cav_lo)
+        sim_hi = CoherentMatterwaveBeam(species='electron', cavity=cav_hi)
+        assert sim_lo.n_eff > sim_hi.n_eff
+
+    def test_effective_passes_returns_tuple(self):
+        """effective_passes() should return (n_eff, limit_type)."""
+        cav = CavityGeometry()
+        n_eff, limit = cav.effective_passes()
+        assert isinstance(n_eff, (int, float))
+        assert limit in ('Q', 'collision')
+
+    def test_vacuum_cavity_enables_sync(self):
+        """Vacuum cavity with multi-pass should sync at modest B-field."""
+        cav = CavityGeometry(pressure_Pa=1e-3, cavity_Q=1000)
+        sim = CoherentMatterwaveBeam(species='electron', B_field=0.01,
+                                      dE_frac=0.01, cavity=cav)
+        res = sim.synchronize(seed=42, T_sync_dim=80, verbose=False)
+        assert res['r_final'] > 0.9, (
+            f"Vacuum cavity at B=0.01T (K_dim={sim.K_dim:.3f}, "
+            f"n_eff={sim.n_eff:.0f}) got r={res['r_final']:.4f}, expected > 0.9"
+        )
