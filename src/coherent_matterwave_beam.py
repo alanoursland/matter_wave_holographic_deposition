@@ -123,7 +123,8 @@ class CoherentMatterwaveBeam:
     """
 
     def __init__(self, species='electron', E_kinetic_eV=1.0,
-                 B_field=0.01, cavity=None):
+                 B_field=0.01, cavity=None,
+                 dE_frac=0.01, beam_current_A=1e-6):
 
         sp = SPECIES[species]
         self.species_name = species
@@ -156,6 +157,36 @@ class CoherentMatterwaveBeam:
         self.beta = beta_ref * (self.charge / q_ref) * (self.B / B_ref) * (self.v / v_ref)
         self.tau_sync = 2.0 / self.beta if self.beta > 0 else np.inf
 
+        # --- Species-dependent Kuramoto parameters ---
+        self.dE_frac = dE_frac
+        self.beam_current_A = beam_current_A
+
+        # (a) Physical natural frequency spread [s⁻¹]
+        # ΔE/E = dE_frac → Δv/v = dE_frac/2 (since E ∝ v²)
+        # Spread in AB phase rate: Δω_AB = β × (Δv/v)
+        self.omega_spread_phys = self.beta * self.dE_frac / 2
+
+        # (b) Dimensionless frequency spread
+        # σ_ω_dim = omega_spread_phys / β = dE_frac / 2
+        self.omega_spread_dim_default = self.dE_frac / 2
+
+        # (c) Effective particle count per synchronization volume
+        # The cavity array has n_cavities × n_channels independent volumes.
+        # Each synchronizes its own sub-ensemble; inter-cavity coherence comes
+        # from the array geometry (patent §4), not from Kuramoto coupling.
+        # N_per_volume = (I_beam / q) × transit_time / n_volumes
+        self.n_volumes = self.cavity.n_cavities * self.cavity.n_channels
+        self.transit_time = self.cavity.AK_gap / self.v
+        N_total = (beam_current_A / self.charge) * self.transit_time
+        self.N_per_volume = max(10, int(N_total / self.n_volumes))
+
+        # (d) Single-transit scattering probability
+        # In a ballistic single-pass device, the relevant dephasing is the
+        # probability of one or more scattering events during a single transit.
+        # p_scatter = 1 - exp(-AK_gap / mfp) ≈ AK_gap / mfp for AK_gap << mfp
+        mfp = self.cavity.mean_free_path()
+        self.p_scatter = 1.0 - np.exp(-self.cavity.AK_gap / mfp)
+
     def info(self):
         print("=" * 65)
         print("COHERENT MATTERWAVE BEAM SIMULATOR")
@@ -169,13 +200,22 @@ class CoherentMatterwaveBeam:
         print(f"  B = {self.B:.4f} T ({self.B*1e4:.1f} gauss)")
         print(f"  β = {self.beta:.3e} s⁻¹  "
               f"(τ_sync ≈ {self.tau_sync*1e9:.2f} ns)")
+        print(f"  ΔE/E = {self.dE_frac:.2%}, "
+              f"σ_ω = {self.omega_spread_phys:.3e} s⁻¹ "
+              f"(dim: {self.omega_spread_dim_default:.4f})")
+        print(f"  I_beam = {self.beam_current_A*1e6:.1f} μA, "
+              f"N_per_volume = {self.N_per_volume} "
+              f"({self.n_volumes} volumes)")
+        print(f"  Transit time = {self.transit_time*1e9:.3f} ns")
+        print(f"  p_scatter = {self.p_scatter:.4f} "
+              f"(AK_gap/mfp = {self.cavity.AK_gap / self.cavity.mean_free_path():.4f})")
         self.cavity.info()
 
     # -------------------------------------------------------------------
     # Kuramoto synchronization
     # -------------------------------------------------------------------
-    def synchronize(self, N_particles=500, K=6.0, T_sync_dim=50,
-                    alpha=0.5, K_scale=1.0, omega_spread_dim=1.0,
+    def synchronize(self, N_particles=None, K=6.0, T_sync_dim=50,
+                    alpha=0.5, K_scale=1.0, omega_spread_dim=None,
                     seed=None, verbose=True):
         """Run Kuramoto synchronization of N_particles in the cavity.
 
@@ -192,8 +232,9 @@ class CoherentMatterwaveBeam:
 
         Parameters
         ----------
-        N_particles : int
-            Number of charged particles in the cavity ensemble.
+        N_particles : int or None
+            Number of charged particles.  None uses species-dependent
+            N_cavity (from beam current and transit time).
         K : float
             Dimensionless Kuramoto coupling strength.
         T_sync_dim : float
@@ -202,8 +243,9 @@ class CoherentMatterwaveBeam:
             Damping coefficient for second-order Kuramoto.
         K_scale : float
             Multiplier on coupling (K_eff = K × K_scale).
-        omega_spread_dim : float
+        omega_spread_dim : float or None
             Std dev of natural frequency distribution (dimensionless).
+            None uses physically derived value from dE_frac.
             0 = perfectly monochromatic (patent assumption).
         seed : int or None
             RNG seed for reproducibility.
@@ -218,6 +260,11 @@ class CoherentMatterwaveBeam:
         if seed is not None:
             np.random.seed(seed)
 
+        if N_particles is None:
+            N_particles = self.N_per_volume
+        if omega_spread_dim is None:
+            omega_spread_dim = self.omega_spread_dim_default
+
         K_eff = K * K_scale
         dt_k  = 0.01   # dimensionless timestep
 
@@ -226,12 +273,24 @@ class CoherentMatterwaveBeam:
         dtheta = np.zeros(N)
         omega  = np.random.normal(0, omega_spread_dim, N)
 
+        # Single-pass dephasing: particles that scatter during transit
+        # start with fully randomized phase and are effectively incoherent.
+        # They act as a noise floor that the coupling must overcome.
+        n_scattered = 0
+        if self.p_scatter > 0:
+            scattered = np.random.random(N) < self.p_scatter
+            n_scattered = scattered.sum()
+            if n_scattered > 0:
+                theta[scattered] = np.random.uniform(0, 2*np.pi, n_scattered)
+                omega[scattered] = np.random.normal(0, max(omega_spread_dim, 0.5), n_scattered)
+
         n_steps = int(T_sync_dim / dt_k)
         order_hist = np.empty(n_steps)
 
         if verbose:
             print(f"\n  Kuramoto synchronization: N={N}, K={K_eff:.1f}, "
-                  f"α={alpha}, T_dim={T_sync_dim}")
+                  f"α={alpha}, σ_ω={omega_spread_dim:.4f}, "
+                  f"p_scat={self.p_scatter:.4f}, T_dim={T_sync_dim}")
 
         for i in range(n_steps):
             z = np.mean(np.exp(1j * theta))
@@ -258,13 +317,15 @@ class CoherentMatterwaveBeam:
                   f"t_phys ≈ {conv_phys*1e9:.2f} ns)")
 
         return {
-            'theta':      theta % (2*np.pi),
-            'order_hist': order_hist,
-            'times':      times,
-            'r_final':    r_final,
-            'beta_eff':   self.beta * K_scale,
-            'N':          N,
-            'T_max':      times[-1],
+            'theta':       theta % (2*np.pi),
+            'order_hist':  order_hist,
+            'times':       times,
+            'r_final':     r_final,
+            'beta_eff':    self.beta * K_scale,
+            'N':           N,
+            'T_max':       times[-1],
+            'p_scatter':   self.p_scatter,
+            'n_scattered': int(n_scattered),
         }
 
     def _find_convergence_dim(self, order_hist, dt_k, threshold=0.95):
@@ -301,7 +362,8 @@ class CoherentMatterwaveBeam:
     # -------------------------------------------------------------------
     @staticmethod
     def compare_species(species_list=None, E_kinetic_eV=1.0,
-                        B_field=0.01, N_particles=500, seed=42,
+                        B_field=0.01, N_particles=None, seed=42,
+                        dE_frac=0.01, beam_current_A=1e-6,
                         verbose=True):
         """Run synchronization for multiple species and compare.
 
@@ -313,7 +375,9 @@ class CoherentMatterwaveBeam:
         runs = []
         for sp in species_list:
             sim = CoherentMatterwaveBeam(species=sp, E_kinetic_eV=E_kinetic_eV,
-                                         B_field=B_field)
+                                         B_field=B_field,
+                                         dE_frac=dE_frac,
+                                         beam_current_A=beam_current_A)
             if verbose:
                 sim.info()
             result = sim.synchronize(N_particles=N_particles, seed=seed,
@@ -412,7 +476,12 @@ class CoherentMatterwaveBeam:
         N = result['N']
         th = np.random.uniform(0, 2*np.pi, N)
         dth = np.zeros(N)
-        om = np.random.normal(0, 1.0, N)
+        om = np.random.normal(0, self.omega_spread_dim_default, N)
+        if self.p_scatter > 0:
+            scattered = np.random.random(N) < self.p_scatter
+            if scattered.sum() > 0:
+                th[scattered] = np.random.uniform(0, 2*np.pi, scattered.sum())
+                om[scattered] = np.random.normal(0, max(self.omega_spread_dim_default, 0.5), scattered.sum())
         dt_k = 0.01
         K_snap = 6.0
         snap_indices = [0, n_steps//10, n_steps//4, n_steps//2]
@@ -454,6 +523,10 @@ class CoherentMatterwaveBeam:
             ['B field',      f'{self.B*1e4:.1f} gauss ({self.B:.4f} T)'],
             ['β',            f'{self.beta:.3e} s⁻¹'],
             ['τ_sync',       f'{self.tau_sync*1e9:.2f} ns'],
+            ['ΔE/E',         f'{self.dE_frac:.2%}'],
+            ['σ_ω (dim)',    f'{self.omega_spread_dim_default:.4f}'],
+            ['N_per_vol',    f'{self.N_per_volume}'],
+            ['p_scatter',    f'{self.p_scatter:.4f}'],
             ['r_final',      f'{result["r_final"]:.6f}'],
             ['N_particles',  f'{result["N"]}'],
             ['Ballistic?',   f'{"Yes" if self.cavity.is_ballistic()[0] else "NO"}'],
@@ -506,10 +579,14 @@ class CoherentMatterwaveBeam:
                 f'{sim.lam_dB*1e12:.2f}',
                 f'{sim.beta:.3e}',
                 f'{sim.tau_sync*1e9:.2f}',
+                f'{sim.omega_spread_dim_default:.4f}',
+                f'{sim.N_per_volume}',
+                f'{sim.p_scatter:.4f}',
                 f'{result["r_final"]:.4f}',
             ])
         col_labels = ['Species', 'Mass [kg]', 'v [m/s]', 'λ_dB [pm]',
-                      'β [s⁻¹]', 'τ_sync [ns]', 'r_final']
+                      'β [s⁻¹]', 'τ_sync [ns]', 'σ_ω (dim)',
+                      'N_vol', 'p_scat', 'r_final']
         table = ax2.table(cellText=rows, colLabels=col_labels,
                           loc='center', cellLoc='center')
         table.auto_set_font_size(False)
@@ -546,7 +623,7 @@ if __name__ == '__main__':
     sim_e = CoherentMatterwaveBeam(species='electron', E_kinetic_eV=1.0,
                                    B_field=0.01)
     sim_e.info()
-    res_e = sim_e.synchronize(N_particles=500, seed=42)
+    res_e = sim_e.synchronize(seed=42)
     sim_e.plot_synchronization(res_e, save_path='results/cmb_electron_sync.png')
 
     # --- Single-species demo: He+ beam ---
@@ -556,7 +633,7 @@ if __name__ == '__main__':
     sim_he = CoherentMatterwaveBeam(species='He+', E_kinetic_eV=1.0,
                                     B_field=0.01)
     sim_he.info()
-    res_he = sim_he.synchronize(N_particles=500, seed=42)
+    res_he = sim_he.synchronize(seed=42)
     sim_he.plot_synchronization(res_he, save_path='results/cmb_he_ion_sync.png')
 
     # --- Multi-species comparison ---
@@ -565,30 +642,28 @@ if __name__ == '__main__':
     print("="*65)
     runs = CoherentMatterwaveBeam.compare_species(
         species_list=['electron', 'He+', 'Na+', 'Rb+'],
-        E_kinetic_eV=1.0, B_field=0.01,
-        N_particles=500, seed=42)
+        E_kinetic_eV=1.0, B_field=0.01, seed=42)
     # Use the first simulator for the plot method
     runs[0][0].plot_species_comparison(runs,
         save_path='results/cmb_species_comparison.png')
 
-    # --- Monochromatic vs spread comparison ---
+    # --- Energy spread comparison ---
     print("\n" + "="*65)
     print("DEMO 4: Effect of energy spread on synchronization")
     print("="*65)
-    sim = CoherentMatterwaveBeam(species='electron', E_kinetic_eV=1.0,
-                                 B_field=0.01)
-    spreads = [0.0, 0.5, 2.0, 5.0]
+    dE_fracs = [0.001, 0.01, 0.05, 0.20]
     fig, ax = plt.subplots(figsize=(8, 5))
-    for spread in spreads:
-        res = sim.synchronize(N_particles=500, seed=42,
-                              omega_spread_dim=spread, verbose=False)
+    for dE_frac in dE_fracs:
+        sim = CoherentMatterwaveBeam(species='electron', E_kinetic_eV=1.0,
+                                     B_field=0.01, dE_frac=dE_frac)
+        res = sim.synchronize(seed=42, verbose=False)
         t_ns = res['times'] * 1e9
         ax.plot(t_ns, res['order_hist'], linewidth=1.5,
-                label=f'σ_ω = {spread:.1f} (dim.)')
+                label=f'ΔE/E = {dE_frac:.1%}')
     ax.axhline(0.95, color='k', ls='--', alpha=0.3)
     ax.set_xlabel('Time [ns]')
     ax.set_ylabel('Order parameter r')
-    ax.set_title('Electron Beam: Monochromaticity vs Synchronization')
+    ax.set_title('Electron Beam: Energy Spread vs Synchronization')
     ax.legend()
     ax.grid(True, alpha=0.3)
     fig.tight_layout()
@@ -602,7 +677,7 @@ if __name__ == '__main__':
     print("="*65)
     sim_he2 = CoherentMatterwaveBeam(species='He+', E_kinetic_eV=1.0,
                                       B_field=0.01)
-    res_he2 = sim_he2.synchronize(N_particles=500, seed=42)
+    res_he2 = sim_he2.synchronize(seed=42)
     psi, x = sim_he2.build_beam(res_he2, N_grid=256)
     density = np.abs(psi)**2
     phase   = np.angle(psi)
