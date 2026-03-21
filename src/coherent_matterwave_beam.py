@@ -180,6 +180,14 @@ class CoherentMatterwaveBeam:
         N_total = (beam_current_A / self.charge) * self.transit_time
         self.N_per_volume = max(10, int(N_total / self.n_volumes))
 
+        # (e) Dimensionless coupling from AB phase per transit
+        # K_phys = β × τ_transit = total AB phase accumulated per pass [rad]
+        # This is species-independent for same charge, B, cavity geometry
+        # (velocity cancels: β ∝ v, τ_transit ∝ 1/v)
+        # K_dim = K_phys / (2π) puts it in natural Kuramoto units
+        self.K_phys = self.beta * self.transit_time
+        self.K_dim = self.K_phys / (2 * np.pi)
+
         # (d) Single-transit scattering probability
         # In a ballistic single-pass device, the relevant dephasing is the
         # probability of one or more scattering events during a single transit.
@@ -209,34 +217,34 @@ class CoherentMatterwaveBeam:
         print(f"  Transit time = {self.transit_time*1e9:.3f} ns")
         print(f"  p_scatter = {self.p_scatter:.4f} "
               f"(AK_gap/mfp = {self.cavity.AK_gap / self.cavity.mean_free_path():.4f})")
+        print(f"  K_phys = {self.K_phys:.2f} rad/transit, "
+              f"K_dim = {self.K_dim:.3f}")
         self.cavity.info()
 
     # -------------------------------------------------------------------
     # Kuramoto synchronization
     # -------------------------------------------------------------------
-    def synchronize(self, N_particles=None, K=6.0, T_sync_dim=50,
+    def synchronize(self, N_particles=None, K=None, T_sync_dim=50,
                     alpha=0.5, K_scale=1.0, omega_spread_dim=None,
                     seed=None, verbose=True):
         """Run Kuramoto synchronization of N_particles in the cavity.
 
         The Kuramoto dynamics are integrated in dimensionless time
-        (matching sim_v9 conventions: K=6, α=0.5, dt=0.01), then
-        mapped to physical time using τ_sync.  This avoids numerical
-        stiffness from mixing s⁻¹ coupling constants with dimensionless
-        damping.
+        (matching sim_v9 conventions: α=0.5, dt=0.01), then mapped to
+        physical time using τ_sync.
 
         For a perfectly monochromatic beam (patent assumption), set
         omega_spread_dim=0.  The patent claims zero critical coupling
-        threshold for monochromatic beams; in practice K=6 gives fast
-        convergence.
+        threshold for monochromatic beams.
 
         Parameters
         ----------
         N_particles : int or None
             Number of charged particles.  None uses species-dependent
-            N_cavity (from beam current and transit time).
-        K : float
-            Dimensionless Kuramoto coupling strength.
+            N_per_volume (from beam current and transit time).
+        K : float or None
+            Dimensionless Kuramoto coupling strength.  None uses
+            physically derived K_dim (AB phase per transit / 2π).
         T_sync_dim : float
             Dimensionless integration time.
         alpha : float
@@ -264,6 +272,8 @@ class CoherentMatterwaveBeam:
             N_particles = self.N_per_volume
         if omega_spread_dim is None:
             omega_spread_dim = self.omega_spread_dim_default
+        if K is None:
+            K = self.K_dim
 
         K_eff = K * K_scale
         dt_k  = 0.01   # dimensionless timestep
@@ -483,7 +493,7 @@ class CoherentMatterwaveBeam:
                 th[scattered] = np.random.uniform(0, 2*np.pi, scattered.sum())
                 om[scattered] = np.random.normal(0, max(self.omega_spread_dim_default, 0.5), scattered.sum())
         dt_k = 0.01
-        K_snap = 6.0
+        K_snap = self.K_dim
         snap_indices = [0, n_steps//10, n_steps//4, n_steps//2]
         snap_thetas = []
         for i in range(n_steps):
@@ -525,6 +535,7 @@ class CoherentMatterwaveBeam:
             ['τ_sync',       f'{self.tau_sync*1e9:.2f} ns'],
             ['ΔE/E',         f'{self.dE_frac:.2%}'],
             ['σ_ω (dim)',    f'{self.omega_spread_dim_default:.4f}'],
+            ['K_dim',        f'{self.K_dim:.3f}'],
             ['N_per_vol',    f'{self.N_per_volume}'],
             ['p_scatter',    f'{self.p_scatter:.4f}'],
             ['r_final',      f'{result["r_final"]:.6f}'],
@@ -580,13 +591,14 @@ class CoherentMatterwaveBeam:
                 f'{sim.beta:.3e}',
                 f'{sim.tau_sync*1e9:.2f}',
                 f'{sim.omega_spread_dim_default:.4f}',
+                f'{sim.K_dim:.3f}',
                 f'{sim.N_per_volume}',
                 f'{sim.p_scatter:.4f}',
                 f'{result["r_final"]:.4f}',
             ])
         col_labels = ['Species', 'Mass [kg]', 'v [m/s]', 'λ_dB [pm]',
                       'β [s⁻¹]', 'τ_sync [ns]', 'σ_ω (dim)',
-                      'N_vol', 'p_scat', 'r_final']
+                      'K_dim', 'N_vol', 'p_scat', 'r_final']
         table = ax2.table(cellText=rows, colLabels=col_labels,
                           loc='center', cellLoc='center')
         table.auto_set_font_size(False)
@@ -700,5 +712,29 @@ if __name__ == '__main__':
     fig.savefig('results/cmb_he_beam_wavefunction.png', dpi=150, bbox_inches='tight')
     plt.close(fig)
     print("  Saved: results/cmb_he_beam_wavefunction.png")
+
+    # --- B-field comparison ---
+    print("\n" + "="*65)
+    print("DEMO 6: Effect of B-field on coupling and synchronization")
+    print("="*65)
+    B_fields = [0.001, 0.005, 0.01, 0.05, 0.1]
+    fig, ax = plt.subplots(figsize=(8, 5))
+    for B in B_fields:
+        sim = CoherentMatterwaveBeam(species='electron', E_kinetic_eV=1.0,
+                                     B_field=B)
+        res = sim.synchronize(seed=42, verbose=False)
+        t_ns = res['times'] * 1e9
+        ax.plot(t_ns, res['order_hist'], linewidth=1.5,
+                label=f'B={B*1e4:.0f} G, K={sim.K_dim:.2f}')
+    ax.axhline(0.95, color='k', ls='--', alpha=0.3)
+    ax.set_xlabel('Time [ns]')
+    ax.set_ylabel('Order parameter r')
+    ax.set_title('Electron Beam: B-field → Coupling Strength')
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+    fig.savefig('results/cmb_B_field_sweep.png', dpi=150, bbox_inches='tight')
+    plt.close(fig)
+    print("  Saved: results/cmb_B_field_sweep.png")
 
     print("\n  All demos complete.")
