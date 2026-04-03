@@ -4,27 +4,26 @@ Integrated Quantum Substrate v10
 
 End-to-end pipeline for controllable matter deposition:
 
-  He⁺ CMWB source → neutralization → SQUID holography → diamond caging
+  He⁺ CMWB source → SQUID holography → diamond caging
 
 Physical concept:
   1. A coherent He⁺ ion beam is generated in a diode cavity array via
      Aharonov-Bohm phase synchronization (US Patent 9,502,202 B2).
      The Kuramoto order parameter r quantifies beam coherence and
      depends on B-field, cavity pressure, and energy spread.
-  2. The He⁺ beam is neutralized (charge exchange) to produce neutral
-     He-4 at the same velocity and wavelength.  Neutralization preserves
-     the coherent wavefront but removes the charge, so the beam passes
-     through the SQUID array acquiring only a geometric AB phase shift
-     (not a Lorentz deflection).
-  3. The neutral beam traverses a 32×32 SQUID phase screen whose loop
-     phases are computed by inverse holography to produce a desired
+  2. The charged He⁺ beam passes through a 32×32 SQUID phase screen.
+     Each SQUID loop threads a controllable flux Φ, imprinting an
+     Aharonov-Bohm phase shift φ = (q/ℏ)∮A·dl on the ions.
+     Charge is essential: the AB phase is proportional to q, so
+     neutral atoms would acquire no phase imprint.
+  3. Loop phases are computed by inverse holography to produce a desired
      target deposition pattern after Fresnel propagation.
   4. The deposited pattern is stabilized by Aharonov-Bohm caging on a
      2D diamond lattice (flat bands at Φ=π).
 
-Key result: He⁺ and He-4 have identical mass (to < 0.01%) and therefore
-identical de Broglie wavelength λ ≈ 49 nm at 1 mK.  The SQUID array
-geometry (32×32, 12.5 nm pitch, 400 nm substrate) is wavelength-matched.
+Key result: He⁺ at 1 mK has de Broglie wavelength λ ≈ 49 nm.  The
+SQUID array geometry (32×32, 12.5 nm pitch, 400 nm substrate) is
+wavelength-matched.
 
 Dependencies: coherent_matterwave_beam.py, inverse_holography.py,
               sim_v9.py, diamond_caging.py
@@ -67,14 +66,14 @@ os.makedirs('results', exist_ok=True)
 
 class IntegratedPipelineV10:
     """
-    End-to-end: He⁺ CMWB source → neutralization → SQUID holography
+    End-to-end: He⁺ CMWB source → SQUID holography
     → (optional Floquet) → diamond caging.
 
     The CMWB generates a coherent He⁺ beam whose order parameter r
-    depends on cavity pressure, B-field, and energy spread.  After
-    neutralization, the beam has identical wavelength (λ ≈ 49 nm at
-    1 mK) but no charge — it passes through the SQUID array acquiring
-    only the AB phase imprint.
+    depends on cavity pressure, B-field, and energy spread.  The
+    charged beam passes through the SQUID array, where each loop
+    imprints an AB phase shift φ = (q/ℏ)∮A·dl.  Charge is required
+    for the AB effect.
 
     Parameters
     ----------
@@ -89,7 +88,7 @@ class IntegratedPipelineV10:
     cavity : CavityGeometry or None
         Cavity parameters.  Pressure is overridden by pressure_Pa.
     T_beam : float
-        Post-neutralization beam temperature [K].  Sets λ_dB.
+        Beam temperature [K].  Sets λ_dB for the He⁺ beam.
     N : int
         Spatial grid resolution.
     L : float
@@ -138,8 +137,7 @@ class IntegratedPipelineV10:
             dE_frac=dE_frac, beam_current_A=beam_current_A,
         )
 
-        # --- Post-neutralization beam parameters ---
-        # He⁺ and He-4 have identical mass → identical λ_dB
+        # --- He⁺ beam parameters ---
         self.mass = m_He
         self.v = np.sqrt(2 * k_B * T_beam / self.mass)
         self.k0 = self.mass * self.v / hbar
@@ -166,7 +164,7 @@ class IntegratedPipelineV10:
     def info(self):
         print("=" * 65)
         print("INTEGRATED QUANTUM SUBSTRATE  v10")
-        print("  He⁺ CMWB → neutralization → SQUID holography → caging")
+        print("  He⁺ CMWB → SQUID holography → caging")
         print("=" * 65)
         print(f"  CMWB source: He⁺ at {self.T_beam*1e3:.1f} mK")
         print(f"    B = {self.cmwb.B*1e4:.0f} G, "
@@ -176,7 +174,7 @@ class IntegratedPipelineV10:
               f"n_eff = {self.cmwb.n_eff:.0f} "
               f"({self.cmwb.K_limit}-limited), "
               f"N_vol = {self.cmwb.N_per_volume}")
-        print(f"  Post-neutralization: He-4 neutral")
+        print(f"  He⁺ beam:")
         print(f"    λ_dB = {self.lam*1e9:.2f} nm, "
               f"v = {self.v:.3f} m/s")
         print(f"  Grid: {self.N}×{self.N}, L = {self.L*1e9:.0f} nm, "
@@ -190,13 +188,13 @@ class IntegratedPipelineV10:
         print(f"  Device: {_device}")
 
     # -------------------------------------------------------------------
-    # Stage 1: CMWB He⁺ source + neutralization
+    # Stage 1: CMWB He⁺ source
     # -------------------------------------------------------------------
     def generate_source(self, seed=42, verbose=True):
-        """Generate He⁺ beam via CMWB, then neutralize.
+        """Generate coherent He⁺ beam via CMWB.
 
-        Returns the post-neutralization He-4 wavefunction with phase
-        noise set by the CMWB coherence (1 - r).
+        Returns the He⁺ wavefunction with phase noise set by the CMWB
+        coherence (1 - r).
 
         Returns
         -------
@@ -204,13 +202,12 @@ class IntegratedPipelineV10:
         sync_result : dict from CMWB.synchronize()
         """
         if verbose:
-            print("\n  STAGE 1: CMWB He⁺ source + neutralization")
+            print("\n  STAGE 1: CMWB He⁺ source")
 
         sync = self.cmwb.synchronize(seed=seed, verbose=verbose, mode='auto')
         r = sync['r_final']
 
-        # Build the post-neutralization wavefunction.
-        # Same mass, same velocity, same λ — only charge is removed.
+        # Build the He⁺ beam wavefunction.
         # Phase noise from incomplete synchronization carries through.
         x = np.linspace(-self.L / 2, self.L / 2, self.N)
         X, Y = np.meshgrid(x, x, indexing='ij')
@@ -228,7 +225,7 @@ class IntegratedPipelineV10:
         psi /= np.sqrt(np.sum(np.abs(psi)**2) * self.dx**2)
 
         if verbose:
-            print(f"    Neutralized He-4 beam: r = {r:.4f}, "
+            print(f"    He⁺ beam: r = {r:.4f}, "
                   f"λ = {self.lam*1e9:.2f} nm  "
                   f"[sync mode: {sync.get('mode', 'unknown')}]")
 
@@ -339,9 +336,18 @@ class IntegratedPipelineV10:
         if verbose:
             self.info()
 
-        # Stage 1: CMWB source + neutralization
+        # Stage 1: CMWB He⁺ source
         psi_source, sync_result = self.generate_source(
             seed=seed, verbose=verbose)
+
+        # Inject source beam into holographic solver so it optimizes
+        # against the actual (noisy) beam, not a clean Gaussian.
+        psi_source_t = torch.tensor(psi_source, dtype=torch.complex128,
+                                     device=_device)
+        self.holo_solver.psi_in_t = psi_source_t
+        self.holo_solver.A_in_t = torch.abs(psi_source_t)
+        self.holo_solver.psi_in_np = psi_source
+        self.holo_solver.A_in_np = np.abs(psi_source)
 
         # Stage 2: Inverse holography
         holo = self.solve_holography(
@@ -391,7 +397,7 @@ class IntegratedPipelineV10:
         print("\n" + "=" * 65)
         print("v10 PIPELINE SUMMARY")
         print("=" * 65)
-        print(f"  Source:  He⁺ → He-4, r = {r['r_source']:.4f}")
+        print(f"  Source:  He⁺, r = {r['r_source']:.4f}")
         sync_mode = r.get('sync_mode', 'unknown')
         print(f"  CMWB:   B = {r['B_gauss']:.0f} G, "
               f"P = {r['pressure_Pa']:.0f} Pa, "
@@ -470,7 +476,7 @@ def plot_v10_pipeline(pipeline, results, fname='results/v10_pipeline.png'):
                     f"Φ=0 loc={loc_0:.3f}")
     txt = (
         "INTEGRATED QUANTUM SUBSTRATE  v10\n"
-        "He⁺ CMWB → neutralization → SQUID holography → diamond cage\n"
+        "He⁺ CMWB → SQUID holography → diamond cage\n"
         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"Source: He⁺ r={results['r_source']:.3f}  "
         f"B={results['B_gauss']:.0f}G  "
@@ -712,7 +718,7 @@ def plot_pressure_sweep(sweep_results,
 def main():
     print("╔═══════════════════════════════════════════════════════════╗")
     print("║  INTEGRATED QUANTUM SUBSTRATE  v10                       ║")
-    print("║  He⁺ CMWB → neutralization → SQUID holography → caging  ║")
+    print("║  He⁺ CMWB → SQUID holography → diamond caging           ║")
     print("╚═══════════════════════════════════════════════════════════╝")
 
     np.random.seed(0)
