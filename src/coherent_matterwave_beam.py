@@ -260,7 +260,7 @@ class CoherentMatterwaveBeam:
     # -------------------------------------------------------------------
     def synchronize(self, N_particles=None, K=None, T_sync_dim=50,
                     alpha=0.5, K_scale=1.0, omega_spread_dim=None,
-                    seed=None, verbose=True):
+                    seed=None, verbose=True, mode='auto'):
         """Run Kuramoto synchronization of N_particles in the cavity.
 
         The Kuramoto dynamics are integrated in dimensionless time
@@ -310,6 +310,19 @@ class CoherentMatterwaveBeam:
             K = self.K_dim
 
         K_eff = K * K_scale
+
+        # Resolve mode
+        if mode == 'auto':
+            resolved_mode = 'analytic' if N_particles > 500 else 'ode'
+        else:
+            resolved_mode = mode
+
+        if resolved_mode == 'analytic':
+            return self._synchronize_analytic(
+                N=N_particles, K_eff=K_eff, omega_spread_dim=omega_spread_dim,
+                T_sync_dim=T_sync_dim, K_scale=K_scale,
+                seed=seed, verbose=verbose)
+
         dt_k  = 0.01   # dimensionless timestep
 
         N = N_particles
@@ -370,6 +383,7 @@ class CoherentMatterwaveBeam:
             'T_max':       times[-1],
             'p_scatter':   self.p_scatter,
             'n_scattered': int(n_scattered),
+            'mode':        'ode',
         }
 
     def _find_convergence_dim(self, order_hist, dt_k, threshold=0.95):
@@ -378,6 +392,121 @@ class CoherentMatterwaveBeam:
         if len(idx) == 0:
             return len(order_hist) * dt_k
         return idx[0] * dt_k
+
+    def _synchronize_analytic(self, N, K_eff, omega_spread_dim,
+                              T_sync_dim, K_scale, seed, verbose):
+        """Compute steady-state Kuramoto order parameter analytically.
+
+        Uses the closed-form solution for the standard Kuramoto model with
+        Gaussian frequency distribution, plus finite-size and scattering
+        corrections.  Generates synthetic time series and phase distributions
+        for compatibility with downstream code.
+        """
+        # Critical coupling for Gaussian frequency distribution
+        K_c = 2 * omega_spread_dim
+
+        # Steady-state order parameter
+        if K_eff > K_c:
+            r_inf = np.sqrt(1 - K_c / K_eff)
+        else:
+            r_inf = 0.0
+
+        # Finite-size correction
+        noise_floor = 1.0 / np.sqrt(N)
+        r_inf = max(r_inf, noise_floor)
+        r_inf = min(r_inf, 1.0 - noise_floor)
+
+        # Scattering correction
+        if self.p_scatter > 0:
+            r_inf = r_inf * (1 - self.p_scatter) + (self.p_scatter / np.sqrt(N))
+
+        # Synthetic time series: exponential approach
+        if K_eff > K_c:
+            tau_converge = 5.0 / (K_eff - K_c + 0.1)
+        else:
+            tau_converge = 50.0
+
+        dt_k = 0.01
+        n_steps = int(T_sync_dim / dt_k)
+        t_dim = np.arange(n_steps) * dt_k
+        order_hist = r_inf * (1 - np.exp(-t_dim / tau_converge))
+        order_hist = np.maximum(order_hist, 1.0 / np.sqrt(N))
+
+        # Synthetic final phases from von Mises distribution
+        if r_inf >= 0.99:
+            kappa = 100.0
+        elif r_inf > 0.01:
+            kappa = r_inf * (2 - r_inf**2) / (1 - r_inf**2)
+        else:
+            kappa = 0.0
+
+        if kappa > 0:
+            theta = np.random.vonmises(0, kappa, N)
+            theta = theta % (2 * np.pi)
+        else:
+            theta = np.random.uniform(0, 2 * np.pi, N)
+
+        # Physical time mapping (same as ODE path)
+        time_scale = self.tau_sync / 5.0
+        times = t_dim * time_scale
+
+        if verbose:
+            print(f"\n  Kuramoto (analytical): N={N}, K_eff={K_eff:.4f}, "
+                  f"K_c={K_c:.4f}, \u03c3_\u03c9={omega_spread_dim:.4f}")
+            print(f"    r_\u221e = {r_inf:.6f}  "
+                  f"({'synchronized' if r_inf > 0.5 else 'unsynchronized'})")
+            if self.p_scatter > 0.001:
+                print(f"    p_scatter correction: {self.p_scatter:.4f}")
+
+        return {
+            'theta':       theta,
+            'order_hist':  order_hist,
+            'times':       times,
+            'r_final':     float(r_inf),
+            'beta_eff':    self.beta * K_scale,
+            'N':           N,
+            'T_max':       times[-1],
+            'p_scatter':   self.p_scatter,
+            'n_scattered': int(self.p_scatter * N),
+            'mode':        'analytic',
+        }
+
+    @staticmethod
+    def analytical_r(K_dim, omega_spread_dim, N=None, p_scatter=0.0):
+        """Compute steady-state Kuramoto order parameter analytically.
+
+        Parameters
+        ----------
+        K_dim : float
+            Dimensionless coupling strength.
+        omega_spread_dim : float
+            Std dev of natural frequency distribution (dimensionless).
+        N : int or None
+            Ensemble size for finite-size correction. None = infinite.
+        p_scatter : float
+            Single-transit scattering probability.
+
+        Returns
+        -------
+        r : float
+            Steady-state order parameter.
+        """
+        K_c = 2 * omega_spread_dim
+        if K_dim > K_c:
+            r = np.sqrt(1 - K_c / K_dim)
+        else:
+            r = 0.0
+
+        if N is not None and N > 0:
+            noise_floor = 1.0 / np.sqrt(N)
+            r = max(r, noise_floor)
+            r = min(r, 1.0 - noise_floor)
+
+        if p_scatter > 0:
+            N_eff = N if N is not None else int(1e12)
+            r = r * (1 - p_scatter) + p_scatter / np.sqrt(N_eff)
+
+        return float(np.clip(r, 0.0, 1.0))
 
     # -------------------------------------------------------------------
     # AB phase imprinting (single-cavity demonstration)

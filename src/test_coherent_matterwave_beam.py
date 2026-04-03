@@ -140,7 +140,7 @@ class TestSynchronizationDynamics:
         results = {}
         for sp in ['electron', 'He+', 'Rb+']:
             sim = CoherentMatterwaveBeam(species=sp)
-            res = sim.synchronize(seed=42, verbose=False)
+            res = sim.synchronize(seed=42, verbose=False, mode='ode')
             results[sp] = res['r_final']
 
         # With physically derived K_dim, finite-N effects produce large
@@ -223,9 +223,9 @@ class TestSynchronizationDynamics:
         )
 
         res_small = sim.synchronize(N_particles=20, seed=42,
-                                     T_sync_dim=30, verbose=False)
+                                     T_sync_dim=30, verbose=False, mode='ode')
         res_large = sim.synchronize(N_particles=5000, seed=42,
-                                     T_sync_dim=30, verbose=False)
+                                     T_sync_dim=30, verbose=False, mode='ode')
 
         assert res_small['r_final'] > res_large['r_final'], (
             f"Small ensemble r={res_small['r_final']:.4f} should exceed "
@@ -571,4 +571,126 @@ class TestMultiPassCavity:
         assert res['r_final'] > 0.9, (
             f"Vacuum cavity at B=0.01T (K_dim={sim.K_dim:.3f}, "
             f"n_eff={sim.n_eff:.0f}) got r={res['r_final']:.4f}, expected > 0.9"
+        )
+
+
+# ===================================================================
+# Analytical synchronization mode tests
+# ===================================================================
+
+class TestAnalyticalSynchronization:
+    """Tests for the analytical steady-state Kuramoto computation."""
+
+    def test_analytical_mode_returns_valid_result(self):
+        """Analytic mode should return dict with all required keys and valid bounds."""
+        sim = CoherentMatterwaveBeam(species='He+')
+        res = sim.synchronize(mode='analytic', seed=42, verbose=False)
+
+        required_keys = {
+            'theta', 'order_hist', 'times', 'r_final', 'beta_eff',
+            'N', 'T_max', 'p_scatter', 'n_scattered', 'mode'
+        }
+        assert required_keys.issubset(res.keys()), (
+            f"Missing keys: {required_keys - res.keys()}"
+        )
+        assert res['mode'] == 'analytic'
+        assert 0 <= res['r_final'] <= 1
+        assert len(res['theta']) == sim.N_per_volume
+        assert len(res['order_hist']) == len(res['times'])
+
+    def test_analytical_matches_ode_for_small_N(self):
+        """Analytic and ODE r_final should be within 0.3 for small ensembles."""
+        sim = CoherentMatterwaveBeam(species='electron')
+        res_ode = sim.synchronize(mode='ode', seed=42, verbose=False)
+        res_ana = sim.synchronize(mode='analytic', seed=42, verbose=False)
+
+        assert res_ode['r_final'] > 0
+        assert res_ana['r_final'] > 0
+        assert abs(res_ode['r_final'] - res_ana['r_final']) < 0.3, (
+            f"ODE r={res_ode['r_final']:.4f} vs analytic r={res_ana['r_final']:.4f} "
+            f"differ by more than 0.3"
+        )
+        # Both return dicts should have the same keys
+        assert res_ode.keys() == res_ana.keys()
+
+    def test_auto_mode_selects_correctly(self):
+        """Auto mode should pick ODE for small N, analytic for large N."""
+        sim_e = CoherentMatterwaveBeam(species='electron')
+        res_e = sim_e.synchronize(mode='auto', seed=42, verbose=False)
+        assert res_e['mode'] == 'ode', (
+            f"Electron (N={sim_e.N_per_volume}) should use ODE, got {res_e['mode']}"
+        )
+
+        sim_he = CoherentMatterwaveBeam(species='He+')
+        res_he = sim_he.synchronize(mode='auto', seed=42, verbose=False)
+        assert res_he['mode'] == 'analytic', (
+            f"He+ (N={sim_he.N_per_volume}) should use analytic, got {res_he['mode']}"
+        )
+
+    def test_analytical_r_static_method(self):
+        """Static analytical_r() should give correct values across regimes."""
+        ar = CoherentMatterwaveBeam.analytical_r
+
+        # Far above critical: r close to 1
+        assert ar(K_dim=2.0, omega_spread_dim=0.005) > 0.99
+
+        # At critical: only noise floor
+        r_crit = ar(K_dim=0.01, omega_spread_dim=0.005, N=10000)
+        assert r_crit < 0.1, f"At critical, r={r_crit:.4f}, expected < 0.1"
+
+        # Below critical: only noise floor
+        r_below = ar(K_dim=0.001, omega_spread_dim=0.005, N=10000)
+        assert r_below < 0.1, f"Below critical, r={r_below:.4f}, expected < 0.1"
+
+        # Finite-size cap
+        r_capped = ar(K_dim=2.0, omega_spread_dim=0.005, N=25)
+        assert r_capped < 1.0, f"Finite N=25 should cap r, got {r_capped}"
+
+    def test_analytical_pressure_sweep_runs_fast(self):
+        """Six He+ pressure sweeps in analytic mode should complete in < 2s."""
+        import time
+        pressures = [1e-3, 1, 100, 1000, 10000, 101325]
+        results = {}
+
+        t0 = time.perf_counter()
+        for P in pressures:
+            cav = CavityGeometry(pressure_Pa=P)
+            sim = CoherentMatterwaveBeam(species='He+', cavity=cav)
+            res = sim.synchronize(mode='analytic', seed=42, verbose=False)
+            results[P] = res['r_final']
+        elapsed = time.perf_counter() - t0
+
+        assert elapsed < 2.0, f"Pressure sweep took {elapsed:.2f}s, expected < 2s"
+        assert results[1e-3] > 0.9, (
+            f"Low pressure r={results[1e-3]:.4f}, expected > 0.9"
+        )
+        assert results[1e-3] > results[101325], (
+            f"Vacuum r={results[1e-3]:.4f} should exceed "
+            f"atmospheric r={results[101325]:.4f}"
+        )
+
+    def test_ode_mode_unchanged(self):
+        """Regression: electron ODE sync should match documented r ≈ 0.819."""
+        sim = CoherentMatterwaveBeam(
+            species='electron', E_kinetic_eV=1.0, B_field=0.01
+        )
+        res = sim.synchronize(mode='ode', seed=42, verbose=False)
+        assert abs(res['r_final'] - 0.819) < 0.05, (
+            f"ODE regression: r={res['r_final']:.4f}, expected 0.819 ± 0.05"
+        )
+
+    def test_scattering_correction(self):
+        """Atmospheric pressure should reduce r compared to vacuum."""
+        cav_vac = CavityGeometry(pressure_Pa=1e-3)
+        cav_atm = CavityGeometry(pressure_Pa=101325)
+
+        sim_vac = CoherentMatterwaveBeam(species='He+', cavity=cav_vac)
+        sim_atm = CoherentMatterwaveBeam(species='He+', cavity=cav_atm)
+
+        res_vac = sim_vac.synchronize(mode='analytic', seed=42, verbose=False)
+        res_atm = sim_atm.synchronize(mode='analytic', seed=42, verbose=False)
+
+        assert res_atm['r_final'] < res_vac['r_final'], (
+            f"Atmospheric r={res_atm['r_final']:.4f} should be less than "
+            f"vacuum r={res_vac['r_final']:.4f}"
         )
