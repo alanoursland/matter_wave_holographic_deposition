@@ -340,14 +340,21 @@ class IntegratedPipelineV10:
         psi_source, sync_result = self.generate_source(
             seed=seed, verbose=verbose)
 
-        # Inject source beam into holographic solver so it optimizes
-        # against the actual (noisy) beam, not a clean Gaussian.
-        psi_source_t = torch.tensor(psi_source, dtype=torch.complex128,
-                                     device=_device)
-        self.holo_solver.psi_in_t = psi_source_t
-        self.holo_solver.A_in_t = torch.abs(psi_source_t)
-        self.holo_solver.psi_in_np = psi_source
-        self.holo_solver.A_in_np = np.abs(psi_source)
+        # Build deterministic beam profile (envelope × plane wave, no noise)
+        x = np.linspace(-self.L / 2, self.L / 2, self.N)
+        X, Y = np.meshgrid(x, x, indexing='ij')
+        sigma = 0.35 * self.L
+        psi_profile = (np.exp(-(X**2 + Y**2) / (2 * sigma**2))
+                       * np.exp(1j * self.k0 * X)).astype(np.complex128)
+        psi_profile /= np.sqrt(np.sum(np.abs(psi_profile)**2) * self.dx**2)
+
+        # Solver optimizes against the deterministic profile
+        psi_profile_t = torch.tensor(psi_profile, dtype=torch.complex128,
+                                      device=_device)
+        self.holo_solver.psi_in_t = psi_profile_t
+        self.holo_solver.A_in_t = torch.abs(psi_profile_t)
+        self.holo_solver.psi_in_np = psi_profile
+        self.holo_solver.A_in_np = np.abs(psi_profile)
 
         # Stage 2: Inverse holography
         holo = self.solve_holography(
@@ -355,9 +362,20 @@ class IntegratedPipelineV10:
 
         density_holo = holo['P_achieved']
 
+        # Evaluate actual deposition: noisy source through optimized screen
+        screen_t = torch.tensor(holo['phase_screen'], dtype=torch.float64,
+                                 device=_device)
+        T_screen = SQUIDArray.phase_screen_to_transmission(screen_t)
+        psi_source_t = torch.tensor(psi_source, dtype=torch.complex128,
+                                      device=_device)
+        psi_actual = self.holo_solver._propagate_torch(
+            psi_source_t * T_screen, forward=True)
+        density_actual = torch.abs(psi_actual).cpu().numpy()**2
+        metrics_actual = compute_metrics(density_actual, holo['P_target'])
+
         # Stage 3: Optional Floquet
         density_post_floquet, floquet_info = self.floquet_filter(
-            density_holo, holo['phase_screen'], verbose=verbose)
+            density_actual, holo['phase_screen'], verbose=verbose)
 
         # Stage 4: Caging
         cage_pi, cage_0 = None, None
@@ -375,6 +393,8 @@ class IntegratedPipelineV10:
             'r_source':         sync_result['r_final'],
             'holo':             holo,
             'density_holo':     density_holo,
+            'density_actual':   density_actual,
+            'metrics_actual':   metrics_actual,
             'density_filtered': density_post_floquet,
             'floquet_info':     floquet_info,
             'cage_pi':          cage_pi,
@@ -404,9 +424,10 @@ class IntegratedPipelineV10:
               f"K_dim = {r['K_dim']:.3f}, "
               f"n_eff = {r['n_eff']:.0f}, "
               f"mode = {sync_mode}")
-        m = r['holo']['metrics']
-        print(f"  Holo:   SSIM = {m['ssim']:.4f}, "
-              f"eff = {m['efficiency']:.4f}")
+        m_clean = r['holo']['metrics']
+        m_actual = r.get('metrics_actual', m_clean)
+        print(f"  Holo:   SSIM = {m_clean['ssim']:.4f} (clean), "
+              f"{m_actual['ssim']:.4f} (actual)")
         if r['floquet_info']:
             fi = r['floquet_info']
             print(f"  Floquet: S = {fi.get('entropy', 'N/A')}, "
