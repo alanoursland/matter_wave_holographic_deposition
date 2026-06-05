@@ -29,13 +29,13 @@ from scipy.ndimage import gaussian_filter
 import warnings
 warnings.filterwarnings('ignore')
 
-from sim_v9 import (
-    IntegratedQuantumSubstrate,
-    hbar, k_B, m_He,
-    michelson_contrast, ssim_score, min_feature_size,
-)
+from sim_v9 import IntegratedQuantumSubstrate
+from iqs.constants import hbar, k_B, m_He
+from iqs.numerics.device import get_device
+from iqs.numerics.metrics import michelson_contrast, ssim_score, min_feature_size
+from iqs.numerics.propagation import AngularSpectrumPropagator
 
-_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+_device = get_device()
 mu_0 = 4 * np.pi * 1e-7   # vacuum permeability [H/m]
 Phi_0 = 2.067833848e-15    # magnetic flux quantum [Wb]
 
@@ -267,28 +267,15 @@ class InverseHolographySolver:
                                       device=_device)
         self.A_in_t    = torch.abs(self.psi_in_t)
 
-        # Precompute propagation transfer function
-        kx = torch.fft.fftfreq(N, self.dx, device=_device,
-                                dtype=torch.float64) * 2 * np.pi
-        ky = torch.fft.fftfreq(N, self.dx, device=_device,
-                                dtype=torch.float64) * 2 * np.pi
-        KX, KY = torch.meshgrid(kx, ky, indexing='ij')
-        kz_sq = self.k0**2 - KX**2 - KY**2
-        valid = kz_sq > 0
-        kz = torch.where(valid, torch.sqrt(torch.clamp(kz_sq, min=0)),
-                         torch.zeros_like(kz_sq))
-        # Forward and backward transfer functions
-        self._H_fwd = torch.where(
-            valid, torch.exp(1j * kz * self.z),
-            torch.zeros_like(kz, dtype=torch.complex128))
-        self._H_bwd = torch.where(
-            valid, torch.exp(-1j * kz * self.z),
-            torch.zeros_like(kz, dtype=torch.complex128))
+        # Precompute propagation transfer function via shared propagator
+        self._propagator = AngularSpectrumPropagator(
+            N=N, L=L, k0=self.k0, z=self.z, device=_device)
 
     def _propagate_torch(self, psi_t, forward=True):
         """Angular spectrum propagator — pure torch, differentiable."""
-        H = self._H_fwd if forward else self._H_bwd
-        return torch.fft.ifft2(torch.fft.fft2(psi_t) * H)
+        if forward:
+            return self._propagator.forward(psi_t)
+        return self._propagator.backward(psi_t)
 
     def forward(self, phase_screen):
         """

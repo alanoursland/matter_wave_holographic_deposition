@@ -64,22 +64,22 @@ import sys
 import numpy as np
 import torch
 from scipy.ndimage import gaussian_filter
-from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import warnings
 warnings.filterwarnings('ignore')
 
 from diamond_caging import DiamondNetworkSimulator
+from iqs.constants import hbar, k_B, m_He
+from iqs.numerics.device import get_device
+from iqs.numerics.metrics import (
+    michelson_contrast, ssim_score, min_feature_size,
+)
+from iqs.numerics.propagation import AngularSpectrumPropagator
 
-# GPU device selection
-_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+_device = get_device()
 
 os.makedirs('results', exist_ok=True)
-
-hbar = 1.0545718e-34
-k_B  = 1.380649e-23
-m_He = 6.6464731e-27
 
 
 # ===========================================================================
@@ -421,16 +421,10 @@ class IntegratedQuantumSubstrate:
     # Propagator
     # -----------------------------------------------------------------------
     def _propagate(self, psi, distance):
+        prop  = AngularSpectrumPropagator(N=self.N, L=self.L, k0=self.k0,
+                                          z=distance, device=_device)
         psi_t = torch.tensor(psi, dtype=torch.complex128, device=_device)
-        kx = torch.fft.fftfreq(self.N, self.dx, device=_device, dtype=torch.float64) * 2*np.pi
-        ky = torch.fft.fftfreq(self.N, self.dx, device=_device, dtype=torch.float64) * 2*np.pi
-        KX, KY = torch.meshgrid(kx, ky, indexing='ij')
-        kz_sq  = self.k0**2 - KX**2 - KY**2
-        valid  = kz_sq > 0
-        kz     = torch.where(valid, torch.sqrt(torch.clamp(kz_sq, min=0)), torch.zeros_like(kz_sq))
-        H_prop = torch.where(valid, torch.exp(1j * kz * distance), torch.zeros_like(kz, dtype=torch.complex128))
-        result = torch.fft.ifft2(torch.fft.fft2(psi_t) * H_prop)
-        return result.cpu().numpy()
+        return prop.forward(psi_t).cpu().numpy()
 
     # -----------------------------------------------------------------------
     # Full pipeline
@@ -496,37 +490,10 @@ class IntegratedQuantumSubstrate:
 # METRICS
 # ===========================================================================
 
-def michelson_contrast(d, lo=5, hi=95):
-    lo_v = np.percentile(d, lo)
-    hi_v = np.percentile(d, hi)
-    return (hi_v - lo_v) / (hi_v + lo_v + 1e-30)
-
-def ssim_score(ref, test):
-    r = ref  / (ref.max()  + 1e-30)
-    t = test / (test.max() + 1e-30)
-    try:
-        from skimage.metrics import structural_similarity
-        return structural_similarity(r, t, data_range=1.0)
-    except ImportError:
-        r_f = r - r.mean(); t_f = t - t.mean()
-        return float(np.sum(r_f*t_f) /
-                     (np.sqrt(np.sum(r_f**2)*np.sum(t_f**2)) + 1e-30))
-
-def min_feature_size(density, x_axis):
-    mid  = density.shape[1] // 2
-    line = density[:, mid] / (density[:, mid].max() + 1e-30)
-    peaks, _ = find_peaks(line, height=0.3, distance=3)
-    if not len(peaks):
-        return np.nan
-    fwhms = []
-    for pk in peaks:
-        half = 0.5 * line[pk]
-        l = pk
-        while l > 0 and line[l] > half: l -= 1
-        r = pk
-        while r < len(line)-1 and line[r] > half: r += 1
-        fwhms.append((r - l) * abs(x_axis[1] - x_axis[0]))
-    return float(np.min(fwhms)) if fwhms else np.nan
+# michelson_contrast, ssim_score, min_feature_size are imported from
+# iqs.numerics.metrics at the top of this file and re-exported here for
+# backward compatibility with existing code that does
+#   from sim_v9 import michelson_contrast, ...
 
 
 # ===========================================================================
