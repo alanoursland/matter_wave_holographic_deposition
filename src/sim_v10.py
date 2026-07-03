@@ -51,12 +51,15 @@ from inverse_holography import (
     validate_roundtrip,
 )
 from sim_v9 import (
-    IntegratedQuantumSubstrate, DiamondNetworkSimulator,
+    IntegratedQuantumSubstrate,
     michelson_contrast, ssim_score, min_feature_size,
     m_He,
 )
+from iqs.lattices.diamond import DiamondNetwork
+from iqs.lattices.density_mapping import DensityPeakMapper
+from iqs.numerics.device import get_device
 
-_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+_device = get_device()
 os.makedirs('results', exist_ok=True)
 
 
@@ -157,9 +160,8 @@ class IntegratedPipelineV10:
             )
 
         # --- Diamond caging ---
-        self.diamond = DiamondNetworkSimulator(
-            Lx=N_diamond_x, Ly=N_diamond_y, N_grid=N,
-        )
+        self.diamond = DiamondNetwork(Lx=N_diamond_x, Ly=N_diamond_y)
+        self.mapper  = DensityPeakMapper(N_grid=N)
 
     def info(self):
         print("=" * 65)
@@ -322,9 +324,9 @@ class IntegratedPipelineV10:
             print(f"\n  STAGE 4: Diamond caging "
                   f"(Φ = {phi_cage/np.pi:.1f}π)")
 
-        return self.diamond.evolve_caging(
-            density_2d, phi_cage=phi_cage,
-            T_evolve=T_evolve, verbose=verbose)
+        psi0 = self.mapper.map_to_a_sites(density_2d, self.diamond)
+        return self.diamond.evolve(
+            psi0, phi=phi_cage, T=T_evolve, verbose=verbose)
 
     # -------------------------------------------------------------------
     # Full pipeline
@@ -752,7 +754,7 @@ def main():
     print("STEP 0: VALIDATION GATES")
     print("=" * 65)
 
-    DiamondNetworkSimulator(Lx=4, Ly=4).validate_spectrum(
+    DiamondNetwork(Lx=4, Ly=4).validate_spectrum(
         phi=np.pi, abort_on_fail=True)
 
     squid_val = SQUIDArray(N_loops=32, N_grid=N, L_grid=L)

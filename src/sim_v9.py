@@ -69,8 +69,9 @@ from matplotlib.gridspec import GridSpec
 import warnings
 warnings.filterwarnings('ignore')
 
-from diamond_caging import DiamondNetworkSimulator
 from iqs.constants import hbar, k_B, m_He
+from iqs.lattices.diamond import DiamondNetwork
+from iqs.lattices.density_mapping import DensityPeakMapper
 from iqs.numerics.device import get_device
 from iqs.numerics.metrics import (
     michelson_contrast, ssim_score, min_feature_size,
@@ -459,11 +460,11 @@ class IntegratedQuantumSubstrate:
         density_prop  = np.abs(psi_prop)**2
         density_final = np.abs(psi_ads)**2
 
-        diamond_sim = DiamondNetworkSimulator(Lx=self.Lx, Ly=self.Ly, N_grid=self.N)
-        cage_pi = diamond_sim.evolve_caging(
-            density_final, phi_cage=np.pi, verbose=verbose)
-        cage_0  = diamond_sim.evolve_caging(
-            density_final, phi_cage=0.0, verbose=verbose)
+        lattice = DiamondNetwork(Lx=self.Lx, Ly=self.Ly)
+        mapper  = DensityPeakMapper(N_grid=self.N)
+        psi0    = mapper.map_to_a_sites(density_final, lattice)
+        cage_pi = lattice.evolve(psi0, phi=np.pi, verbose=verbose)
+        cage_0  = lattice.evolve(psi0, phi=0.0,   verbose=verbose)
 
         return {
             'psi_beam':        psi_beam,
@@ -621,19 +622,19 @@ def disorder_robustness(seed=42, n_W=10, W_max=2.0, T_evolve=40):
     loc_pi, loc_0 = [], []
     n_trials = 5
 
-    diamond_sim = DiamondNetworkSimulator(Lx=sim.Lx, Ly=sim.Ly, N_grid=sim.N)
+    lattice = DiamondNetwork(Lx=sim.Lx, Ly=sim.Ly)
+    mapper  = DensityPeakMapper(N_grid=sim.N)
+    psi0    = mapper.map_to_a_sites(density, lattice)
 
     for W in W_values:
         fp_t, f0_t = [], []
         lp_t, l0_t = [], []
         for trial in range(n_trials):
             np.random.seed(seed + trial * 100)
-            r_pi = diamond_sim.evolve_caging(
-                density, phi_cage=np.pi, T_evolve=T_evolve,
-                disorder_W=W, verbose=False)
-            r_0  = diamond_sim.evolve_caging(
-                density, phi_cage=0.0, T_evolve=T_evolve,
-                disorder_W=W, verbose=False)
+            r_pi = lattice.evolve(psi0, phi=np.pi, T=T_evolve,
+                                  disorder_W=W, verbose=False)
+            r_0  = lattice.evolve(psi0, phi=0.0,   T=T_evolve,
+                                  disorder_W=W, verbose=False)
             fp_t.append(r_pi['fidelity'][-1])
             f0_t.append(r_0['fidelity'][-1])
             lp_t.append(r_pi['localization'][-1])
@@ -1359,7 +1360,7 @@ def main():
     print("STEP 0: VALIDATION GATES")
     print("="*65)
     validate_floquet(N_side=2, V_frac=0.9, abort_on_fail=True)
-    DiamondNetworkSimulator(Lx=4, Ly=4).validate_spectrum(phi=np.pi, abort_on_fail=True)
+    DiamondNetwork(Lx=4, Ly=4).validate_spectrum(phi=np.pi, abort_on_fail=True)
 
     # ── Main pipeline ─────────────────────────────────────────────────
     print("\n" + "="*65)
