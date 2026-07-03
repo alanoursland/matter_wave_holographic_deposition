@@ -1,0 +1,725 @@
+╔═══════════════════════════════════════════════════════════╗
+║  INTEGRATED QUANTUM SUBSTRATE  v10                       ║
+║  He⁺ CMWB → SQUID holography → diamond caging           ║
+╚═══════════════════════════════════════════════════════════╝
+
+=================================================================
+STEP 0: VALIDATION GATES
+=================================================================
+
+  DIAMOND SPECTRUM CHECK  (4x4, phi=1.0pi)
+  Unique eigenvalues: 3  (OK (AB Caging))
+
+  ROUNDTRIP VALIDATION
+    SSIM(I_true, I_recovered) = 0.5731  PASS
+
+=================================================================
+DEMO 1: Full pipeline — vacuum He⁺, dots target
+=================================================================
+=================================================================
+INTEGRATED QUANTUM SUBSTRATE  v10
+  He⁺ CMWB → SQUID holography → caging
+=================================================================
+  CMWB source: He⁺ at 1.0 mK
+    B = 100 G, P = 100 Pa, ΔE/E = 1.0%
+    K_dim = 1.623, n_eff = 1000 (Q-limited), N_vol = 7655412
+  He⁺ beam:
+    λ_dB = 48.91 nm, v = 2.038 m/s
+  Grid: 256×256, L = 400 nm, dx = 1.56 nm
+  SQUID: 32×32 (pitch = 12.5 nm)
+  Propagation: 20.0λ = 978.2 nm
+  Floquet: OFF
+  Diamond: 16×16
+  Device: cuda
+
+  STAGE 1: CMWB He⁺ source
+
+  Kuramoto (analytical): N=7655412, K_eff=1.6234, K_c=0.0100, σ_ω=0.0050
+    r_∞ = 0.996883  (synchronized)
+    He⁺ beam: r = 0.9969, λ = 48.91 nm  [sync mode: analytic]
+
+  STAGE 2: Inverse holography (GD)
+
+  GD solver: 500 iter, lr=0.05, reg=0.0001
+    iter    0: loss=3.674345e-03  corr=-0.3140  mse=3.176814e-01
+    iter  100: loss=-9.812444e-01  corr=-0.9823  mse=1.043505e-03
+    iter  200: loss=-9.943742e-01  corr=-0.9947  mse=3.179140e-04
+    iter  300: loss=-9.970168e-01  corr=-0.9972  mse=1.763465e-04
+    iter  400: loss=-9.980681e-01  corr=-0.9982  mse=1.202635e-04
+    iter  499: loss=-9.986128e-01  corr=-0.9987  mse=8.975918e-05
+    SSIM = 0.7888, eff = 0.8419, time = 4.1s
+
+  STAGE 3: Floquet — SKIPPED (disabled)
+
+  STAGE 4: Diamond caging (Φ = 1.0π)
+
+  STAGE 4: 2D Diamond Caging  [phi=1.00pi, 16x16]
+
+  DIAMOND SPECTRUM CHECK  (16x16, phi=1.0pi)
+  Unique eigenvalues: 3  (OK (AB Caging))
+    9 peaks loaded onto A-sites
+    Fidelity:      0.9897  (PRESERVED)
+    Localization:  1.0000  (CAGED)
+    Spread: 5.36 -> 5.36  (delta=+0.00 cells)
+
+  STAGE 4: Diamond caging (Φ = 0.0π)
+
+  STAGE 4: 2D Diamond Caging  [phi=0.00pi, 16x16]
+    9 peaks loaded onto A-sites
+    Fidelity:      0.0003  (decayed)
+    Localization:  0.3417  (spread)
+    Spread: 5.36 -> 6.58  (delta=+1.21 cells)
+
+=================================================================
+v10 PIPELINE SUMMARY
+=================================================================
+  Source:  He⁺, r = 0.9969
+  CMWB:   B = 100 G, P = 100 Pa, K_dim = 1.623, n_eff = 1000, mode = analytic
+  Holo:   SSIM = 0.7888 (clean), 0.7888 (actual)
+  Caging: Φ=π loc = 1.0000, Φ=0 loc = 0.3417, gap = 0.6583
+
+  Plotting → results/v10_pipeline_dots.png
+  Saved: results/v10_pipeline_dots.png
+
+=================================================================
+DEMO 2: Multi-target benchmark
+=================================================================
+
+#################################################################
+# TARGET: spot
+#################################################################
+=================================================================
+INTEGRATED QUANTUM SUBSTRATE  v10
+  He⁺ CMWB → SQUID holography → caging
+=================================================================
+  CMWB source: He⁺ at 1.0 mK
+    B = 100 G, P = 100 Pa, ΔE/E = 1.0%
+    K_dim = 1.623, n_eff = 1000 (Q-limited), N_vol = 7655412
+  He⁺ beam:
+    λ_dB = 48.91 nm, v = 2.038 m/s
+  Grid: 256×256, L = 400 nm, dx = 1.56 nm
+  SQUID: 32×32 (pitch = 12.5 nm)
+  Propagation: 20.0λ = 978.2 nm
+  Floquet: OFF
+  Diamond: 16×16
+  Device: cuda
+
+  STAGE 1: CMWB He⁺ source
+
+  Kuramoto (analytical): N=7655412, K_eff=1.6234, K_c=0.0100, σ_ω=0.0050
+    r_∞ = 0.996883  (synchronized)
+    He⁺ beam: r = 0.9969, λ = 48.91 nm  [sync mode: analytic]
+
+  STAGE 2: Inverse holography (GD)
+
+  GD solver: 500 iter, lr=0.05, reg=0.0001
+    iter    0: loss=1.740816e-01  corr=-0.2058  mse=3.798759e-01
+    iter  100: loss=-9.860384e-01  corr=-0.9863  mse=2.213808e-04
+    iter  200: loss=-9.930123e-01  corr=-0.9931  mse=1.086553e-04
+    iter  300: loss=-9.955887e-01  corr=-0.9957  mse=6.869870e-05
+    iter  400: loss=-9.969697e-01  corr=-0.9970  mse=4.715223e-05
+    iter  499: loss=-9.978239e-01  corr=-0.9979  mse=3.387401e-05
+    SSIM = 0.8126, eff = 0.7186, time = 1.7s
+
+  STAGE 3: Floquet — SKIPPED (disabled)
+
+  STAGE 4: Diamond caging (Φ = 1.0π)
+
+  STAGE 4: 2D Diamond Caging  [phi=1.00pi, 16x16]
+
+  DIAMOND SPECTRUM CHECK  (16x16, phi=1.0pi)
+  Unique eigenvalues: 3  (OK (AB Caging))
+    1 peaks loaded onto A-sites
+    Fidelity:      0.9897  (PRESERVED)
+    Localization:  1.0000  (CAGED)
+    Spread: 0.00 -> 0.07  (delta=+0.07 cells)
+
+  STAGE 4: Diamond caging (Φ = 0.0π)
+
+  STAGE 4: 2D Diamond Caging  [phi=0.00pi, 16x16]
+    1 peaks loaded onto A-sites
+    Fidelity:      0.0105  (decayed)
+    Localization:  0.0525  (spread)
+    Spread: 0.00 -> 7.05  (delta=+7.05 cells)
+
+=================================================================
+v10 PIPELINE SUMMARY
+=================================================================
+  Source:  He⁺, r = 0.9969
+  CMWB:   B = 100 G, P = 100 Pa, K_dim = 1.623, n_eff = 1000, mode = analytic
+  Holo:   SSIM = 0.8126 (clean), 0.8125 (actual)
+  Caging: Φ=π loc = 1.0000, Φ=0 loc = 0.0525, gap = 0.9475
+
+#################################################################
+# TARGET: line
+#################################################################
+=================================================================
+INTEGRATED QUANTUM SUBSTRATE  v10
+  He⁺ CMWB → SQUID holography → caging
+=================================================================
+  CMWB source: He⁺ at 1.0 mK
+    B = 100 G, P = 100 Pa, ΔE/E = 1.0%
+    K_dim = 1.623, n_eff = 1000 (Q-limited), N_vol = 7655412
+  He⁺ beam:
+    λ_dB = 48.91 nm, v = 2.038 m/s
+  Grid: 256×256, L = 400 nm, dx = 1.56 nm
+  SQUID: 32×32 (pitch = 12.5 nm)
+  Propagation: 20.0λ = 978.2 nm
+  Floquet: OFF
+  Diamond: 16×16
+  Device: cuda
+
+  STAGE 1: CMWB He⁺ source
+
+  Kuramoto (analytical): N=7655412, K_eff=1.6234, K_c=0.0100, σ_ω=0.0050
+    r_∞ = 0.996883  (synchronized)
+    He⁺ beam: r = 0.9969, λ = 48.91 nm  [sync mode: analytic]
+
+  STAGE 2: Inverse holography (GD)
+
+  GD solver: 500 iter, lr=0.05, reg=0.0001
+    iter    0: loss=-3.008402e-02  corr=-0.3458  mse=3.157197e-01
+    iter  100: loss=-9.182438e-01  corr=-0.9241  mse=5.845468e-03
+    iter  200: loss=-9.792600e-01  corr=-0.9810  mse=1.710437e-03
+    iter  300: loss=-9.905947e-01  corr=-0.9913  mse=6.958026e-04
+    iter  400: loss=-9.931859e-01  corr=-0.9937  mse=5.027896e-04
+    iter  499: loss=-9.944527e-01  corr=-0.9949  mse=4.093439e-04
+    SSIM = 0.5535, eff = 0.8037, time = 1.6s
+
+  STAGE 3: Floquet — SKIPPED (disabled)
+
+  STAGE 4: Diamond caging (Φ = 1.0π)
+
+  STAGE 4: 2D Diamond Caging  [phi=1.00pi, 16x16]
+
+  DIAMOND SPECTRUM CHECK  (16x16, phi=1.0pi)
+  Unique eigenvalues: 3  (OK (AB Caging))
+    2 peaks loaded onto A-sites
+    Fidelity:      0.9897  (PRESERVED)
+    Localization:  1.0000  (CAGED)
+    Spread: 4.53 -> 4.53  (delta=+0.00 cells)
+
+  STAGE 4: Diamond caging (Φ = 0.0π)
+
+  STAGE 4: 2D Diamond Caging  [phi=0.00pi, 16x16]
+    2 peaks loaded onto A-sites
+    Fidelity:      0.0052  (decayed)
+    Localization:  0.1080  (spread)
+    Spread: 4.53 -> 6.89  (delta=+2.37 cells)
+
+=================================================================
+v10 PIPELINE SUMMARY
+=================================================================
+  Source:  He⁺, r = 0.9969
+  CMWB:   B = 100 G, P = 100 Pa, K_dim = 1.623, n_eff = 1000, mode = analytic
+  Holo:   SSIM = 0.5535 (clean), 0.5535 (actual)
+  Caging: Φ=π loc = 1.0000, Φ=0 loc = 0.1080, gap = 0.8920
+
+#################################################################
+# TARGET: dots
+#################################################################
+=================================================================
+INTEGRATED QUANTUM SUBSTRATE  v10
+  He⁺ CMWB → SQUID holography → caging
+=================================================================
+  CMWB source: He⁺ at 1.0 mK
+    B = 100 G, P = 100 Pa, ΔE/E = 1.0%
+    K_dim = 1.623, n_eff = 1000 (Q-limited), N_vol = 7655412
+  He⁺ beam:
+    λ_dB = 48.91 nm, v = 2.038 m/s
+  Grid: 256×256, L = 400 nm, dx = 1.56 nm
+  SQUID: 32×32 (pitch = 12.5 nm)
+  Propagation: 20.0λ = 978.2 nm
+  Floquet: OFF
+  Diamond: 16×16
+  Device: cuda
+
+  STAGE 1: CMWB He⁺ source
+
+  Kuramoto (analytical): N=7655412, K_eff=1.6234, K_c=0.0100, σ_ω=0.0050
+    r_∞ = 0.996883  (synchronized)
+    He⁺ beam: r = 0.9969, λ = 48.91 nm  [sync mode: analytic]
+
+  STAGE 2: Inverse holography (GD)
+
+  GD solver: 500 iter, lr=0.05, reg=0.0001
+    iter    0: loss=3.551212e-02  corr=-0.3083  mse=3.437920e-01
+    iter  100: loss=-9.805190e-01  corr=-0.9816  mse=1.088324e-03
+    iter  200: loss=-9.941901e-01  corr=-0.9945  mse=3.353242e-04
+    iter  300: loss=-9.970431e-01  corr=-0.9972  mse=1.766686e-04
+    iter  400: loss=-9.981267e-01  corr=-0.9983  mse=1.174714e-04
+    iter  499: loss=-9.986426e-01  corr=-0.9987  mse=8.957391e-05
+    SSIM = 0.7915, eff = 0.8432, time = 1.7s
+
+  STAGE 3: Floquet — SKIPPED (disabled)
+
+  STAGE 4: Diamond caging (Φ = 1.0π)
+
+  STAGE 4: 2D Diamond Caging  [phi=1.00pi, 16x16]
+
+  DIAMOND SPECTRUM CHECK  (16x16, phi=1.0pi)
+  Unique eigenvalues: 3  (OK (AB Caging))
+    9 peaks loaded onto A-sites
+    Fidelity:      0.9897  (PRESERVED)
+    Localization:  1.0000  (CAGED)
+    Spread: 5.37 -> 5.37  (delta=+0.00 cells)
+
+  STAGE 4: Diamond caging (Φ = 0.0π)
+
+  STAGE 4: 2D Diamond Caging  [phi=0.00pi, 16x16]
+    9 peaks loaded onto A-sites
+    Fidelity:      0.0018  (decayed)
+    Localization:  0.3589  (spread)
+    Spread: 5.37 -> 6.53  (delta=+1.17 cells)
+
+=================================================================
+v10 PIPELINE SUMMARY
+=================================================================
+  Source:  He⁺, r = 0.9969
+  CMWB:   B = 100 G, P = 100 Pa, K_dim = 1.623, n_eff = 1000, mode = analytic
+  Holo:   SSIM = 0.7915 (clean), 0.7916 (actual)
+  Caging: Φ=π loc = 1.0000, Φ=0 loc = 0.3589, gap = 0.6411
+
+#################################################################
+# TARGET: ring
+#################################################################
+=================================================================
+INTEGRATED QUANTUM SUBSTRATE  v10
+  He⁺ CMWB → SQUID holography → caging
+=================================================================
+  CMWB source: He⁺ at 1.0 mK
+    B = 100 G, P = 100 Pa, ΔE/E = 1.0%
+    K_dim = 1.623, n_eff = 1000 (Q-limited), N_vol = 7655412
+  He⁺ beam:
+    λ_dB = 48.91 nm, v = 2.038 m/s
+  Grid: 256×256, L = 400 nm, dx = 1.56 nm
+  SQUID: 32×32 (pitch = 12.5 nm)
+  Propagation: 20.0λ = 978.2 nm
+  Floquet: OFF
+  Diamond: 16×16
+  Device: cuda
+
+  STAGE 1: CMWB He⁺ source
+
+  Kuramoto (analytical): N=7655412, K_eff=1.6234, K_c=0.0100, σ_ω=0.0050
+    r_∞ = 0.996883  (synchronized)
+    He⁺ beam: r = 0.9969, λ = 48.91 nm  [sync mode: analytic]
+
+  STAGE 2: Inverse holography (GD)
+
+  GD solver: 500 iter, lr=0.05, reg=0.0001
+    iter    0: loss=-7.659653e-02  corr=-0.3946  mse=3.180157e-01
+    iter  100: loss=-9.649768e-01  corr=-0.9693  mse=4.294058e-03
+    iter  200: loss=-9.886205e-01  corr=-0.9900  mse=1.415641e-03
+    iter  300: loss=-9.938564e-01  corr=-0.9946  mse=7.818024e-04
+    iter  400: loss=-9.956254e-01  corr=-0.9962  mse=5.833069e-04
+    iter  499: loss=-9.964037e-01  corr=-0.9969  mse=4.894768e-04
+    SSIM = 0.6100, eff = 0.8785, time = 1.6s
+
+  STAGE 3: Floquet — SKIPPED (disabled)
+
+  STAGE 4: Diamond caging (Φ = 1.0π)
+
+  STAGE 4: 2D Diamond Caging  [phi=1.00pi, 16x16]
+
+  DIAMOND SPECTRUM CHECK  (16x16, phi=1.0pi)
+  Unique eigenvalues: 3  (OK (AB Caging))
+    4 peaks loaded onto A-sites
+    Fidelity:      0.9897  (PRESERVED)
+    Localization:  1.0000  (CAGED)
+    Spread: 2.92 -> 2.92  (delta=+0.00 cells)
+
+  STAGE 4: Diamond caging (Φ = 0.0π)
+
+  STAGE 4: 2D Diamond Caging  [phi=0.00pi, 16x16]
+    4 peaks loaded onto A-sites
+    Fidelity:      0.0035  (decayed)
+    Localization:  0.1592  (spread)
+    Spread: 2.92 -> 6.79  (delta=+3.88 cells)
+
+=================================================================
+v10 PIPELINE SUMMARY
+=================================================================
+  Source:  He⁺, r = 0.9969
+  CMWB:   B = 100 G, P = 100 Pa, K_dim = 1.623, n_eff = 1000, mode = analytic
+  Holo:   SSIM = 0.6100 (clean), 0.6099 (actual)
+  Caging: Φ=π loc = 1.0000, Φ=0 loc = 0.1592, gap = 0.8408
+
+#################################################################
+# TARGET: letter
+#################################################################
+=================================================================
+INTEGRATED QUANTUM SUBSTRATE  v10
+  He⁺ CMWB → SQUID holography → caging
+=================================================================
+  CMWB source: He⁺ at 1.0 mK
+    B = 100 G, P = 100 Pa, ΔE/E = 1.0%
+    K_dim = 1.623, n_eff = 1000 (Q-limited), N_vol = 7655412
+  He⁺ beam:
+    λ_dB = 48.91 nm, v = 2.038 m/s
+  Grid: 256×256, L = 400 nm, dx = 1.56 nm
+  SQUID: 32×32 (pitch = 12.5 nm)
+  Propagation: 20.0λ = 978.2 nm
+  Floquet: OFF
+  Diamond: 16×16
+  Device: cuda
+
+  STAGE 1: CMWB He⁺ source
+
+  Kuramoto (analytical): N=7655412, K_eff=1.6234, K_c=0.0100, σ_ω=0.0050
+    r_∞ = 0.996883  (synchronized)
+    He⁺ beam: r = 0.9969, λ = 48.91 nm  [sync mode: analytic]
+
+  STAGE 2: Inverse holography (GD)
+
+  GD solver: 500 iter, lr=0.05, reg=0.0001
+    iter    0: loss=-8.653874e-02  corr=-0.3442  mse=2.576377e-01
+    iter  100: loss=-9.180010e-01  corr=-0.9242  mse=6.198496e-03
+    iter  200: loss=-9.749564e-01  corr=-0.9769  mse=1.932363e-03
+    iter  300: loss=-9.821654e-01  corr=-0.9836  mse=1.379780e-03
+    iter  400: loss=-9.851119e-01  corr=-0.9863  mse=1.152952e-03
+    iter  499: loss=-9.866405e-01  corr=-0.9877  mse=1.034999e-03
+    SSIM = 0.4971, eff = 0.7945, time = 1.6s
+
+  STAGE 3: Floquet — SKIPPED (disabled)
+
+  STAGE 4: Diamond caging (Φ = 1.0π)
+
+  STAGE 4: 2D Diamond Caging  [phi=1.00pi, 16x16]
+
+  DIAMOND SPECTRUM CHECK  (16x16, phi=1.0pi)
+  Unique eigenvalues: 3  (OK (AB Caging))
+    2 peaks loaded onto A-sites
+    Fidelity:      0.9897  (PRESERVED)
+    Localization:  1.0000  (CAGED)
+    Spread: 4.00 -> 4.00  (delta=+0.00 cells)
+
+  STAGE 4: Diamond caging (Φ = 0.0π)
+
+  STAGE 4: 2D Diamond Caging  [phi=0.00pi, 16x16]
+    2 peaks loaded onto A-sites
+    Fidelity:      0.0024  (decayed)
+    Localization:  0.0747  (spread)
+    Spread: 4.00 -> 6.74  (delta=+2.74 cells)
+
+=================================================================
+v10 PIPELINE SUMMARY
+=================================================================
+  Source:  He⁺, r = 0.9969
+  CMWB:   B = 100 G, P = 100 Pa, K_dim = 1.623, n_eff = 1000, mode = analytic
+  Holo:   SSIM = 0.4971 (clean), 0.4969 (actual)
+  Caging: Φ=π loc = 1.0000, Φ=0 loc = 0.0747, gap = 0.9253
+
+  Plotting → results/v10_multi_target.png
+  Saved: results/v10_multi_target.png
+
+=================================================================
+DEMO 3: Pressure sweep — source coherence threshold
+=================================================================
+
+#################################################################
+# PRESSURE = 1.0e-03 Pa
+#################################################################
+=================================================================
+INTEGRATED QUANTUM SUBSTRATE  v10
+  He⁺ CMWB → SQUID holography → caging
+=================================================================
+  CMWB source: He⁺ at 1.0 mK
+    B = 100 G, P = 0 Pa, ΔE/E = 1.0%
+    K_dim = 1.623, n_eff = 1000 (Q-limited), N_vol = 7655412
+  He⁺ beam:
+    λ_dB = 48.91 nm, v = 2.038 m/s
+  Grid: 256×256, L = 400 nm, dx = 1.56 nm
+  SQUID: 32×32 (pitch = 12.5 nm)
+  Propagation: 20.0λ = 978.2 nm
+  Floquet: OFF
+  Diamond: 16×16
+  Device: cuda
+
+  STAGE 1: CMWB He⁺ source
+
+  Kuramoto (analytical): N=7655412, K_eff=1.6234, K_c=0.0100, σ_ω=0.0050
+    r_∞ = 0.996915  (synchronized)
+    He⁺ beam: r = 0.9969, λ = 48.91 nm  [sync mode: analytic]
+
+  STAGE 2: Inverse holography (GD)
+
+  GD solver: 500 iter, lr=0.05, reg=0.0001
+    iter    0: loss=-2.468136e-02  corr=-0.3094  mse=2.846719e-01
+    iter  100: loss=-9.809486e-01  corr=-0.9820  mse=1.053076e-03
+    iter  200: loss=-9.943161e-01  corr=-0.9947  mse=3.282387e-04
+    iter  300: loss=-9.972010e-01  corr=-0.9974  mse=1.691711e-04
+    iter  400: loss=-9.982692e-01  corr=-0.9984  mse=1.107191e-04
+    iter  499: loss=-9.987760e-01  corr=-0.9989  mse=8.224351e-05
+    SSIM = 0.8106, eff = 0.8493, time = 1.7s
+
+  STAGE 3: Floquet — SKIPPED (disabled)
+
+=================================================================
+v10 PIPELINE SUMMARY
+=================================================================
+  Source:  He⁺, r = 0.9969
+  CMWB:   B = 100 G, P = 0 Pa, K_dim = 1.623, n_eff = 1000, mode = analytic
+  Holo:   SSIM = 0.8106 (clean), 0.8105 (actual)
+
+#################################################################
+# PRESSURE = 1.0e+00 Pa
+#################################################################
+=================================================================
+INTEGRATED QUANTUM SUBSTRATE  v10
+  He⁺ CMWB → SQUID holography → caging
+=================================================================
+  CMWB source: He⁺ at 1.0 mK
+    B = 100 G, P = 1 Pa, ΔE/E = 1.0%
+    K_dim = 1.623, n_eff = 1000 (Q-limited), N_vol = 7655412
+  He⁺ beam:
+    λ_dB = 48.91 nm, v = 2.038 m/s
+  Grid: 256×256, L = 400 nm, dx = 1.56 nm
+  SQUID: 32×32 (pitch = 12.5 nm)
+  Propagation: 20.0λ = 978.2 nm
+  Floquet: OFF
+  Diamond: 16×16
+  Device: cuda
+
+  STAGE 1: CMWB He⁺ source
+
+  Kuramoto (analytical): N=7655412, K_eff=1.6234, K_c=0.0100, σ_ω=0.0050
+    r_∞ = 0.996915  (synchronized)
+    He⁺ beam: r = 0.9969, λ = 48.91 nm  [sync mode: analytic]
+
+  STAGE 2: Inverse holography (GD)
+
+  GD solver: 500 iter, lr=0.05, reg=0.0001
+    iter    0: loss=3.023405e-02  corr=-0.3113  mse=3.415023e-01
+    iter  100: loss=-9.762939e-01  corr=-0.9776  mse=1.303862e-03
+    iter  200: loss=-9.931419e-01  corr=-0.9935  mse=3.952632e-04
+    iter  300: loss=-9.966958e-01  corr=-0.9969  mse=1.962475e-04
+    iter  400: loss=-9.980323e-01  corr=-0.9982  mse=1.214195e-04
+    iter  499: loss=-9.986457e-01  corr=-0.9987  mse=8.748172e-05
+    SSIM = 0.7963, eff = 0.8444, time = 1.6s
+
+  STAGE 3: Floquet — SKIPPED (disabled)
+
+=================================================================
+v10 PIPELINE SUMMARY
+=================================================================
+  Source:  He⁺, r = 0.9969
+  CMWB:   B = 100 G, P = 1 Pa, K_dim = 1.623, n_eff = 1000, mode = analytic
+  Holo:   SSIM = 0.7963 (clean), 0.7963 (actual)
+
+#################################################################
+# PRESSURE = 1.0e+02 Pa
+#################################################################
+=================================================================
+INTEGRATED QUANTUM SUBSTRATE  v10
+  He⁺ CMWB → SQUID holography → caging
+=================================================================
+  CMWB source: He⁺ at 1.0 mK
+    B = 100 G, P = 100 Pa, ΔE/E = 1.0%
+    K_dim = 1.623, n_eff = 1000 (Q-limited), N_vol = 7655412
+  He⁺ beam:
+    λ_dB = 48.91 nm, v = 2.038 m/s
+  Grid: 256×256, L = 400 nm, dx = 1.56 nm
+  SQUID: 32×32 (pitch = 12.5 nm)
+  Propagation: 20.0λ = 978.2 nm
+  Floquet: OFF
+  Diamond: 16×16
+  Device: cuda
+
+  STAGE 1: CMWB He⁺ source
+
+  Kuramoto (analytical): N=7655412, K_eff=1.6234, K_c=0.0100, σ_ω=0.0050
+    r_∞ = 0.996883  (synchronized)
+    He⁺ beam: r = 0.9969, λ = 48.91 nm  [sync mode: analytic]
+
+  STAGE 2: Inverse holography (GD)
+
+  GD solver: 500 iter, lr=0.05, reg=0.0001
+    iter    0: loss=1.764329e-02  corr=-0.3107  mse=3.283781e-01
+    iter  100: loss=-9.769741e-01  corr=-0.9782  mse=1.239839e-03
+    iter  200: loss=-9.930418e-01  corr=-0.9934  mse=3.904782e-04
+    iter  300: loss=-9.965755e-01  corr=-0.9968  mse=1.986257e-04
+    iter  400: loss=-9.979292e-01  corr=-0.9981  mse=1.262716e-04
+    iter  499: loss=-9.985753e-01  corr=-0.9987  mse=9.046799e-05
+    SSIM = 0.7831, eff = 0.8407, time = 1.5s
+
+  STAGE 3: Floquet — SKIPPED (disabled)
+
+=================================================================
+v10 PIPELINE SUMMARY
+=================================================================
+  Source:  He⁺, r = 0.9969
+  CMWB:   B = 100 G, P = 100 Pa, K_dim = 1.623, n_eff = 1000, mode = analytic
+  Holo:   SSIM = 0.7831 (clean), 0.7831 (actual)
+
+#################################################################
+# PRESSURE = 1.0e+03 Pa
+#################################################################
+=================================================================
+INTEGRATED QUANTUM SUBSTRATE  v10
+  He⁺ CMWB → SQUID holography → caging
+=================================================================
+  CMWB source: He⁺ at 1.0 mK
+    B = 100 G, P = 1000 Pa, ΔE/E = 1.0%
+    K_dim = 1.623, n_eff = 1000 (Q-limited), N_vol = 7655412
+  He⁺ beam:
+    λ_dB = 48.91 nm, v = 2.038 m/s
+  Grid: 256×256, L = 400 nm, dx = 1.56 nm
+  SQUID: 32×32 (pitch = 12.5 nm)
+  Propagation: 20.0λ = 978.2 nm
+  Floquet: OFF
+  Diamond: 16×16
+  Device: cuda
+
+  STAGE 1: CMWB He⁺ source
+
+  Kuramoto (analytical): N=7655412, K_eff=1.6234, K_c=0.0100, σ_ω=0.0050
+    r_∞ = 0.996595  (synchronized)
+    He⁺ beam: r = 0.9966, λ = 48.91 nm  [sync mode: analytic]
+
+  STAGE 2: Inverse holography (GD)
+
+  GD solver: 500 iter, lr=0.05, reg=0.0001
+    iter    0: loss=-3.767804e-03  corr=-0.3158  mse=3.120541e-01
+    iter  100: loss=-9.796339e-01  corr=-0.9808  mse=1.125847e-03
+    iter  200: loss=-9.939435e-01  corr=-0.9943  mse=3.471903e-04
+    iter  300: loss=-9.969832e-01  corr=-0.9972  mse=1.829395e-04
+    iter  400: loss=-9.981405e-01  corr=-0.9983  mse=1.185967e-04
+    iter  499: loss=-9.986878e-01  corr=-0.9988  mse=8.947949e-05
+    SSIM = 0.8039, eff = 0.8465, time = 1.6s
+
+  STAGE 3: Floquet — SKIPPED (disabled)
+
+=================================================================
+v10 PIPELINE SUMMARY
+=================================================================
+  Source:  He⁺, r = 0.9966
+  CMWB:   B = 100 G, P = 1000 Pa, K_dim = 1.623, n_eff = 1000, mode = analytic
+  Holo:   SSIM = 0.8039 (clean), 0.8039 (actual)
+
+#################################################################
+# PRESSURE = 1.0e+04 Pa
+#################################################################
+=================================================================
+INTEGRATED QUANTUM SUBSTRATE  v10
+  He⁺ CMWB → SQUID holography → caging
+=================================================================
+  CMWB source: He⁺ at 1.0 mK
+    B = 100 G, P = 10000 Pa, ΔE/E = 1.0%
+    K_dim = 0.504, n_eff = 311 (collision-limited), N_vol = 7655412
+  He⁺ beam:
+    λ_dB = 48.91 nm, v = 2.038 m/s
+  Grid: 256×256, L = 400 nm, dx = 1.56 nm
+  SQUID: 32×32 (pitch = 12.5 nm)
+  Propagation: 20.0λ = 978.2 nm
+  Floquet: OFF
+  Diamond: 16×16
+  Device: cuda
+
+  STAGE 1: CMWB He⁺ source
+
+  Kuramoto (analytical): N=7655412, K_eff=0.5045, K_c=0.0100, σ_ω=0.0050
+    r_∞ = 0.986859  (synchronized)
+    p_scatter correction: 0.0032
+    He⁺ beam: r = 0.9869, λ = 48.91 nm  [sync mode: analytic]
+
+  STAGE 2: Inverse holography (GD)
+
+  GD solver: 500 iter, lr=0.05, reg=0.0001
+    iter    0: loss=3.686799e-02  corr=-0.3098  mse=3.467044e-01
+    iter  100: loss=-9.790929e-01  corr=-0.9802  mse=1.148992e-03
+    iter  200: loss=-9.939694e-01  corr=-0.9943  mse=3.437854e-04
+    iter  300: loss=-9.970068e-01  corr=-0.9972  mse=1.777206e-04
+    iter  400: loss=-9.981621e-01  corr=-0.9983  mse=1.146966e-04
+    iter  499: loss=-9.987087e-01  corr=-0.9988  mse=8.475369e-05
+    SSIM = 0.8035, eff = 0.8467, time = 1.6s
+
+  STAGE 3: Floquet — SKIPPED (disabled)
+
+=================================================================
+v10 PIPELINE SUMMARY
+=================================================================
+  Source:  He⁺, r = 0.9869
+  CMWB:   B = 100 G, P = 10000 Pa, K_dim = 0.504, n_eff = 311, mode = analytic
+  Holo:   SSIM = 0.8035 (clean), 0.8031 (actual)
+
+#################################################################
+# PRESSURE = 1.0e+05 Pa
+#################################################################
+=================================================================
+INTEGRATED QUANTUM SUBSTRATE  v10
+  He⁺ CMWB → SQUID holography → caging
+=================================================================
+  CMWB source: He⁺ at 1.0 mK
+    B = 100 G, P = 101325 Pa, ΔE/E = 1.0%
+    K_dim = 0.050, n_eff = 31 (collision-limited), N_vol = 7655412
+  He⁺ beam:
+    λ_dB = 48.91 nm, v = 2.038 m/s
+  Grid: 256×256, L = 400 nm, dx = 1.56 nm
+  SQUID: 32×32 (pitch = 12.5 nm)
+  Propagation: 20.0λ = 978.2 nm
+  Floquet: OFF
+  Diamond: 16×16
+  Device: cuda
+
+  STAGE 1: CMWB He⁺ source
+
+  Kuramoto (analytical): N=7655412, K_eff=0.0498, K_c=0.0100, σ_ω=0.0050
+    r_∞ = 0.865284  (synchronized)
+    p_scatter correction: 0.0321
+    He⁺ beam: r = 0.8653, λ = 48.91 nm  [sync mode: analytic]
+
+  STAGE 2: Inverse holography (GD)
+
+  GD solver: 500 iter, lr=0.05, reg=0.0001
+    iter    0: loss=4.513803e-02  corr=-0.3068  mse=3.519146e-01
+    iter  100: loss=-9.792761e-01  corr=-0.9804  mse=1.144959e-03
+    iter  200: loss=-9.934481e-01  corr=-0.9938  mse=3.736447e-04
+    iter  300: loss=-9.966370e-01  corr=-0.9968  mse=1.994732e-04
+    iter  400: loss=-9.979449e-01  corr=-0.9981  mse=1.277769e-04
+    iter  499: loss=-9.985823e-01  corr=-0.9987  mse=9.228384e-05
+    SSIM = 0.7890, eff = 0.8423, time = 1.6s
+
+  STAGE 3: Floquet — SKIPPED (disabled)
+
+=================================================================
+v10 PIPELINE SUMMARY
+=================================================================
+  Source:  He⁺, r = 0.8653
+  CMWB:   B = 100 G, P = 101325 Pa, K_dim = 0.050, n_eff = 31, mode = analytic
+  Holo:   SSIM = 0.7890 (clean), 0.7911 (actual)
+
+  Plotting → results/v10_pressure_sweep.png
+  Saved: results/v10_pressure_sweep.png
+
+=================================================================
+ALL SIMULATIONS COMPLETE
+=================================================================
+
+Output files:
+  results/v10_pipeline_dots.png     — Full pipeline demo
+  results/v10_multi_target.png      — 5 target benchmark
+  results/v10_pressure_sweep.png    — Coherence threshold
+
+Key results (vacuum source, P = 100 Pa):
+  Source r:     0.9969
+  Holo SSIM:    0.7888
+  Holo eff:     0.8419
+  Cage loc:     1.0000
+
+Multi-target SSIMs:
+  spot      : SSIM=0.813  eff=0.719
+  line      : SSIM=0.553  eff=0.804
+  dots      : SSIM=0.792  eff=0.843
+  ring      : SSIM=0.610  eff=0.879
+  letter    : SSIM=0.497  eff=0.794
+
+Pressure sweep:
+  P (Pa)            r     SSIM    K_dim
+  --------------------------------------
+  1.0e-03      0.9969   0.8106    1.623
+  1.0e+00      0.9969   0.7963    1.623
+  1.0e+02      0.9969   0.7831    1.623
+  1.0e+03      0.9966   0.8039    1.623
+  1.0e+04      0.9869   0.8035    0.504
+  1.0e+05      0.8653   0.7890    0.050

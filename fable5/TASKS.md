@@ -13,11 +13,16 @@ the metrics.
 
 ## Phase 0 — Baseline snapshot
 
-- [ ] **T0. Record the current baseline.** Run `sim_v10.main()` on the
+- [x] **T0. Record the current baseline.** Run `sim_v10.main()` on the
       unmodified code and save the printed metrics (SSIM clean/actual,
       efficiency, cage loc, pressure-sweep table) to `fable5/baseline_v10.txt`.
       Every later task is judged against this.
       *Check: file exists; numbers match reports/v10_report.md.*
+      **Done 2026-07-03** — raw log in [baseline_v10.txt](baseline_v10.txt),
+      comparison and observations in [baseline_summary.md](baseline_summary.md).
+      Demo 1 matches the report to 3 decimals; note that line/letter targets
+      show ±0.03–0.08 run-to-run solver spread, so use this machine's numbers
+      (not the report table) as the Phase 1 comparator.
 
 ## Phase 1 — One-line physics fixes (hours)
 
