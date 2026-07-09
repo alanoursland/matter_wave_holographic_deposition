@@ -30,14 +30,15 @@ import warnings
 warnings.filterwarnings('ignore')
 
 from sim_v9 import IntegratedQuantumSubstrate
-from iqs.constants import hbar, k_B, m_He
+from iqs.constants import hbar, k_B, m_He, m_e, Phi_0_e
 from iqs.numerics.device import get_device
 from iqs.numerics.metrics import michelson_contrast, ssim_score, min_feature_size
 from iqs.numerics.propagation import AngularSpectrumPropagator
 
 _device = get_device()
 mu_0 = 4 * np.pi * 1e-7   # vacuum permeability [H/m]
-Phi_0 = 2.067833848e-15    # magnetic flux quantum [Wb]
+# NOTE: AB-phase <-> flux conversions use Phi_0_e = h/e (charge-e probe),
+# imported from iqs.constants — not the pair flux quantum h/2e (fable5 E3).
 
 os.makedirs('results', exist_ok=True)
 
@@ -155,7 +156,12 @@ class SQUIDArray:
         """
         Convert AB phases to the drive currents needed to produce them.
 
-        Phi_i = phi_i * Phi_0 / (2 pi)   (flux from phase)
+        The AB phase of a charge-q particle enclosing flux Phi is
+        phi = q Phi / hbar, so the flux required for phase phi is
+            Phi_i = phi_i * (h/e) / (2 pi) = phi_i * Phi_0_e / (2 pi)
+        for a singly charged ion (He+).  Note: Phi_0_e = h/e, NOT the
+        superconducting pair flux quantum h/2e (fable5 E3).
+
         I = M^{-1} Phi                    (currents from flux)
 
         Parameters
@@ -170,14 +176,14 @@ class SQUIDArray:
             self.build_inductance_matrix()
 
         phi_flat = np.asarray(phi_loops).ravel()
-        flux = phi_flat * Phi_0 / (2 * np.pi)
+        flux = phi_flat * Phi_0_e / (2 * np.pi)
         return self._M_inv @ flux
 
     def currents_to_flux(self, currents):
         """
-        Convert drive currents back to AB phases.
+        Convert drive currents back to AB phases (charge-e probe).
 
-        Phi = M I   -> phi = 2 pi Phi / Phi_0
+        Phi = M I   -> phi = 2 pi Phi / Phi_0_e   (Phi_0_e = h/e, fable5 E3)
 
         Parameters
         ----------
@@ -191,7 +197,7 @@ class SQUIDArray:
             self.build_inductance_matrix()
 
         flux = self._M @ np.asarray(currents).ravel()
-        phi = flux * (2 * np.pi) / Phi_0
+        phi = flux * (2 * np.pi) / Phi_0_e
         return phi.reshape(self.N_loops, self.N_loops)
 
     def current_map_summary(self, phi_loops):
@@ -248,8 +254,9 @@ class InverseHolographySolver:
         self.T_beam = T_beam
         self.prop_distance_lam = prop_distance_lam
 
-        # Physical parameters (He-4 at T_beam)
-        self.mass = m_He
+        # Physical parameters (He+ ion at T_beam: neutral He-4 mass minus
+        # the removed electron, fable5 E7 — 0.007% correction)
+        self.mass = m_He - m_e
         self.v    = np.sqrt(2 * k_B * T_beam / m_He)
         self.k0   = self.mass * self.v / hbar
         self.lam  = 2 * np.pi / self.k0

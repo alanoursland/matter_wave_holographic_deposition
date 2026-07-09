@@ -33,7 +33,9 @@ def ssim_score(ref: np.ndarray, test: np.ndarray) -> float:
     """
     Structural Similarity Index (SSIM) between two 2-D arrays.
 
-    Uses skimage if available; falls back to normalised cross-correlation.
+    Requires scikit-image.  (A silent fallback to Pearson correlation was
+    removed — fable5 E7 — because it is a different metric on a different
+    scale and made results environment-dependent.)
 
     Parameters
     ----------
@@ -45,16 +47,16 @@ def ssim_score(ref: np.ndarray, test: np.ndarray) -> float:
     float
         SSIM value in [-1, 1]; 1.0 means identical.
     """
-    r = ref  / (ref.max()  + 1e-30)
-    t = test / (test.max() + 1e-30)
     try:
         from skimage.metrics import structural_similarity
-        return structural_similarity(r, t, data_range=1.0)
-    except ImportError:
-        r_f = r - r.mean()
-        t_f = t - t.mean()
-        return float(np.sum(r_f * t_f) /
-                     (np.sqrt(np.sum(r_f ** 2) * np.sum(t_f ** 2)) + 1e-30))
+    except ImportError as exc:
+        raise ImportError(
+            "ssim_score requires scikit-image (pip install scikit-image); "
+            "refusing to silently substitute a different metric."
+        ) from exc
+    r = ref  / (ref.max()  + 1e-30)
+    t = test / (test.max() + 1e-30)
+    return structural_similarity(r, t, data_range=1.0)
 
 
 def min_feature_size(density: np.ndarray, x_axis: np.ndarray) -> float:

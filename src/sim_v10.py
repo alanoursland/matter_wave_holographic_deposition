@@ -36,12 +36,12 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
-from scipy.ndimage import gaussian_filter
 import warnings
 warnings.filterwarnings('ignore')
 
 from coherent_matterwave_beam import (
     CoherentMatterwaveBeam, CavityGeometry, SPECIES,
+    coherence_sigma_theta, sample_phase_noise,
     hbar, k_B, e_C, m_u,
 )
 from inverse_holography import (
@@ -82,8 +82,11 @@ class IntegratedPipelineV10:
     ----------
     B_field : float
         Magnetic field for AB synchronization in the CMWB cavity [T].
-    pressure_Pa : float
+    pressure_Pa : float or None
         CMWB cavity pressure [Pa].  Determines effective passes.
+        None (default): use the supplied cavity's pressure, or 100 Pa
+        for a freshly created cavity.  Explicit values override the
+        supplied cavity's pressure.
     dE_frac : float
         Beam energy spread ΔE/E.
     beam_current_A : float
@@ -110,18 +113,24 @@ class IntegratedPipelineV10:
         Diamond lattice dimensions for caging.
     """
 
-    def __init__(self, B_field=0.01, pressure_Pa=100,
+    def __init__(self, B_field=0.01, pressure_Pa=None,
                  dE_frac=0.01, beam_current_A=1e-6,
                  cavity=None, T_beam=1e-3,
                  N=256, L=400e-9, N_loops=32,
                  prop_distance_lam=20.0,
                  use_floquet=False, V_max_floquet=0.9,
                  n_resonant=0,
-                 N_diamond_x=16, N_diamond_y=16):
+                 N_diamond_x=16, N_diamond_y=16,
+                 coherence_xi=50e-9, n_noise_realizations=100):
         self.N = N
         self.L = L
         self.dx = L / N
         self.N_loops = N_loops
+        # Partial-coherence model (fable5 E2/T6): transverse correlation
+        # length ξ⊥ of the source phase noise, and ensemble size M for
+        # the intensity average that models incoherent ion arrivals.
+        self.coherence_xi = coherence_xi
+        self.n_noise_realizations = n_noise_realizations
         self.prop_distance_lam = prop_distance_lam
         self.use_floquet = use_floquet
         self.V_max_floquet = V_max_floquet
@@ -131,9 +140,17 @@ class IntegratedPipelineV10:
         self.T_beam = T_beam
 
         # --- CMWB source (He⁺) ---
-        cav = cavity or CavityGeometry(pressure_Pa=pressure_Pa)
-        if cavity is not None and pressure_Pa != 101325:
-            cav.pressure = pressure_Pa
+        # pressure_Pa=None means: use the supplied cavity's own pressure
+        # (or the 100 Pa default for a fresh cavity).  An explicit
+        # pressure_Pa always wins (fable5 E7: the old logic silently
+        # clobbered a user-supplied cavity's pressure with the default).
+        if cavity is None:
+            cav = CavityGeometry(
+                pressure_Pa=100 if pressure_Pa is None else pressure_Pa)
+        else:
+            cav = cavity
+            if pressure_Pa is not None:
+                cav.pressure = pressure_Pa
         self.cmwb = CoherentMatterwaveBeam(
             species='He+', E_kinetic_eV=k_B * T_beam / e_C,
             B_field=B_field, cavity=cav,
@@ -215,12 +232,20 @@ class IntegratedPipelineV10:
         X, Y = np.meshgrid(x, x, indexing='ij')
         sigma = 0.35 * self.L
 
-        psi = (np.exp(-(X**2 + Y**2) / (2 * sigma**2))
-               * np.exp(1j * self.k0 * X))
+        # Transverse envelope only: the forward momentum hbar*k0 lives in the
+        # propagator's kz, so a normally incident beam has no transverse
+        # phase ramp (fable5 E1: exp(i*k0*X) here put the whole spectrum at
+        # the evanescent cutoff).
+        psi = np.exp(-(X**2 + Y**2) / (2 * sigma**2)).astype(np.complex128)
 
-        # Phase noise proportional to incoherence
-        noise = (1 - r) * np.random.normal(0, np.pi, (self.N, self.N))
-        noise = gaussian_filter(noise, sigma=3)
+        # One phase-noise realization at the physical RMS σ_θ = √(−2 ln r),
+        # correlated over ξ⊥ and renormalized so the applied RMS equals
+        # the nominal (fable5 E2/T6; the old (1−r)π + smoothing applied
+        # ~10× less noise than stated).
+        sigma_theta = coherence_sigma_theta(r)
+        rng = np.random.default_rng(seed)
+        noise = sample_phase_noise(self.N, sigma_theta,
+                                   self.coherence_xi / self.dx, rng)
         psi = psi * np.exp(1j * noise)
 
         # Normalize
@@ -230,6 +255,9 @@ class IntegratedPipelineV10:
             print(f"    He⁺ beam: r = {r:.4f}, "
                   f"λ = {self.lam*1e9:.2f} nm  "
                   f"[sync mode: {sync.get('mode', 'unknown')}]")
+            print(f"    Phase noise: σ_θ nominal = {sigma_theta:.4f} rad, "
+                  f"applied RMS = {noise.std():.4f} rad, "
+                  f"ξ⊥ = {self.coherence_xi*1e9:.0f} nm")
 
         return psi, sync
 
@@ -342,12 +370,14 @@ class IntegratedPipelineV10:
         psi_source, sync_result = self.generate_source(
             seed=seed, verbose=verbose)
 
-        # Build deterministic beam profile (envelope × plane wave, no noise)
+        # Build deterministic beam profile (transverse envelope, no noise).
+        # No exp(i*k0*X) factor: forward momentum is carried by the
+        # propagator's kz (fable5 E1).
         x = np.linspace(-self.L / 2, self.L / 2, self.N)
         X, Y = np.meshgrid(x, x, indexing='ij')
         sigma = 0.35 * self.L
-        psi_profile = (np.exp(-(X**2 + Y**2) / (2 * sigma**2))
-                       * np.exp(1j * self.k0 * X)).astype(np.complex128)
+        psi_profile = np.exp(-(X**2 + Y**2)
+                             / (2 * sigma**2)).astype(np.complex128)
         psi_profile /= np.sqrt(np.sum(np.abs(psi_profile)**2) * self.dx**2)
 
         # Solver optimizes against the deterministic profile
@@ -364,16 +394,52 @@ class IntegratedPipelineV10:
 
         density_holo = holo['P_achieved']
 
-        # Evaluate actual deposition: noisy source through optimized screen
+        # Evaluate actual deposition (fable5 E2/T6): partial coherence is
+        # an ENSEMBLE property — ions arrive sequentially and their
+        # intensities add incoherently.  Average |ψ|² over M independent
+        # phase-noise realizations at σ_θ = √(−2 ln r); a single frozen
+        # screen merely re-steers a coherent beam and cannot blur.
         screen_t = torch.tensor(holo['phase_screen'], dtype=torch.float64,
                                  device=_device)
         T_screen = SQUIDArray.phase_screen_to_transmission(screen_t)
-        psi_source_t = torch.tensor(psi_source, dtype=torch.complex128,
-                                      device=_device)
-        psi_actual = self.holo_solver._propagate_torch(
-            psi_source_t * T_screen, forward=True)
-        density_actual = torch.abs(psi_actual).cpu().numpy()**2
+
+        r_src = sync_result['r_final']
+        sigma_theta = coherence_sigma_theta(r_src)
+        M = self.n_noise_realizations if sigma_theta > 0 else 1
+        rng = np.random.default_rng(seed)
+        xi_pix = self.coherence_xi / self.dx
+
+        density_actual = np.zeros((self.N, self.N))
+        rms_applied = []
+        for _ in range(M):
+            noise = sample_phase_noise(self.N, sigma_theta, xi_pix, rng)
+            rms_applied.append(noise.std())
+            psi_m = psi_profile * np.exp(1j * noise)
+            psi_m /= np.sqrt(np.sum(np.abs(psi_m)**2) * self.dx**2)
+            psi_m_t = torch.tensor(psi_m, dtype=torch.complex128,
+                                   device=_device)
+            psi_out = self.holo_solver._propagate_torch(
+                psi_m_t * T_screen, forward=True)
+            density_actual += torch.abs(psi_out).cpu().numpy()**2
+        density_actual /= M
+        rms_applied = float(np.mean(rms_applied))
         metrics_actual = compute_metrics(density_actual, holo['P_target'])
+
+        # Transport attenuation (fable5 E6/T8): survival of the beam over
+        # the cavity-exit → substrate leg at the ambient pressure, using
+        # the Langevin mfp.  Reported separately — it does not rescale
+        # the (peak-normalized) pattern metrics.
+        L_transport = self.prop_distance_lam * self.lam
+        transport_surv = self.cmwb.transport_survival(L_transport)
+
+        if verbose:
+            print(f"\n  Ensemble deposition: M = {M} realizations, "
+                  f"σ_θ nominal = {sigma_theta:.4f} rad, "
+                  f"applied RMS = {rms_applied:.4f} rad")
+            print(f"  Transport survival over {L_transport*1e9:.0f} nm at "
+                  f"P = {self.cmwb.cavity.pressure:.3g} Pa: "
+                  f"{transport_surv:.3e} "
+                  f"(mfp = {self.cmwb.mfp_beam:.3e} m)")
 
         # Stage 3: Optional Floquet
         density_post_floquet, floquet_info = self.floquet_filter(
@@ -401,6 +467,11 @@ class IntegratedPipelineV10:
             'floquet_info':     floquet_info,
             'cage_pi':          cage_pi,
             'cage_0':           cage_0,
+            'sigma_theta':      sigma_theta,
+            'noise_rms_applied': rms_applied,
+            'M_realizations':   M,
+            'transport_survival': transport_surv,
+            'mfp_beam_m':       self.cmwb.mfp_beam,
             'lam_nm':           self.lam * 1e9,
             'pressure_Pa':      self.cmwb.cavity.pressure,
             'B_gauss':          self.cmwb.B * 1e4,
@@ -429,7 +500,11 @@ class IntegratedPipelineV10:
         m_clean = r['holo']['metrics']
         m_actual = r.get('metrics_actual', m_clean)
         print(f"  Holo:   SSIM = {m_clean['ssim']:.4f} (clean), "
-              f"{m_actual['ssim']:.4f} (actual)")
+              f"{m_actual['ssim']:.4f} (actual, M={r.get('M_realizations', 1)}), "
+              f"gap = {m_clean['ssim'] - m_actual['ssim']:.4f}")
+        print(f"  Noise:  σ_θ = {r.get('sigma_theta', 0):.4f} rad nominal, "
+              f"{r.get('noise_rms_applied', 0):.4f} rad applied")
+        print(f"  Transport survival: {r.get('transport_survival', 1):.3e}")
         if r['floquet_info']:
             fi = r['floquet_info']
             print(f"  Floquet: S = {fi.get('entropy', 'N/A')}, "
@@ -686,6 +761,8 @@ def plot_pressure_sweep(sweep_results,
     pressures = [r['pressure'] for r in sweep_results]
     rs = [r['r_source'] for r in sweep_results]
     ssims = [r['holo']['metrics']['ssim'] for r in sweep_results]
+    ssims_act = [r.get('metrics_actual', r['holo']['metrics'])['ssim']
+                 for r in sweep_results]
     effs = [r['holo']['metrics']['efficiency'] for r in sweep_results]
     K_dims = [r['K_dim'] for r in sweep_results]
 
@@ -705,22 +782,27 @@ def plot_pressure_sweep(sweep_results,
                     textcoords='offset points', xytext=(5, 5))
 
     ax = axes[1]
-    ax.semilogx(pressures, ssims, 'rs-', lw=2, markersize=8)
+    ax.semilogx(pressures, ssims, 'rs-', lw=2, markersize=8,
+                label='clean')
+    ax.semilogx(pressures, ssims_act, 'b^--', lw=2, markersize=8,
+                label='actual (ensemble)')
     ax.set_xlabel('Cavity pressure (Pa)')
     ax.set_ylabel('Holographic SSIM')
     ax.set_title('Deposition fidelity vs pressure', fontweight='bold')
     ax.grid(True, alpha=0.3)
     ax.set_ylim(0, 1.05)
+    ax.legend()
 
     ax = axes[2]
-    ax.plot(rs, ssims, 'ko-', lw=2, markersize=8)
+    ax.plot(rs, ssims_act, 'ko-', lw=2, markersize=8)
     ax.set_xlabel('Source coherence r')
     ax.set_ylabel('Holographic SSIM')
     ax.set_title('SSIM vs source coherence', fontweight='bold')
     ax.grid(True, alpha=0.3)
     ax.set_ylim(0, 1.05)
     ax.set_xlim(-0.05, 1.05)
-    for p, r, s in zip(pressures, rs, ssims):
+    ax.set_ylabel('Holographic SSIM (actual)')
+    for p, r, s in zip(pressures, rs, ssims_act):
         label = f'{p:.0e}Pa' if p >= 1 else f'{p:.0e}'
         ax.annotate(label, (r, s), fontsize=7,
                     textcoords='offset points', xytext=(5, 5))
@@ -756,6 +838,21 @@ def main():
 
     DiamondNetwork(Lx=4, Ly=4).validate_spectrum(
         phi=np.pi, abort_on_fail=True)
+
+    # Kuramoto mode gate (fable5 T9): analytic and ODE branches must
+    # agree at a size where both are affordable, above and below
+    # threshold.  mode='auto' may then switch numerical method without
+    # switching theory.
+    cmwb_gate = CoherentMatterwaveBeam(
+        species='He+', E_kinetic_eV=k_B * 1e-3 / e_C, B_field=0.01,
+        cavity=CavityGeometry(pressure_Pa=1e-3), dE_frac=0.01)
+    ok_sync, _, _ = cmwb_gate.validate_kuramoto_modes(N=500, tol=0.15)
+    cmwb_gate_weak = CoherentMatterwaveBeam(
+        species='He+', E_kinetic_eV=k_B * 1e-3 / e_C, B_field=0.0001,
+        cavity=CavityGeometry(pressure_Pa=1e-3), dE_frac=0.01)
+    ok_weak, _, _ = cmwb_gate_weak.validate_kuramoto_modes(N=500, tol=0.15)
+    if not (ok_sync and ok_weak):
+        sys.exit("ABORT: Kuramoto analytic/ODE validation gate failed.")
 
     squid_val = SQUIDArray(N_loops=32, N_grid=N, L_grid=L)
     solver_val = InverseHolographySolver(
@@ -852,12 +949,16 @@ def main():
               f"eff={m['efficiency']:.3f}")
 
     print(f"\nPressure sweep:")
-    print(f"  {'P (Pa)':<12} {'r':>6} {'SSIM':>8} {'K_dim':>8}")
-    print(f"  {'-'*38}")
+    print(f"  {'P (Pa)':<12} {'r':>6} {'σ_θ':>8} {'SSIM_cl':>8} "
+          f"{'SSIM_act':>9} {'gap':>7} {'K_dim':>8} {'survival':>10}")
+    print(f"  {'-'*74}")
     for r in sweep:
         m = r['holo']['metrics']
+        ma = r.get('metrics_actual', m)
         print(f"  {r['pressure']:<12.1e} {r['r_source']:6.4f} "
-              f"{m['ssim']:8.4f} {r['K_dim']:8.3f}")
+              f"{r.get('sigma_theta', 0):8.4f} {m['ssim']:8.4f} "
+              f"{ma['ssim']:9.4f} {m['ssim'] - ma['ssim']:7.4f} "
+              f"{r['K_dim']:8.3f} {r.get('transport_survival', 1):10.3e}")
 
 
 if __name__ == "__main__":

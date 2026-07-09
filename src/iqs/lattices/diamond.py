@@ -2,7 +2,8 @@
 2D Diamond-network tight-binding model with flux-dependent Aharonov-Bohm caging.
 
 Unit cell — 5 sites:
-  A  : hub site (coordination 4)
+  A  : hub site (coordination 8: four diamonds — right/left/up/down —
+       meet at each hub, contributing two bridge bonds each)
   B1 : horizontal diamond, upper bridge
   B2 : horizontal diamond, lower bridge
   C1 : vertical diamond, upper bridge
@@ -56,7 +57,8 @@ class DiamondNetwork:
 
     def build_hamiltonian(self, phi: float = np.pi, J: float = 1.0,
                           disorder_W: float = 0.0,
-                          disorder_frac: float = 1.0) -> np.ndarray:
+                          disorder_frac: float = 1.0,
+                          disorder_seed: int | None = None) -> np.ndarray:
         """
         Build the tight-binding Hamiltonian with AB phase factors.
 
@@ -73,6 +75,10 @@ class DiamondNetwork:
             On-site disorder strength (uniform in [−W/2, W/2]).
         disorder_frac : float
             Fraction of sites that receive disorder.
+        disorder_seed : int or None
+            Seed for the disorder realisation.  None (default) draws from
+            the global NumPy RNG (legacy behaviour — reproducible only if
+            the caller seeds np.random itself).
 
         Returns
         -------
@@ -115,11 +121,14 @@ class DiamondNetwork:
         H[a, c2] = J;  H[c2, a] = J
         H[c2, a_up] = phase_m;  H[a_up, c2] = np.conj(phase_m)
 
-        # On-site disorder
+        # On-site disorder (seedable; global RNG when no seed, for
+        # backward compatibility with callers that seed np.random)
         if disorder_W > 0:
+            rng = (np.random.default_rng(disorder_seed)
+                   if disorder_seed is not None else np.random)
             n_dis = int(disorder_frac * dim)
-            sites = np.random.choice(dim, n_dis, replace=False)
-            vals  = np.random.uniform(-disorder_W / 2, disorder_W / 2, n_dis)
+            sites = rng.choice(dim, n_dis, replace=False)
+            vals  = rng.uniform(-disorder_W / 2, disorder_W / 2, n_dis)
             H[sites, sites] += vals
 
         return H
@@ -178,6 +187,7 @@ class DiamondNetwork:
                phi: float = np.pi, J: float = 1.0,
                T: float = 40.0, dt: float = 0.05,
                disorder_W: float = 0.0, disorder_frac: float = 1.0,
+               disorder_seed: int | None = None,
                n_peaks: int | None = None,
                verbose: bool = True) -> Dict[str, Any]:
         """
@@ -202,6 +212,8 @@ class DiamondNetwork:
             On-site disorder strength.
         disorder_frac : float
             Fraction of sites that receive disorder.
+        disorder_seed : int or None
+            Seed for the disorder realisation (see build_hamiltonian).
         n_peaks : int or None
             Number of loaded peaks to record in the result dict.
             Defaults to counting non-zero A-sites in *psi0*.
@@ -269,7 +281,8 @@ class DiamondNetwork:
         # ── Move to GPU ───────────────────────────────────────────────
         H_np = self.build_hamiltonian(phi=phi, J=J,
                                        disorder_W=disorder_W,
-                                       disorder_frac=disorder_frac)
+                                       disorder_frac=disorder_frac,
+                                       disorder_seed=disorder_seed)
         H_t          = torch.tensor(H_np,        dtype=torch.complex128, device=_device)
         psi_t        = torch.tensor(psi_np,       dtype=torch.complex128, device=_device)
         psi0_t       = torch.tensor(psi0_np,      dtype=torch.complex128, device=_device)

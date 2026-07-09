@@ -86,24 +86,36 @@ class TestParameterDerivation:
             f"in a single cavity"
         )
 
-    def test_p_scatter_ballistic_regime(self):
-        """At default pressure, AK_gap << mfp → p_scatter ≈ AK_gap/mfp ≈ 0.033."""
+    def test_p_scatter_consistent_with_langevin_mfp(self):
+        """p_scatter = 1 − exp(−AK_gap/mfp) with the Langevin mfp (T8)."""
         sim = CoherentMatterwaveBeam(species='electron')
-        mfp = sim.cavity.mean_free_path()
+        mfp = sim.cavity.mean_free_path(v_beam=sim.v)
         expected = 1.0 - np.exp(-sim.cavity.AK_gap / mfp)
-
         assert abs(sim.p_scatter - expected) < 1e-10
-        assert 0.02 < sim.p_scatter < 0.05, (
-            f"p_scatter = {sim.p_scatter:.4f}, expected ~0.033 for "
-            f"AK_gap=0.1mm, mfp≈3mm"
+
+    def test_he_ion_mfp_subnm_at_atmosphere(self):
+        """T8 acceptance: mfp at 1 atm for a 2 m/s He⁺ is sub-nm
+        (verification.md §3: Langevin σ_L = k_L/v makes slow ions
+        enormous scattering targets)."""
+        cav = CavityGeometry(pressure_Pa=101325)
+        # He⁺ at 1 mK → v ≈ 2.04 m/s
+        from coherent_matterwave_beam import k_B, e_C
+        sim = CoherentMatterwaveBeam(species='He+',
+                                     E_kinetic_eV=k_B * 1e-3 / e_C,
+                                     cavity=cav)
+        assert 1.9 < sim.v < 2.2
+        assert sim.mfp_beam < 1e-9, (
+            f"He+ mfp at 1 atm = {sim.mfp_beam:.3e} m, expected sub-nm"
         )
 
-    def test_p_scatter_independent_of_species(self):
-        """Scatter probability depends on gas properties, not beam species."""
-        sims = [CoherentMatterwaveBeam(species=sp)
-                for sp in ['electron', 'He+', 'Na+', 'Rb+']]
-        p_values = [s.p_scatter for s in sims]
-        assert all(abs(p - p_values[0]) < 1e-10 for p in p_values)
+    def test_p_scatter_depends_on_species_velocity(self):
+        """σ_L = k_L/v: slower (heavier) species scatter more (T8),
+        so p_scatter is species-dependent — inverting the old model."""
+        sim_e  = CoherentMatterwaveBeam(species='electron',
+                                        cavity=CavityGeometry(pressure_Pa=100))
+        sim_rb = CoherentMatterwaveBeam(species='Rb+',
+                                        cavity=CavityGeometry(pressure_Pa=100))
+        assert sim_rb.p_scatter > sim_e.p_scatter
 
     def test_p_scatter_increases_with_pressure(self):
         """Higher pressure → shorter mfp → more scattering."""
@@ -136,16 +148,21 @@ class TestSynchronizationDynamics:
     """Verify that synchronize() produces physically correct behavior."""
 
     def test_species_produce_different_r_final(self):
-        """Different species must produce different r_final values."""
+        """Different species must produce different r_final values.
+
+        Rough vacuum (100 Pa): here n_eff is collision-limited and
+        species-dependent through the Langevin mfp ∝ v (T8), so the fast
+        electron keeps a strong coupling while slow heavy ions lose their
+        multi-pass resonance and fall to/below threshold.  (In hard
+        vacuum all species are Q-limited and saturate identically; at
+        1 atm all collapse — both regimes would make this test trivial.)
+        """
         results = {}
         for sp in ['electron', 'He+', 'Rb+']:
-            sim = CoherentMatterwaveBeam(species=sp)
+            sim = CoherentMatterwaveBeam(
+                species=sp, cavity=CavityGeometry(pressure_Pa=100))
             res = sim.synchronize(seed=42, verbose=False, mode='ode')
             results[sp] = res['r_final']
-
-        # With physically derived K_dim, finite-N effects produce large
-        # differences: electrons (N≈26) show much higher r than heavy ions
-        # (N≈2k-10k) because smaller ensembles have larger 1/√N fluctuations
         assert abs(results['electron'] - results['Rb+']) > 0.05, (
             f"Electron and Rb+ should differ substantially, got {results}"
         )
@@ -169,10 +186,12 @@ class TestSynchronizationDynamics:
 
     def test_large_energy_spread_reduces_sync(self):
         """20% energy spread should significantly reduce coherence."""
+        cav = CavityGeometry(pressure_Pa=100)  # near-vacuum (T8: 1 atm kills all sync)
         sim_narrow = CoherentMatterwaveBeam(
-            species='electron', dE_frac=0.001, B_field=1.0)
+            species='electron', dE_frac=0.001, B_field=1.0, cavity=cav)
         sim_broad  = CoherentMatterwaveBeam(
-            species='electron', dE_frac=0.20, B_field=1.0)
+            species='electron', dE_frac=0.20, B_field=1.0,
+            cavity=CavityGeometry(pressure_Pa=100))
 
         res_narrow = sim_narrow.synchronize(seed=42, verbose=False)
         res_broad  = sim_broad.synchronize(seed=42, verbose=False)
@@ -209,9 +228,17 @@ class TestSynchronizationDynamics:
             res = sim.synchronize(seed=42, verbose=False)
             results[label] = res['r_final']
 
-        # Vacuum should be best, dense should be worst
-        assert results['vacuum'] >= results['atm'] >= results['dense'], (
-            f"Expected vacuum >= atm >= dense, got {results}"
+        # Vacuum should be best; atm and dense are both scattering-dead
+        # under the Langevin model (T8) and sit at the noise floor, so
+        # allow small stochastic inversions between them.
+        assert results['vacuum'] > results['atm'] - 0.02
+        assert results['vacuum'] > results['dense'] - 0.02
+        assert results['vacuum'] > 0.9, (
+            f"Vacuum should sync well, got {results}"
+        )
+        assert results['atm'] < 0.5 and results['dense'] < 0.5, (
+            f"Atmospheric/dense should collapse under Langevin scattering, "
+            f"got {results}"
         )
 
     def test_smaller_ensemble_syncs_faster(self):
@@ -239,7 +266,8 @@ class TestSynchronizationDynamics:
         r_final due to accumulated dephasing noise. If dephasing were
         continuous, longer runs would produce lower r.
         """
-        sim = CoherentMatterwaveBeam(species='electron', dE_frac=0.001)
+        sim = CoherentMatterwaveBeam(species='electron', dE_frac=0.001,
+                                     cavity=CavityGeometry(pressure_Pa=100))
 
         res_short = sim.synchronize(seed=42, T_sync_dim=50, verbose=False)
         res_long  = sim.synchronize(seed=42, T_sync_dim=100, verbose=False)
@@ -308,12 +336,20 @@ class TestPhysicalConsistency:
         # v ∝ √E, so v ratio = 2
         assert abs(sim_hi.beta / sim_lo.beta - 2.0) < 0.01
 
-    def test_cavity_ballistic_at_default(self):
-        """Default cavity should be ballistic (AK_gap < mfp)."""
-        sim = CoherentMatterwaveBeam(species='electron')
-        ballistic, mfp = sim.cavity.is_ballistic()
-        assert ballistic
-        assert sim.cavity.AK_gap < mfp
+    def test_cavity_ballistic_only_in_vacuum(self):
+        """Under Langevin scattering (T8), the atmospheric-pressure cavity
+        is NOT ballistic for any species — the vacuum requirement emerges
+        from the model. At rough vacuum the fast electron is ballistic."""
+        sim_atm = CoherentMatterwaveBeam(species='electron')
+        ballistic_atm, _ = sim_atm.cavity.is_ballistic(v_beam=sim_atm.v)
+        assert not ballistic_atm, (
+            "1 atm cavity should not be ballistic with Langevin σ_L"
+        )
+        sim_vac = CoherentMatterwaveBeam(
+            species='electron', cavity=CavityGeometry(pressure_Pa=100))
+        ballistic_vac, mfp = sim_vac.cavity.is_ballistic(v_beam=sim_vac.v)
+        assert ballistic_vac
+        assert sim_vac.cavity.AK_gap < mfp
 
     def test_order_parameter_bounded(self):
         """r should always be in [0, 1]."""
@@ -360,7 +396,12 @@ class TestBeamWavefunction:
         assert abs(norm - 1.0) < 0.05  # coarse 64×64 grid
 
     def test_high_coherence_low_phase_noise(self):
-        """Well-synchronized beam should have nearly uniform phase (mod carrier)."""
+        """Well-synchronized beam should have nearly uniform transverse phase.
+
+        The beam is a transverse envelope: the carrier exp(i k0 z) lives on
+        the propagation axis, not in this plane (fable5 E1), so the phase
+        should be flat directly — no carrier demodulation needed.
+        """
         cav = CavityGeometry(pressure_Pa=100)
         sim = CoherentMatterwaveBeam(
             species='electron', dE_frac=0.001, B_field=1.0, cavity=cav
@@ -368,15 +409,11 @@ class TestBeamWavefunction:
         res = sim.synchronize(seed=42, T_sync_dim=80, verbose=False)
         psi, x = sim.build_beam(res, N_grid=64)
 
-        # Remove carrier phase (plane wave along x)
-        X, Y = np.meshgrid(x, x, indexing='ij')
-        psi_demod = psi * np.exp(-1j * sim.k0 * X)
-
-        # Phase of demodulated beam should be fairly uniform in the
-        # central region where amplitude is significant
-        amp = np.abs(psi_demod)
+        # Phase should be fairly uniform in the central region where
+        # amplitude is significant
+        amp = np.abs(psi)
         mask = amp > 0.3 * amp.max()
-        phases = np.angle(psi_demod[mask])
+        phases = np.angle(psi[mask])
         phase_std = np.std(np.unwrap(phases))
 
         assert phase_std < 1.0, (
@@ -439,8 +476,11 @@ class TestCouplingDerivation:
         assert abs(sim.phi_single - expected) < 1e-10
 
     def test_K_dim_independent_of_species(self):
-        """For singly-charged ions at same B and cavity, K_dim is the same."""
-        sims = [CoherentMatterwaveBeam(species=sp)
+        """For singly-charged ions at same B in a Q-limited (vacuum)
+        cavity, K_dim is the same. (At finite pressure n_eff is
+        collision-limited and species-dependent via σ_L = k_L/v.)"""
+        sims = [CoherentMatterwaveBeam(
+                    species=sp, cavity=CavityGeometry(pressure_Pa=1e-3))
                 for sp in ['electron', 'He+', 'Na+', 'Rb+']]
         K_values = [s.K_dim for s in sims]
         mean_K = np.mean(K_values)
@@ -524,9 +564,9 @@ class TestMultiPassCavity:
         """At atmospheric pressure, n_eff should be mfp/AK_gap < Q."""
         cav = CavityGeometry(pressure_Pa=101325, cavity_Q=1000)
         sim = CoherentMatterwaveBeam(species='electron', cavity=cav)
-        mfp = cav.mean_free_path()
+        mfp = cav.mean_free_path(v_beam=sim.v)
         expected_n = mfp / cav.AK_gap
-        assert abs(sim.n_eff - expected_n) < 0.01
+        assert abs(sim.n_eff - expected_n) < 0.01 * expected_n + 1e-12
         assert sim.K_limit == 'collision'
         assert sim.n_eff < cav.cavity_Q
 
@@ -558,9 +598,21 @@ class TestMultiPassCavity:
     def test_effective_passes_returns_tuple(self):
         """effective_passes() should return (n_eff, limit_type)."""
         cav = CavityGeometry()
-        n_eff, limit = cav.effective_passes()
+        n_eff, limit = cav.effective_passes(v_beam=1e5)
         assert isinstance(n_eff, (int, float))
         assert limit in ('Q', 'collision')
+
+    def test_mean_free_path_requires_velocity_or_sigma(self):
+        """T8: no silent default cross-section — the caller must supply
+        the beam velocity (Langevin) or an explicit cross-section."""
+        cav = CavityGeometry()
+        with pytest.raises(ValueError):
+            cav.mean_free_path()
+        # Explicit cross-section path: λ = k_B·T/(σ·p), no √2
+        from coherent_matterwave_beam import k_B
+        sigma = 1e-19
+        expected = k_B * cav.T_gas / (sigma * cav.pressure)
+        assert abs(cav.mean_free_path(cross_section=sigma) / expected - 1) < 1e-12
 
     def test_vacuum_cavity_enables_sync(self):
         """Vacuum cavity with multi-pass should sync at modest B-field."""
@@ -669,15 +721,24 @@ class TestAnalyticalSynchronization:
             f"atmospheric r={results[101325]:.4f}"
         )
 
-    def test_ode_mode_unchanged(self):
-        """Regression: electron ODE sync should match documented r ≈ 0.819."""
-        sim = CoherentMatterwaveBeam(
-            species='electron', E_kinetic_eV=1.0, B_field=0.01
-        )
-        res = sim.synchronize(mode='ode', seed=42, verbose=False)
-        assert abs(res['r_final'] - 0.819) < 0.05, (
-            f"ODE regression: r={res['r_final']:.4f}, expected 0.819 ± 0.05"
-        )
+    def test_kuramoto_mode_gate(self):
+        """T9 acceptance: analytic and ODE modes implement the same theory
+        (first-order Kuramoto, Lorentzian frequencies) and agree at N≈500,
+        both above and below threshold."""
+        from coherent_matterwave_beam import k_B, e_C
+        sim_strong = CoherentMatterwaveBeam(
+            species='He+', E_kinetic_eV=k_B * 1e-3 / e_C, B_field=0.01,
+            cavity=CavityGeometry(pressure_Pa=1e-3), dE_frac=0.01)
+        ok, r_ode, r_ana = sim_strong.validate_kuramoto_modes(
+            N=500, tol=0.15, verbose=False)
+        assert ok, f"Above threshold: r_ode={r_ode:.4f} vs r_ana={r_ana:.4f}"
+
+        sim_weak = CoherentMatterwaveBeam(
+            species='He+', E_kinetic_eV=k_B * 1e-3 / e_C, B_field=0.0001,
+            cavity=CavityGeometry(pressure_Pa=1e-3), dE_frac=0.01)
+        ok, r_ode, r_ana = sim_weak.validate_kuramoto_modes(
+            N=500, tol=0.15, verbose=False)
+        assert ok, f"Below threshold: r_ode={r_ode:.4f} vs r_ana={r_ana:.4f}"
 
     def test_scattering_correction(self):
         """Atmospheric pressure should reduce r compared to vacuum."""

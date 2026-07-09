@@ -93,42 +93,109 @@ Caging localization remains 1.000 for all targets. The diamond lattice is indiff
 
 ## 6. Results: Pressure Sweep
 
+> **Rewritten 2026-07-09 (fable5 Phase 2, T6–T8).** The original section
+> reported gap = 0 at all pressures. That result was produced by three
+> defects fixed in Phase 1/2: the applied phase noise was ~10× below its
+> nominal RMS (E2), a single frozen phase screen cannot model partial
+> coherence (M7 — the deposited intensity is an ensemble average over
+> incoherent ion arrivals), and the ion–neutral cross-section was ~8
+> orders of magnitude too small (E6 — Langevin capture, σ_L = k_L/v,
+> makes a 2 m/s ion an enormous scattering target). The numbers below
+> come from the corrected model (log: fable5/phase2_v10.txt).
+
 ![v10 pressure sweep — source coherence vs holographic fidelity](v10/v10_pressure_sweep.png)
 
-Six cavity pressures from 10⁻³ Pa to atmosphere, evaluated on the dots target without caging:
+Six cavity pressures from 10⁻³ Pa to atmosphere, dots target, no caging.
+σ_θ = √(−2 ln r) is the physical phase-noise RMS actually applied
+(ξ⊥ = 50 nm, M = 100 intensity-averaged realizations); "survival" is the
+transport factor exp(−L/mfp) over the 978 nm cavity-exit → substrate leg.
 
-| Pressure (Pa) | r | K_dim | n_eff | SSIM (clean) | SSIM (actual) | Gap |
-|---------------|------|-------|-------|-------------|--------------|-----|
-| 10⁻³ | 0.9969 | 1.623 | 1000 | 0.796 | 0.796 | 0.000 |
-| 1 | 0.9969 | 1.623 | 1000 | 0.797 | 0.797 | 0.000 |
-| 100 | 0.9969 | 1.623 | 1000 | 0.768 | 0.768 | 0.000 |
-| 1000 | 0.9966 | 1.623 | 1000 | 0.785 | 0.785 | 0.000 |
-| 10,000 | 0.9869 | 0.504 | 311 | 0.780 | 0.780 | 0.000 |
-| 101,325 | 0.8653 | 0.050 | 31 | 0.778 | 0.778 | 0.000 |
+| Pressure (Pa) | r | σ_θ (rad) | SSIM (clean) | SSIM (actual) | Gap | K_dim | Transport survival |
+|---------------|------|------|------|------|------|------|------|
+| 10⁻³ | 0.9025 | 0.453 | 0.315 | 0.080 | 0.235 | 0.069 | 1.000 |
+| 1 | 0.0004 | 3.981 | 0.343 | 0.014 | 0.329 | 0.000 | 0.79 |
+| 100 | 0.0004 | 3.981 | 0.302 | 0.014 | 0.288 | 0.000 | 9×10⁻¹¹ |
+| 1000 | 0.0004 | 3.981 | 0.323 | 0.014 | 0.309 | 0.000 | 2×10⁻¹⁰¹ |
+| 10,000 | 0.0004 | 3.981 | 0.330 | 0.014 | 0.316 | 0.000 | 0 |
+| 101,325 | 0.0004 | 3.981 | 0.287 | 0.014 | 0.273 | 0.000 | 0 |
+
+Because the swept range turned out to sit almost entirely in the
+scattering-dead regime, three deeper-vacuum probes were added:
+
+| Pressure (Pa) | r | σ_θ (rad) | SSIM (clean) | SSIM (actual) | Gap | K_dim |
+|---------------|------|------|------|------|------|------|
+| 10⁻⁴ | 0.9903 | 0.139 | 0.284 | 0.145 | 0.139 | 0.685 |
+| 10⁻⁵ | 0.9967 | 0.082 | 0.308 | 0.190 | 0.118 | 1.623 |
+| 10⁻⁶ | 0.9969 | 0.079 | 0.340 | 0.223 | 0.117 | 1.623 |
 
 ### 6.1 Source Coherence vs Pressure
 
-The left panel shows the familiar two-regime pattern: r saturates at 0.997 below 1000 Pa (Q-limited, K_dim = 1.62), then degrades to 0.987 at 10,000 Pa (collision-limited, K_dim = 0.50) and 0.865 at atmosphere (K_dim = 0.05, p_scatter = 0.032).
+With the Langevin cross-section, the He⁺ (1 mK, v = 2.04 m/s) mean free
+path at 100 Pa is ~42 nm — smaller than the 0.1 mm cathode–anode gap by
+three orders of magnitude. The cavity is nothing like ballistic anywhere
+in the original sweep range except its lowest point: synchronization
+survives only at 10⁻³ Pa (r = 0.90, collision-limited n_eff ≈ 42), and
+every pressure ≥ 1 Pa collapses to the finite-size noise floor
+(r ≈ 4×10⁻⁴, p_scatter ≈ 1). The Q-limited regime the original report
+placed at 10⁻³ Pa actually begins near 4×10⁻⁵ Pa, where r saturates at
+0.997 (σ_θ = 0.079 rad).
 
 ### 6.2 The Clean/Actual Gap
 
-The central finding: **the gap between clean and actual SSIM is zero across all pressures.** Even at atmospheric pressure where r = 0.865 — meaning (1 - r) × π ≈ 0.42 rad RMS phase noise — the noisy deposition is indistinguishable from the clean prediction.
+**The gap is no longer zero anywhere.** It is r-dependent, as a real
+partial-coherence model must be: 0.33 at r ≈ 0 (the fully incoherent
+ensemble washes the pattern to SSIM 0.014), 0.24 at r = 0.90, 0.14 at
+r = 0.990, saturating near **0.12 at the Q-limited ceiling r = 0.997**.
 
-This is a genuine physical result, not an artifact of decoupled architecture. The solver optimizes against the deterministic beam profile (envelope × plane wave), and the noisy beam is evaluated separately through the optimized phase screen. The noise simply doesn't contribute enough SSIM degradation to be measurable at any pressure in the tested range.
+The gap does not close even at the best achievable coherence, and the
+reason ties to the Phase 1 aperture finding: the optimized screens
+deliver only ~10⁻³ of the beam power into the target frame, so the
+pattern is dim. Phase noise of RMS σ_θ scatters ≈ σ_θ² of the beam power
+into a diffuse halo spread over the propagating band — at σ_θ = 0.08 rad
+that is ~0.6% of total power, which is *several times the power in the
+pattern itself*. Fidelity at this geometry is noise-fragile because the
+signal is dim, not because the noise is large.
 
-The reason is quantitative: the phase screen the solver produces has structure on the order of ±π rad (the full range of the twilight_shifted colormap in the figures). The atmospheric noise at 0.42 rad RMS is a modest perturbation on top of this strong signal. The Fresnel propagator averages over the noise spatially, and the intensity |ψ|² is insensitive to small phase perturbations on a beam that's already heavily phase-modulated.
+### 6.3 The Coherence Threshold
 
-### 6.3 What Limits the SSIM
+The answer to "what coherence does deposition need" is therefore: **no
+pressure in the achievable range produces usable actual fidelity on the
+dots target.** The best point probed (10⁻⁶ Pa, r = 0.997) reaches
+SSIM(actual) = 0.22 against a clean ceiling of ~0.34 — and that clean
+ceiling is itself set by the transport-aperture limit (Phase 1), not by
+the source. A usable threshold r would have to push σ_θ² well below the
+arrived-power fraction (~10⁻³), i.e. r ≳ 0.9995 — beyond what the
+K_dim = 1.62 Q-limited cavity delivers (r = 0.9969). Raising B or Q
+raises K_dim and could reach it; that is a design question for the
+species/velocity trade study (T13), not a property of the current
+operating point.
 
-The clean SSIM itself varies from 0.768 to 0.797 across the six pressure points. This ±0.015 spread comes entirely from the stochastic initialization of the GD solver (different random seeds from different source beam realizations). It is larger than the clean-actual gap at every pressure point. The resolution bottleneck is the 32×32 SQUID array and the solver's convergence, not the source.
+### 6.4 Transport Attenuation and the Vacuum Requirement
 
-### 6.4 Design Implications
+The transport-survival column is the sharper constraint. The 978 nm
+flight from array to substrate loses e-fold every 42 nm at 100 Pa: the
+"rough vacuum" operating point of the demo runs (100 Pa) transmits
+**~10⁻¹⁰ of the beam**; atmospheric operation transmits nothing
+(mfp ≈ 0.04 nm — sub-atomic, matching verification.md §3). Survival
+reaches ~1 only below ~10⁻² Pa. **The vacuum requirement now emerges
+from the model itself**: high vacuum (≲10⁻³ Pa for transport, ≲10⁻⁵ Pa
+for source coherence) is a hard prerequisite, and the original
+conclusion that "the CMWB cavity could operate at atmospheric pressure
+with no measurable loss" is retired — it rested on a cross-section ~8
+orders of magnitude too small and phase noise ~10× under-applied.
 
-**Vacuum quality is not a design constraint** for holographic deposition with a 32×32 SQUID array. The CMWB cavity could operate at atmospheric pressure (r = 0.87) with no measurable loss in pattern fidelity. This finding was suspected from the earlier decoupled pipeline runs but is now confirmed with the physically correct source-coupled architecture.
+### 6.5 Design Implications
 
-**The SQUID array is the bottleneck.** The clean SSIM — the best the solver can achieve with a perfect beam — is 0.78-0.80 for the dots target. Improving deposition fidelity requires more SQUID loops (higher space-bandwidth product), a better loss function (SSIM-aware rather than correlation + MSE), or longer optimization (the solver hasn't fully converged at 500 iterations — the MSE is still decreasing).
-
-**The beam profile matters more than the beam coherence.** The shift from symmetric Gaussian to directional plane-wave beam (SSIM 0.86 → 0.79 on dots) is a larger effect than any coherence degradation in the tested range. Optimizing the solver for directional beams — perhaps by initializing the phase screen with a compensating tilt — would recover more SSIM than improving the vacuum.
+- **Vacuum quality is a first-order design constraint** at both the
+  source (synchronization) and the transport leg (attenuation).
+- **Coherence noise now matters**: at this aperture-starved geometry
+  even σ_θ = 0.08 rad costs 0.12 SSIM. Any geometry re-derivation
+  (shorter z, power-aware loss — see Phase 1 recommendations) also
+  buys noise robustness, since brightening the pattern is what makes
+  it noise-tolerant.
+- The clean-SSIM spread across sweep points (0.28–0.34) remains solver
+  seed noise and is small compared to the coherence gap — the opposite
+  ordering from the original report.
 
 ## 7. Discussion
 

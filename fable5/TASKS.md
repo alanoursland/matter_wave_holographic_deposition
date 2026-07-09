@@ -24,69 +24,78 @@ the metrics.
       show ±0.03–0.08 run-to-run solver spread, so use this machine's numbers
       (not the report table) as the Phase 1 comparator.
 
-## Phase 1 — One-line physics fixes (hours)
+## Phase 1 — One-line physics fixes (hours) — **DONE 2026-07-04**
 
-- [ ] **T1. Remove the transverse tilt factor.** (E1)
-      Delete `* np.exp(1j * self.k0 * X)` / `exp(1j*k0*X)` at:
-      `src/sim_v10.py:219`, `src/sim_v10.py:349-350`, `src/sim_v9.py:195`,
-      `src/coherent_matterwave_beam.py:602`.
-      *Check: propagating-power fraction of the source beam = 1.000
-      (verification.md §1); dots SSIM recovers to ≈ 0.86.*
+Full writeup: [phase1_summary.md](phase1_summary.md). Run log:
+[phase1_v10.txt](phase1_v10.txt). All 63 unit tests pass.
 
-- [ ] **T2. Fix the flux quantum.** (E3)
-      `src/inverse_holography.py:173-174` and `:193-195`: use
-      `Phi_0_e` (h/e) from `iqs.constants`, ideally scaled by species charge.
-      *Check: reported currents double; roundtrip_err still ~1e-16.*
+- [x] **T1. Remove the transverse tilt factor.** (E1)
+      Done at all four sites (plus one test updated that demodulated by the
+      removed carrier).
+      *Verified: untilted beam keeps 100% of power in the propagating band;
+      with the legacy propagator dots SSIM = 0.878 vs 0.789 baseline —
+      report conclusion 3 ("directional beam costs 0.07 SSIM") confirmed
+      to be artifact.*
 
-- [ ] **T3. Zero-pad the angular-spectrum propagator.** (M4)
-      `src/iqs/numerics/propagation.py`: embed N² in (2N)², propagate, crop
-      (build the padded transfer function once in `__init__`).
-      *Check: a Gaussian propagated far off-axis does not re-enter the frame;
-      diffraction-efficiency numbers shift and stabilize.*
+- [x] **T2. Fix the flux quantum.** (E3)
+      `flux_to_currents`/`currents_to_flux` now use `Phi_0_e = h/e`;
+      drive-current figures double.
 
-- [ ] **T4. Add a norm-tracking gate to the propagator.** (process, E1-class)
-      Warn/assert when >2% of input power is evanescent-zeroed at the input
-      plane. Would have caught T1 immediately.
-      *Check: gate silent after T1, loud if the tilt is reintroduced.*
+- [x] **T3. Zero-pad the angular-spectrum propagator.** (M4)
+      **Escalated far beyond a mechanical fix — see phase1_summary.md.**
+      Naive padding does not converge (transfer-function aliasing); final
+      model = pad 4× + band limit min(Matsushima, geometric k0·sin(atan(L/z))).
+      Legacy model shown to be ~totally artifact for optimized screens
+      (rel L2 ~760 vs open-space reference); optimized ±π screens on the
+      sub-λ array scatter 55% of the beam into evanescent modes; only
+      ~10⁻³ of beam power physically reaches the 400 nm frame. Spawned
+      finding E8 (scale-invariant loss admits dim solutions) and revised
+      Phase 2 priorities (geometry re-derivation first).
 
-- [ ] **T5. Small correctness cleanups.** (E7)
-      - `sim_v10.py:134-136` — don't clobber a user-supplied cavity's pressure.
-      - `iqs/lattices/diamond.py` — seed/`rng` parameter for disorder;
-        docstring coordination 4 → 8.
-      - `iqs/numerics/metrics.py` — fail loudly (or relabel) when skimage is
-        absent instead of silently returning Pearson correlation.
-      - `inverse_holography.py:253` — ion mass = m_He − m_e (cosmetic).
-      *Check: unit tests in src/test_*.py still pass.*
+- [x] **T4. Add a norm-tracking gate to the propagator.** (process)
+      Warns once per instance when >2% of input power falls outside the
+      propagating band. Verified: silent on corrected beams, fires at 46.7%
+      on the old tilted beam.
 
-## Phase 2 — Model reworks that retest the headline claims (days)
+- [x] **T5. Small correctness cleanups.** (E7)
+      All five done: cavity-pressure override semantics (`pressure_Pa=None`),
+      seedable disorder RNG, coordination docstring 4→8, SSIM fallback now
+      raises, solver uses He⁺ ion mass. Tests pass.
 
-- [ ] **T6. Real partial-coherence model.** (E2/M7)
-      Replace the frozen `(1−r)·π`-smoothed screen in
-      `sim_v10.generate_source` / `build_beam` with:
-      σ_θ = √(−2 ln r); explicit transverse correlation length ξ⊥ parameter;
-      M ≈ 50–200 realizations; **average intensities** for `density_actual`.
-      Log the *measured* applied RMS next to the nominal.
-      *Check: applied RMS ≈ nominal; clean/actual gap becomes r-dependent.*
+## Phase 2 — Model reworks that retest the headline claims (days) — **DONE 2026-07-09**
 
-- [ ] **T7. Re-run the pressure sweep with T6; find the real coherence
+Full writeup: [phase2_summary.md](phase2_summary.md). Run log:
+[phase2_v10.txt](phase2_v10.txt). All 65 unit tests pass (11 rewritten —
+they encoded the old physics). Headline: the "atmospheric operation"
+conclusion inverts at both source and transport; the clean/actual gap is
+r-dependent and never closes (~0.12 SSIM even at r = 0.997) because the
+aperture-starved geometry delivers a dim pattern that a σ_θ² halo
+out-powers. Report §6 rewritten.
+
+- [x] **T6. Real partial-coherence model.** (E2/M7)
+      σ_θ = √(−2 ln r); ξ⊥ parameter (`coherence_xi`, default 50 nm);
+      M = 100 realizations, intensity-averaged `density_actual`; applied
+      RMS renormalized to equal nominal and logged next to it.
+      *Verified: applied RMS ≡ nominal; gap 0.33 (r≈0) → 0.12 (r=0.997).*
+
+- [x] **T7. Re-run the pressure sweep with T6; find the real coherence
       threshold.** (E2)
-      *Check: a threshold r (or "none in range, with correct noise") replaces
-      the current gap=0 table; v10 report §6 rewritten from the output.*
+      Answer: **none in range** — even the Q-limited ceiling r = 0.9969
+      (reached below ~4×10⁻⁵ Pa, not 10⁻³ Pa) leaves a 0.12 SSIM gap;
+      usable would need r ≳ 0.9995. v10 report §6 rewritten, with three
+      deeper-vacuum probe points (10⁻⁴–10⁻⁶ Pa).
 
-- [ ] **T8. Realistic scattering + transport attenuation.** (E6)
-      `CavityGeometry.mean_free_path`: Langevin σ_L = k_L/v per species; drop
-      the √2 for beam-through-gas. Add transport survival
-      exp(−L_path/mfp) from cavity exit to substrate as a separate reported
-      quantity.
-      *Check: mfp at 1 atm for 2 m/s He⁺ ≈ sub-nm (verification.md §3);
-      vacuum requirement now emerges from the model.*
+- [x] **T8. Realistic scattering + transport attenuation.** (E6)
+      Langevin σ_L = k_L/v; mfp = 1/(nσ), √2 dropped, no silent default
+      cross-section. `transport_survival(L_path)` reported separately.
+      *Verified: He⁺ 2 m/s mfp at 1 atm = 4.2×10⁻¹¹ m (sub-nm); survival
+      9×10⁻¹¹ at 100 Pa over 978 nm — the vacuum requirement emerges.*
 
-- [ ] **T9. Reconcile the Kuramoto modes.** (E5)
-      Pick one: (a) first-order Kuramoto + Lorentzian frequencies (analytic
-      formula exact), or (b) keep Gaussian, use K_c = σ√(8/π) and calibrate
-      r(K) numerically. Add a validation gate: analytic vs ODE agree within
-      tolerance at N ≈ 500.
-      *Check: gate passes; mode='auto' no longer changes the theory mid-sweep.*
+- [x] **T9. Reconcile the Kuramoto modes.** (E5)
+      Option (a): first-order Kuramoto + Lorentzian(γ = dE/E/2), K_c = 2γ,
+      r = √(1−K_c/K) exact; inertial ODE removed. `validate_kuramoto_modes`
+      gate in sim_v10 STEP 0 and tests, above and below threshold.
+      *Verified: gate passes (|Δr| = 0.013 / 0.004 at N = 500).*
 
 ## Phase 3 — Structural confrontations (the two existential items)
 

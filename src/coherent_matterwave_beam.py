@@ -16,6 +16,13 @@ For a monochromatic beam the critical coupling threshold is zero: the
 system always synchronizes regardless of coupling strength, though
 stronger coupling (higher B-field) synchronizes faster.
 
+Model choice (fable5 E5/T9): both synchronization paths implement the
+*first-order* Kuramoto model with a *Lorentzian* natural-frequency
+distribution of half-width γ = omega_spread_dim.  For that combination
+the steady state is exact and closed-form: K_c = 2γ and
+r = √(1 − K_c/K) above threshold, so the analytic and ODE modes agree
+by construction (validated by `validate_kuramoto_modes`).
+
 The simulation supports arbitrary ionized atomic species.  Mass and
 charge enter through the de Broglie wavelength, velocity at fixed
 kinetic energy, AB phase prefactor, and synchronization timescale.
@@ -38,6 +45,13 @@ m_u   = 1.66053906660e-27  # kg (atomic mass unit)
 mu_0  = 1.25663706212e-6   # T·m/A
 c     = 2.99792458e8       # m/s
 Phi_0_e = 4.135667696e-15  # Wb  (h/e, single-charge flux quantum)
+
+# Langevin (polarization-capture) rate constant for slow-ion–neutral
+# scattering, k_L = 2πq√(α/μ)/(4πε₀)^(1/2).  ~2×10⁻¹⁵ m³/s is typical
+# for ion–atom systems (fable5 E6/T8).  The velocity-independent rate
+# ν = n·k_L means the effective cross-section σ_L = k_L/v grows as the
+# beam slows — slow ions are enormous scattering targets.
+K_LANGEVIN = 2e-15  # m³/s
 
 
 # ---------------------------------------------------------------------------
@@ -67,6 +81,38 @@ def add_species(name, mass_kg, charge_e, symbol=None, label=None):
 
 
 # ---------------------------------------------------------------------------
+# Partial-coherence noise model (fable5 E2/T6)
+# ---------------------------------------------------------------------------
+def coherence_sigma_theta(r):
+    """Phase-noise RMS from the order parameter.
+
+    For Gaussian phase disorder, r = ⟨e^{iθ}⟩ = exp(−σ_θ²/2), so
+    σ_θ = √(−2 ln r).  Replaces the ad-hoc (1−r)·π mapping.
+    """
+    r = float(np.clip(r, 1e-12, 1.0))
+    return float(np.sqrt(max(0.0, -2.0 * np.log(r))))
+
+
+def sample_phase_noise(N_grid, sigma_theta, xi_pixels, rng):
+    """One correlated Gaussian phase-screen realization.
+
+    White Gaussian noise smoothed to transverse correlation length
+    xi_pixels, then rescaled so the *applied* RMS equals sigma_theta
+    exactly (the old code's smoothing silently reduced the RMS ~10×).
+    """
+    from scipy.ndimage import gaussian_filter
+    noise = rng.standard_normal((N_grid, N_grid))
+    if xi_pixels > 0:
+        noise = gaussian_filter(noise, sigma=xi_pixels)
+    rms = noise.std()
+    if rms > 0 and sigma_theta > 0:
+        noise *= sigma_theta / rms
+    else:
+        noise = np.zeros_like(noise)
+    return noise
+
+
+# ---------------------------------------------------------------------------
 # Cavity geometry
 # ---------------------------------------------------------------------------
 class CavityGeometry:
@@ -89,15 +135,45 @@ class CavityGeometry:
         self.T_gas      = T_gas
         self.cavity_Q   = cavity_Q     # cavity quality factor (max bounces)
 
-    def mean_free_path(self, cross_section=3e-24):
-        """Kinetic-theory mfp: λ = k_B T / (√2 π d² p)."""
-        return k_B * self.T_gas / (np.sqrt(2) * np.pi * cross_section * self.pressure)
+    def number_density(self):
+        """Ideal-gas number density n = p / (k_B T)  [m⁻³]."""
+        return self.pressure / (k_B * self.T_gas)
 
-    def is_ballistic(self, cross_section=3e-24):
-        mfp = self.mean_free_path(cross_section)
+    def mean_free_path(self, v_beam=None, k_L=K_LANGEVIN, cross_section=None):
+        """Mean free path of a directed beam particle through stationary gas.
+
+        λ = 1/(n σ) with n = p/(k_B T).  No √2: that factor applies to
+        collisions among identical thermal particles, not to a beam
+        traversing a stationary gas (fable5 E6/T8).
+
+        Parameters
+        ----------
+        v_beam : float or None
+            Beam speed [m/s].  If given, uses the Langevin capture
+            cross-section σ_L = k_L / v_beam — the correct physics for a
+            slow ion, where the induced-dipole attraction dominates.
+        k_L : float
+            Langevin rate constant [m³/s].
+        cross_section : float or None
+            Explicit cross-section [m²]; overrides the Langevin form.
+
+        One of v_beam or cross_section must be supplied.
+        """
+        if cross_section is None:
+            if v_beam is None:
+                raise ValueError(
+                    "mean_free_path needs v_beam (Langevin) or an explicit "
+                    "cross_section")
+            cross_section = k_L / v_beam
+        return 1.0 / (self.number_density() * cross_section)
+
+    def is_ballistic(self, v_beam=None, k_L=K_LANGEVIN, cross_section=None):
+        mfp = self.mean_free_path(v_beam=v_beam, k_L=k_L,
+                                  cross_section=cross_section)
         return self.AK_gap < mfp, mfp
 
-    def effective_passes(self, cross_section=3e-24):
+    def effective_passes(self, v_beam=None, k_L=K_LANGEVIN,
+                         cross_section=None):
         """Number of effective cavity passes before decoherence.
 
         The particle bounces in the resonant cavity, accumulating AB phase
@@ -107,22 +183,27 @@ class CavityGeometry:
 
         Returns (n_eff, limit_type) where limit_type is 'Q' or 'collision'.
         """
-        mfp = self.mean_free_path(cross_section)
+        mfp = self.mean_free_path(v_beam=v_beam, k_L=k_L,
+                                  cross_section=cross_section)
         n_collision = mfp / self.AK_gap
         if self.cavity_Q <= n_collision:
             return self.cavity_Q, 'Q'
         else:
             return n_collision, 'collision'
 
-    def info(self):
-        ballistic, mfp = self.is_ballistic()
-        n_eff, limit = self.effective_passes()
-        print(f"  Cavity: AK gap = {self.AK_gap*1e3:.2f} mm, "
-              f"mfp = {mfp*1e3:.2f} mm  "
-              f"{'[ballistic]' if ballistic else '[WARNING: not ballistic]'}")
+    def info(self, v_beam=None):
+        if v_beam is not None:
+            ballistic, mfp = self.is_ballistic(v_beam=v_beam)
+            n_eff, limit = self.effective_passes(v_beam=v_beam)
+            print(f"  Cavity: AK gap = {self.AK_gap*1e3:.2f} mm, "
+                  f"mfp = {mfp*1e3:.3g} mm  "
+                  f"{'[ballistic]' if ballistic else '[WARNING: not ballistic]'}")
+            print(f"  n_eff = {n_eff:.3g} passes ({limit}-limited)")
+        else:
+            print(f"  Cavity: AK gap = {self.AK_gap*1e3:.2f} mm "
+                  f"(mfp requires beam velocity)")
         print(f"  {self.n_cavities} cavities × {self.n_channels} channels, "
               f"Q = {self.cavity_Q}")
-        print(f"  n_eff = {n_eff:.1f} passes ({limit}-limited)")
 
 
 # ---------------------------------------------------------------------------
@@ -210,10 +291,12 @@ class CoherentMatterwaveBeam:
 
         # Multi-pass cavity resonance: particle bounces n_eff times,
         # accumulating AB phase each pass.  n_eff is limited by either
-        # cavity Q or collision mean free path.
-        n_eff, K_limit = self.cavity.effective_passes()
+        # cavity Q or collision mean free path.  The mfp uses the species
+        # Langevin cross-section σ_L = k_L/v (fable5 E6/T8).
+        n_eff, K_limit = self.cavity.effective_passes(v_beam=self.v)
         self.n_eff = n_eff
         self.K_limit = K_limit
+        self.sigma_langevin = K_LANGEVIN / self.v
 
         # K_phys = φ_single × n_eff = total accumulated AB phase [rad]
         # K_dim = K_phys / (2π) puts it in natural Kuramoto units
@@ -224,8 +307,26 @@ class CoherentMatterwaveBeam:
         # In a ballistic single-pass device, the relevant dephasing is the
         # probability of one or more scattering events during a single transit.
         # p_scatter = 1 - exp(-AK_gap / mfp) ≈ AK_gap / mfp for AK_gap << mfp
-        mfp = self.cavity.mean_free_path()
+        mfp = self.cavity.mean_free_path(v_beam=self.v)
+        self.mfp_beam = mfp
         self.p_scatter = 1.0 - np.exp(-self.cavity.AK_gap / mfp)
+
+    def transport_survival(self, L_path, pressure_Pa=None):
+        """Fraction of the beam that traverses L_path without a collision.
+
+        exp(−L_path/mfp) with the species Langevin mfp, evaluated at the
+        transport-region pressure (defaults to the cavity pressure).
+        Reported separately from cavity dephasing (fable5 T8): even a
+        cavity that synchronizes may feed a transport leg that absorbs
+        the beam.
+        """
+        if pressure_Pa is None:
+            pressure_Pa = self.cavity.pressure
+        n = pressure_Pa / (k_B * self.cavity.T_gas)
+        if n <= 0:
+            return 1.0
+        mfp = 1.0 / (n * self.sigma_langevin)
+        return float(np.exp(-L_path / mfp))
 
     def info(self):
         print("=" * 65)
@@ -247,13 +348,15 @@ class CoherentMatterwaveBeam:
               f"N_per_volume = {self.N_per_volume} "
               f"({self.n_volumes} volumes)")
         print(f"  Transit time = {self.transit_time*1e9:.3f} ns")
+        print(f"  σ_Langevin = {self.sigma_langevin:.3e} m², "
+              f"mfp = {self.mfp_beam:.3e} m")
         print(f"  p_scatter = {self.p_scatter:.4f} "
-              f"(AK_gap/mfp = {self.cavity.AK_gap / self.cavity.mean_free_path():.4f})")
+              f"(AK_gap/mfp = {self.cavity.AK_gap / self.mfp_beam:.4g})")
         print(f"  phi_single = {self.phi_single:.4f} rad/transit, "
-              f"n_eff = {self.n_eff:.1f} ({self.K_limit}-limited)")
+              f"n_eff = {self.n_eff:.3g} ({self.K_limit}-limited)")
         print(f"  K_phys = {self.K_phys:.2f} rad (total), "
               f"K_dim = {self.K_dim:.3f}")
-        self.cavity.info()
+        self.cavity.info(v_beam=self.v)
 
     # -------------------------------------------------------------------
     # Kuramoto synchronization
@@ -263,9 +366,13 @@ class CoherentMatterwaveBeam:
                     seed=None, verbose=True, mode='auto'):
         """Run Kuramoto synchronization of N_particles in the cavity.
 
-        The Kuramoto dynamics are integrated in dimensionless time
-        (matching sim_v9 conventions: α=0.5, dt=0.01), then mapped to
-        physical time using τ_sync.
+        Both modes implement the same theory (fable5 E5/T9): first-order
+        Kuramoto with a Lorentzian natural-frequency distribution of
+        half-width γ = omega_spread_dim, for which K_c = 2γ and
+        r = √(1 − K_c/K) are exact.  'ode' integrates the dynamics
+        (dθ/dt = ω + K·coupling) in dimensionless time (dt=0.01), then
+        maps to physical time using τ_sync; 'analytic' evaluates the
+        closed form.
 
         For a perfectly monochromatic beam (patent assumption), set
         omega_spread_dim=0.  The patent claims zero critical coupling
@@ -282,7 +389,10 @@ class CoherentMatterwaveBeam:
         T_sync_dim : float
             Dimensionless integration time.
         alpha : float
-            Damping coefficient for second-order Kuramoto.
+            Unused; retained for API compatibility.  The inertial
+            (second-order) model was removed in fable5 T9 — it is a
+            different theory (bistability, discontinuous transition)
+            than the analytic branch evaluates.
         K_scale : float
             Multiplier on coupling (K_eff = K × K_scale).
         omega_spread_dim : float or None
@@ -327,8 +437,10 @@ class CoherentMatterwaveBeam:
 
         N = N_particles
         theta  = np.random.uniform(0, 2*np.pi, N)
-        dtheta = np.zeros(N)
-        omega  = np.random.normal(0, omega_spread_dim, N)
+        # Lorentzian (Cauchy) natural frequencies with half-width γ =
+        # omega_spread_dim — the distribution for which the analytic
+        # branch (K_c = 2γ, r = √(1−K_c/K)) is exact (fable5 T9).
+        omega  = omega_spread_dim * np.random.standard_cauchy(N)
 
         # Single-pass dephasing: particles that scatter during transit
         # start with fully randomized phase and are effectively incoherent.
@@ -339,14 +451,16 @@ class CoherentMatterwaveBeam:
             n_scattered = scattered.sum()
             if n_scattered > 0:
                 theta[scattered] = np.random.uniform(0, 2*np.pi, n_scattered)
-                omega[scattered] = np.random.normal(0, max(omega_spread_dim, 0.5), n_scattered)
+                omega[scattered] = (max(omega_spread_dim, 0.5)
+                                    * np.random.standard_cauchy(n_scattered))
 
         n_steps = int(T_sync_dim / dt_k)
         order_hist = np.empty(n_steps)
 
         if verbose:
-            print(f"\n  Kuramoto synchronization: N={N}, K_eff={K_eff:.2f}, "
-                  f"n_eff={self.n_eff:.0f}, α={alpha}, σ_ω={omega_spread_dim:.4f}, "
+            print(f"\n  Kuramoto synchronization (1st order, Lorentzian): "
+                  f"N={N}, K_eff={K_eff:.2f}, "
+                  f"n_eff={self.n_eff:.3g}, γ_ω={omega_spread_dim:.4f}, "
                   f"p_scat={self.p_scatter:.4f}, T_dim={T_sync_dim}")
 
         for i in range(n_steps):
@@ -354,11 +468,11 @@ class CoherentMatterwaveBeam:
             order_hist[i] = np.abs(z)
 
             coupling = np.imag(z * np.exp(-1j * theta))
-            ddtheta  = -alpha * dtheta + omega + K_eff * coupling
-            dtheta  += ddtheta * dt_k
-            theta   += dtheta * dt_k
+            theta   += (omega + K_eff * coupling) * dt_k
 
-        r_final = order_hist[-1]
+        # Steady-state estimate: average over the final 10% of the run
+        # (instantaneous r fluctuates from the drifting Lorentzian tail).
+        r_final = float(np.mean(order_hist[-max(1, n_steps // 10):]))
 
         # Map dimensionless time to physical time.
         # The Kuramoto converges in ~5-10 dimensionless time units.
@@ -397,12 +511,13 @@ class CoherentMatterwaveBeam:
                               T_sync_dim, K_scale, seed, verbose):
         """Compute steady-state Kuramoto order parameter analytically.
 
-        Uses the closed-form solution for the standard Kuramoto model with
-        Gaussian frequency distribution, plus finite-size and scattering
-        corrections.  Generates synthetic time series and phase distributions
-        for compatibility with downstream code.
+        Exact closed form for first-order Kuramoto with a Lorentzian
+        frequency distribution of half-width γ = omega_spread_dim
+        (fable5 T9): K_c = 2γ, r = √(1 − K_c/K) above threshold.  Adds
+        finite-size and scattering corrections and generates synthetic
+        time series / phase distributions for downstream compatibility.
         """
-        # Critical coupling for Gaussian frequency distribution
+        # Critical coupling for Lorentzian(γ) frequency distribution
         K_c = 2 * omega_spread_dim
 
         # Steady-state order parameter
@@ -471,16 +586,45 @@ class CoherentMatterwaveBeam:
             'mode':        'analytic',
         }
 
+    def validate_kuramoto_modes(self, N=500, tol=0.15, T_sync_dim=200,
+                                seed=42, verbose=True):
+        """Validation gate (fable5 T9): analytic vs ODE agreement.
+
+        Runs both modes at a size where the ODE is affordable and checks
+        |r_ode − r_analytic| < tol.  Since both modes now implement the
+        same theory (first-order Kuramoto, Lorentzian frequencies), any
+        disagreement beyond finite-N/finite-T effects is a bug.
+
+        Returns (ok, r_ode, r_analytic).
+        """
+        res_ode = self.synchronize(N_particles=N, mode='ode', seed=seed,
+                                   T_sync_dim=T_sync_dim, verbose=False)
+        res_ana = self.synchronize(N_particles=N, mode='analytic', seed=seed,
+                                   T_sync_dim=T_sync_dim, verbose=False)
+        gap = abs(res_ode['r_final'] - res_ana['r_final'])
+        ok = gap < tol
+        if verbose:
+            print(f"  Kuramoto mode gate (N={N}): "
+                  f"r_ode = {res_ode['r_final']:.4f}, "
+                  f"r_analytic = {res_ana['r_final']:.4f}, "
+                  f"|Δ| = {gap:.4f} {'< ' if ok else '>= '}{tol}  "
+                  f"[{'OK' if ok else 'FAIL'}]")
+        return ok, res_ode['r_final'], res_ana['r_final']
+
     @staticmethod
     def analytical_r(K_dim, omega_spread_dim, N=None, p_scatter=0.0):
         """Compute steady-state Kuramoto order parameter analytically.
+
+        Exact for first-order Kuramoto with Lorentzian(γ=omega_spread_dim)
+        frequencies: K_c = 2γ, r = √(1 − K_c/K).
 
         Parameters
         ----------
         K_dim : float
             Dimensionless coupling strength.
         omega_spread_dim : float
-            Std dev of natural frequency distribution (dimensionless).
+            Half-width γ of the Lorentzian frequency distribution
+            (dimensionless).
         N : int or None
             Ensemble size for finite-size correction. None = infinite.
         p_scatter : float
@@ -561,12 +705,15 @@ class CoherentMatterwaveBeam:
     # -------------------------------------------------------------------
     # Beam wavefunction construction
     # -------------------------------------------------------------------
-    def build_beam(self, sync_result, N_grid=256, L=None, sigma_frac=0.35):
-        """Construct a 2D coherent beam wavefunction from sync result.
+    def build_beam(self, sync_result, N_grid=256, L=None, sigma_frac=0.35,
+                   xi_perp=None, rng=None):
+        """Construct one 2D beam-wavefunction realization from sync result.
 
-        Produces a Gaussian beam with plane-wave momentum k0 and
-        phase noise scaled by (1 - r).  Compatible with the holographic
-        pipeline in sim_v9.py.
+        Gaussian transverse envelope with one realization of correlated
+        phase noise of RMS σ_θ = √(−2 ln r) and transverse correlation
+        length ξ⊥ (fable5 E2/T6).  Partial coherence means the deposited
+        intensity is the *ensemble average* over such realizations —
+        callers modelling r < 1 should average |ψ|² over many draws.
 
         Parameters
         ----------
@@ -578,6 +725,11 @@ class CoherentMatterwaveBeam:
             Physical domain size [m].  Defaults to 1000 × λ_dB.
         sigma_frac : float
             Beam waist as fraction of L.
+        xi_perp : float or None
+            Transverse correlation length of the phase noise [m].
+            Defaults to L/8.
+        rng : np.random.Generator or None
+            Source of randomness (fresh default_rng() if None).
 
         Returns
         -------
@@ -586,10 +738,12 @@ class CoherentMatterwaveBeam:
         x : ndarray
             Coordinate array [m].
         """
-        from scipy.ndimage import gaussian_filter
-
         if L is None:
             L = 1000 * self.lam_dB
+        if xi_perp is None:
+            xi_perp = L / 8
+        if rng is None:
+            rng = np.random.default_rng()
 
         dx = L / N_grid
         x  = np.linspace(-L/2, L/2, N_grid)
@@ -598,12 +752,14 @@ class CoherentMatterwaveBeam:
         sigma = sigma_frac * L
         r = sync_result['r_final']
 
-        # Gaussian envelope × plane wave
-        psi = np.exp(-(X**2 + Y**2) / (2*sigma**2)) * np.exp(1j * self.k0 * X)
+        # Gaussian transverse envelope.  The forward momentum hbar*k0 is
+        # carried by the propagation axis (kz in the angular-spectrum
+        # propagator), not a transverse phase ramp (fable5 E1).
+        psi = np.exp(-(X**2 + Y**2) / (2*sigma**2)).astype(np.complex128)
 
-        # Phase noise proportional to incoherence
-        noise = (1 - r) * np.random.normal(0, np.pi, (N_grid, N_grid))
-        noise = gaussian_filter(noise, sigma=3)
+        # One phase-noise realization at the physical RMS
+        sigma_theta = coherence_sigma_theta(r)
+        noise = sample_phase_noise(N_grid, sigma_theta, xi_perp / dx, rng)
         psi = psi * np.exp(1j * noise)
 
         # Normalize
@@ -648,13 +804,13 @@ class CoherentMatterwaveBeam:
         np.random.seed(42)
         N = result['N']
         th = np.random.uniform(0, 2*np.pi, N)
-        dth = np.zeros(N)
-        om = np.random.normal(0, self.omega_spread_dim_default, N)
+        om = self.omega_spread_dim_default * np.random.standard_cauchy(N)
         if self.p_scatter > 0:
             scattered = np.random.random(N) < self.p_scatter
             if scattered.sum() > 0:
                 th[scattered] = np.random.uniform(0, 2*np.pi, scattered.sum())
-                om[scattered] = np.random.normal(0, max(self.omega_spread_dim_default, 0.5), scattered.sum())
+                om[scattered] = (max(self.omega_spread_dim_default, 0.5)
+                                 * np.random.standard_cauchy(scattered.sum()))
         dt_k = 0.01
         K_snap = self.K_dim
         snap_indices = [0, n_steps//10, n_steps//4, n_steps//2]
@@ -664,9 +820,7 @@ class CoherentMatterwaveBeam:
                 snap_thetas.append(th.copy())
             z = np.mean(np.exp(1j * th))
             coupling = np.imag(z * np.exp(-1j * th))
-            ddth = -0.5 * dth + om + K_snap * coupling
-            dth += ddth * dt_k
-            th += dth * dt_k
+            th += (om + K_snap * coupling) * dt_k
 
         colors = ['#d62728', '#ff7f0e', '#2ca02c', '#1f77b4']
         labels = ['t=0', 't=T/10', 't=T/4', 't=T/2']

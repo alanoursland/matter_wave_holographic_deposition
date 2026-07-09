@@ -191,8 +191,10 @@ class IntegratedQuantumSubstrate:
 
         r     = order_hist[-1]
         sigma = 0.35 * self.L
-        psi_t = (torch.exp(-(self.X_t**2 + self.Y_t**2) / (2*sigma**2))
-                 * torch.exp(1j * self.k0 * self.X_t))
+        # Transverse envelope only — forward momentum hbar*k0 is carried by
+        # the propagator's kz, not a transverse phase ramp (fable5 E1).
+        psi_t = torch.exp(-(self.X_t**2 + self.Y_t**2)
+                          / (2*sigma**2)).to(torch.complex128)
 
         # gaussian_filter requires CPU/numpy
         noise = (1 - r) * np.random.normal(0, np.pi, (self.N, self.N))
