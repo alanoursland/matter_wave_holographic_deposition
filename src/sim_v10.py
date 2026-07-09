@@ -41,7 +41,7 @@ warnings.filterwarnings('ignore')
 
 from coherent_matterwave_beam import (
     CoherentMatterwaveBeam, CavityGeometry, SPECIES,
-    coherence_sigma_theta, sample_phase_noise,
+    sample_phase_noise,
     hbar, k_B, e_C, m_u,
 )
 from inverse_holography import (
@@ -58,6 +58,7 @@ from sim_v9 import (
 from iqs.lattices.diamond import DiamondNetwork
 from iqs.lattices.density_mapping import DensityPeakMapper
 from iqs.numerics.device import get_device
+from iqs.sources import SourceParams, DirectSource, KuramotoPatentSource
 
 _device = get_device()
 os.makedirs('results', exist_ok=True)
@@ -121,7 +122,8 @@ class IntegratedPipelineV10:
                  use_floquet=False, V_max_floquet=0.9,
                  n_resonant=0,
                  N_diamond_x=16, N_diamond_y=16,
-                 coherence_xi=50e-9, n_noise_realizations=100):
+                 coherence_xi=50e-9, n_noise_realizations=100,
+                 source=None):
         self.N = N
         self.L = L
         self.dx = L / N
@@ -156,6 +158,16 @@ class IntegratedPipelineV10:
             B_field=B_field, cavity=cav,
             dE_frac=dE_frac, beam_current_A=beam_current_A,
         )
+
+        # --- Source-parameter provider (fable5 T12/M2) ---
+        # Downstream stages consume only SourceParams (Δλ/λ, ξ⊥, current,
+        # σ_θ).  Default provider: the patent's AB-Kuramoto model wrapping
+        # the CMWB above.  Pass source=DirectSource(...) to bypass the
+        # Kuramoto abstraction entirely.
+        if source is None:
+            source = KuramotoPatentSource(self.cmwb, xi_perp=coherence_xi)
+        self.source = source
+        self._source_params = None
 
         # --- He⁺ beam parameters ---
         self.mass = m_He
@@ -210,24 +222,26 @@ class IntegratedPipelineV10:
     # Stage 1: CMWB He⁺ source
     # -------------------------------------------------------------------
     def generate_source(self, seed=42, verbose=True):
-        """Generate coherent He⁺ beam via CMWB.
+        """Generate one He⁺ beam-wavefunction realization.
 
-        Returns the He⁺ wavefunction with phase noise set by the CMWB
-        coherence (1 - r).
+        The source provider (fable5 T12) supplies the physical parameters
+        (Δλ/λ, ξ⊥, current, σ_θ); this stage consumes only those.
 
         Returns
         -------
         psi : ndarray (N, N) complex128, normalized
-        sync_result : dict from CMWB.synchronize()
+        sync_result : dict (Kuramoto sync result, or a direct-provider
+            stand-in with 'r_final'/'mode')
         """
         if verbose:
-            print("\n  STAGE 1: CMWB He⁺ source")
+            print("\n  STAGE 1: He⁺ source "
+                  f"[provider: {type(self.source).__name__}]")
 
-        sync = self.cmwb.synchronize(seed=seed, verbose=verbose, mode='auto')
-        r = sync['r_final']
+        params, sync = self.source.source_params(seed=seed, verbose=verbose)
+        self._source_params = params
+        r = params.r_equivalent
 
         # Build the He⁺ beam wavefunction.
-        # Phase noise from incomplete synchronization carries through.
         x = np.linspace(-self.L / 2, self.L / 2, self.N)
         X, Y = np.meshgrid(x, x, indexing='ij')
         sigma = 0.35 * self.L
@@ -238,26 +252,26 @@ class IntegratedPipelineV10:
         # the evanescent cutoff).
         psi = np.exp(-(X**2 + Y**2) / (2 * sigma**2)).astype(np.complex128)
 
-        # One phase-noise realization at the physical RMS σ_θ = √(−2 ln r),
-        # correlated over ξ⊥ and renormalized so the applied RMS equals
-        # the nominal (fable5 E2/T6; the old (1−r)π + smoothing applied
-        # ~10× less noise than stated).
-        sigma_theta = coherence_sigma_theta(r)
+        # One phase-noise realization at the physical RMS σ_θ, correlated
+        # over ξ⊥ and renormalized so the applied RMS equals the nominal
+        # (fable5 E2/T6; the old (1−r)π + smoothing applied ~10× less
+        # noise than stated).
         rng = np.random.default_rng(seed)
-        noise = sample_phase_noise(self.N, sigma_theta,
-                                   self.coherence_xi / self.dx, rng)
+        noise = sample_phase_noise(self.N, params.sigma_theta,
+                                   params.xi_perp / self.dx, rng)
         psi = psi * np.exp(1j * noise)
 
         # Normalize
         psi /= np.sqrt(np.sum(np.abs(psi)**2) * self.dx**2)
 
         if verbose:
-            print(f"    He⁺ beam: r = {r:.4f}, "
+            print(f"    He⁺ beam: r_eq = {r:.4f}, "
                   f"λ = {self.lam*1e9:.2f} nm  "
                   f"[sync mode: {sync.get('mode', 'unknown')}]")
-            print(f"    Phase noise: σ_θ nominal = {sigma_theta:.4f} rad, "
+            print(f"    Phase noise: σ_θ nominal = {params.sigma_theta:.4f} rad, "
                   f"applied RMS = {noise.std():.4f} rad, "
-                  f"ξ⊥ = {self.coherence_xi*1e9:.0f} nm")
+                  f"ξ⊥ = {params.xi_perp*1e9:.0f} nm, "
+                  f"Δλ/λ = {params.dlam_frac:.2%}")
 
         return psi, sync
 
@@ -403,11 +417,11 @@ class IntegratedPipelineV10:
                                  device=_device)
         T_screen = SQUIDArray.phase_screen_to_transmission(screen_t)
 
-        r_src = sync_result['r_final']
-        sigma_theta = coherence_sigma_theta(r_src)
+        params = self._source_params
+        sigma_theta = params.sigma_theta
         M = self.n_noise_realizations if sigma_theta > 0 else 1
         rng = np.random.default_rng(seed)
-        xi_pix = self.coherence_xi / self.dx
+        xi_pix = params.xi_perp / self.dx
 
         density_actual = np.zeros((self.N, self.N))
         rms_applied = []
@@ -431,6 +445,12 @@ class IntegratedPipelineV10:
         # the (peak-normalized) pattern metrics.
         L_transport = self.prop_distance_lam * self.lam
         transport_surv = self.cmwb.transport_survival(L_transport)
+
+        # Space-charge gate (fable5 T10/M1): the single-particle picture
+        # requires ≤ 1 ion in flight at a time.
+        space_charge = self.cmwb.space_charge_check(
+            path_length=L_transport, beam_radius=0.35 * self.L,
+            current_A=params.current_A, verbose=verbose)
 
         if verbose:
             print(f"\n  Ensemble deposition: M = {M} realizations, "
@@ -470,6 +490,8 @@ class IntegratedPipelineV10:
             'sigma_theta':      sigma_theta,
             'noise_rms_applied': rms_applied,
             'M_realizations':   M,
+            'source_params':    params,
+            'space_charge':     space_charge,
             'transport_survival': transport_surv,
             'mfp_beam_m':       self.cmwb.mfp_beam,
             'lam_nm':           self.lam * 1e9,
@@ -505,6 +527,11 @@ class IntegratedPipelineV10:
         print(f"  Noise:  σ_θ = {r.get('sigma_theta', 0):.4f} rad nominal, "
               f"{r.get('noise_rms_applied', 0):.4f} rad applied")
         print(f"  Transport survival: {r.get('transport_survival', 1):.3e}")
+        sc = r.get('space_charge')
+        if sc is not None:
+            print(f"  Space charge: {'PASS' if sc['ok'] else 'FAIL'} "
+                  f"({sc['N_in_flight']:.3g} ions in flight; "
+                  f"single-ion limit {sc['I_max_single_A']:.3e} A)")
         if r['floquet_info']:
             fi = r['floquet_info']
             print(f"  Floquet: S = {fi.get('entropy', 'N/A')}, "
@@ -515,6 +542,105 @@ class IntegratedPipelineV10:
             print(f"  Caging: Φ=π loc = {loc_pi:.4f}, "
                   f"Φ=0 loc = {loc_0:.4f}, "
                   f"gap = {loc_pi - loc_0:.4f}")
+
+
+# ===========================================================================
+# SINGLE-ION STATISTICAL ACCUMULATION (fable5 T11/M1)
+# ===========================================================================
+
+def dose_fidelity_curve(density, target, doses=None, seed=0, n_repeats=3):
+    """Dose-vs-fidelity for one-ion-at-a-time deposition.
+
+    With space charge forbidding co-resident ions (T10), the pattern
+    accumulates statistically: each ion arrives independently and lands
+    with probability density ∝ the ensemble-averaged |ψ|² (which already
+    folds in the T6 noise ensemble — for sequential ions the intensity
+    average is exact, not an approximation).  Arrivals are Poissonian:
+    counts per pixel ~ Poisson(D · p).
+
+    Parameters
+    ----------
+    density : ndarray (N, N)
+        Ensemble-averaged arrival intensity (e.g. `density_actual`).
+    target : ndarray (N, N)
+        Target pattern the SSIM is scored against.
+    doses : array-like or None
+        Mean total ion numbers D to evaluate.  Default: log-spaced
+        10²…10⁸.
+    seed : int
+        RNG seed.
+    n_repeats : int
+        Independent shot-noise realizations averaged per dose.
+
+    Returns
+    -------
+    dict with 'doses', 'ssim_mean', 'ssim_std', and 'ssim_ceiling'
+    (the infinite-dose ensemble value the curve saturates to).
+    """
+    if doses is None:
+        doses = np.logspace(2, 8, 13)
+    doses = np.asarray(doses, dtype=float)
+    rng = np.random.default_rng(seed)
+    p = density / density.sum()
+
+    ssim_mean, ssim_std = [], []
+    for D in doses:
+        vals = [ssim_score(target, rng.poisson(D * p).astype(float))
+                for _ in range(n_repeats)]
+        ssim_mean.append(np.mean(vals))
+        ssim_std.append(np.std(vals))
+
+    return {
+        'doses':        doses,
+        'ssim_mean':    np.array(ssim_mean),
+        'ssim_std':     np.array(ssim_std),
+        'ssim_ceiling': float(ssim_score(target, density)),
+    }
+
+
+def dose_to_ssim(curve, ssim_target):
+    """Smallest dose whose mean SSIM reaches ssim_target.
+
+    Log-interpolates the dose–fidelity curve; returns None if the target
+    is never reached (i.e. it exceeds the shot-noise-free ceiling).
+    """
+    d, s = curve['doses'], curve['ssim_mean']
+    above = np.where(s >= ssim_target)[0]
+    if len(above) == 0:
+        return None
+    i = above[0]
+    if i == 0:
+        return float(d[0])
+    # interpolate in log-dose between the bracketing points
+    f = (ssim_target - s[i - 1]) / (s[i] - s[i - 1] + 1e-30)
+    return float(10 ** (np.log10(d[i - 1])
+                        + f * (np.log10(d[i]) - np.log10(d[i - 1]))))
+
+
+def plot_dose_fidelity(curve, marks=(), fname='results/v10_dose_fidelity.png'):
+    """Plot SSIM vs ion dose with the ensemble ceiling."""
+    print(f"\n  Plotting → {fname}")
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.errorbar(curve['doses'], curve['ssim_mean'], yerr=curve['ssim_std'],
+                fmt='bo-', lw=2, capsize=3, label='Poisson accumulation')
+    ax.axhline(curve['ssim_ceiling'], color='k', ls='--', alpha=0.6,
+               label=f"ensemble ceiling = {curve['ssim_ceiling']:.3f}")
+    for label, dose in marks:
+        if dose is not None:
+            ax.axvline(dose, color='g', ls=':', alpha=0.7)
+            ax.annotate(label, (dose, 0.05), fontsize=8, rotation=90,
+                        textcoords='offset points', xytext=(4, 0))
+    ax.set_xscale('log')
+    ax.set_xlabel('Ion dose (total arrivals)')
+    ax.set_ylabel('SSIM vs target')
+    ax.set_title('Single-ion statistical accumulation (T11)',
+                 fontweight='bold')
+    ax.grid(True, alpha=0.3)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(fname, dpi=150, bbox_inches='tight', facecolor='white')
+    print(f"  Saved: {fname}")
+    plt.close(fig)
 
 
 # ===========================================================================
@@ -923,6 +1049,51 @@ def main():
     plot_pressure_sweep(sweep)
 
     # ==================================================================
+    # DEMO 4: Single-ion accumulation with a direct-parameterized source
+    # ==================================================================
+    print("\n" + "=" * 65)
+    print("DEMO 4: Single-ion statistical accumulation (T11)")
+    print("        Direct source parameterization (T12), 0.1 pA (T10-safe)")
+    print("=" * 65)
+
+    # DirectSource bypasses the Kuramoto model: state the physical beam
+    # parameters outright.  σ_θ = 0.079 rad is the Q-limited coherence
+    # ceiling from the Phase 2 sweep; 0.1 pA keeps occupancy < 1.
+    source_direct = DirectSource(
+        dlam_frac=0.005, xi_perp=50e-9, current_A=0.1e-12,
+        sigma_theta=0.079)
+    pipeline_si = IntegratedPipelineV10(
+        B_field=0.01, pressure_Pa=1e-3,  # transport-safe vacuum
+        T_beam=1e-3, N=N, L=L, N_loops=32,
+        prop_distance_lam=20.0, source=source_direct,
+    )
+    results_si = pipeline_si.run(
+        target_dots, method='gd', run_caging=False, seed=42)
+
+    curve = dose_fidelity_curve(
+        results_si['density_actual'], results_si['holo']['P_target'],
+        seed=42)
+    d80 = dose_to_ssim(curve, 0.8)
+    ceiling = curve['ssim_ceiling']
+    d95c = dose_to_ssim(curve, 0.95 * ceiling)
+    plot_dose_fidelity(curve, marks=[('95% of ceiling', d95c)])
+
+    sc = results_si['space_charge']
+    rate = sc['current_A'] / e_C  # singly charged
+    print(f"\n  Dose–fidelity (dots target, σ_θ = 0.079 rad):")
+    print(f"    Ensemble SSIM ceiling: {ceiling:.4f}")
+    if d80 is not None:
+        print(f"    Dose to SSIM 0.8: {d80:.3g} ions "
+              f"({d80/rate:.3g} s at {sc['current_A']:.1e} A)")
+    else:
+        print(f"    Dose to SSIM 0.8: NOT REACHABLE — the shot-noise-free "
+              f"ceiling is {ceiling:.3f} (aperture/coherence limited)")
+    if d95c is not None:
+        print(f"    Dose to 95% of ceiling ({0.95*ceiling:.3f}): "
+              f"{d95c:.3g} ions ({d95c/rate:.3g} s at "
+              f"{sc['current_A']:.1e} A)")
+
+    # ==================================================================
     # SUMMARY
     # ==================================================================
     print("\n" + "=" * 65)
@@ -932,6 +1103,7 @@ def main():
     print("  results/v10_pipeline_dots.png     — Full pipeline demo")
     print("  results/v10_multi_target.png      — 5 target benchmark")
     print("  results/v10_pressure_sweep.png    — Coherence threshold")
+    print("  results/v10_dose_fidelity.png     — Single-ion dose curve")
 
     print(f"\nKey results (vacuum source, P = 100 Pa):")
     m = results_dots['holo']['metrics']

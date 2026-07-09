@@ -43,6 +43,7 @@ e_C   = 1.602176634e-19  # C  (elementary charge)
 m_e   = 9.1093837015e-31 # kg (electron mass)
 m_u   = 1.66053906660e-27  # kg (atomic mass unit)
 mu_0  = 1.25663706212e-6   # T·m/A
+eps_0 = 8.8541878128e-12   # F/m
 c     = 2.99792458e8       # m/s
 Phi_0_e = 4.135667696e-15  # Wb  (h/e, single-charge flux quantum)
 
@@ -310,6 +311,64 @@ class CoherentMatterwaveBeam:
         mfp = self.cavity.mean_free_path(v_beam=self.v)
         self.mfp_beam = mfp
         self.p_scatter = 1.0 - np.exp(-self.cavity.AK_gap / mfp)
+
+    def space_charge_check(self, path_length, beam_radius,
+                           current_A=None, verbose=True,
+                           abort_on_fail=False):
+        """Space-charge validation gate (fable5 T10/M1).
+
+        From (I, v, beam radius, path length) compute the number of ions
+        simultaneously in flight and the Coulomb/kinetic energy ratio.
+        The single-particle propagation picture used by the whole
+        pipeline requires occupancy ≤ 1 (one ion at a time, pattern
+        accumulating statistically — T11); above that the gate fails
+        loudly, in the same spirit as the spectrum/roundtrip gates.
+
+        Returns a dict: ok, N_in_flight, coulomb_kinetic_ratio,
+        I_max_single_A (largest current with occupancy ≤ 1), t_flight_s.
+        """
+        q = abs(self.charge)
+        I = self.beam_current_A if current_A is None else current_A
+        t_flight = path_length / self.v
+        rate = I / q                       # ions per second
+        N_flight = rate * t_flight         # simultaneous occupancy
+        I_max_single = q / t_flight        # occupancy-1 current
+
+        if N_flight > 1:
+            # Mean inter-ion spacing in the beam cylinder and the mutual
+            # Coulomb energy per ion relative to the kinetic energy.
+            n = N_flight / (np.pi * beam_radius**2 * path_length)
+            d = n ** (-1.0 / 3.0)
+            E_coul = q**2 / (4 * np.pi * eps_0 * d)
+            ratio = E_coul / self.E_k
+        else:
+            ratio = 0.0
+
+        ok = N_flight <= 1
+        result = {
+            'ok': ok,
+            'N_in_flight': float(N_flight),
+            'coulomb_kinetic_ratio': float(ratio),
+            'I_max_single_A': float(I_max_single),
+            't_flight_s': float(t_flight),
+            'current_A': float(I),
+        }
+
+        if verbose:
+            status = 'PASS' if ok else 'FAIL'
+            print(f"  SPACE-CHARGE GATE [{status}]: "
+                  f"I = {I:.3e} A, t_flight = {t_flight*1e6:.3g} μs → "
+                  f"{N_flight:.3g} ions in flight "
+                  f"(single-ion limit I ≤ {I_max_single:.3e} A)")
+            if not ok:
+                print(f"    E_Coulomb/E_kinetic ≈ {ratio:.3g} — the "
+                      f"single-particle picture is INVALID at this current; "
+                      f"use one-ion-at-a-time statistical accumulation (T11).")
+        if abort_on_fail and not ok:
+            raise RuntimeError(
+                f"Space-charge gate failed: {N_flight:.3g} ions in flight "
+                f"(Coulomb/kinetic ≈ {ratio:.3g})")
+        return result
 
     def transport_survival(self, L_path, pressure_Pa=None):
         """Fraction of the beam that traverses L_path without a collision.

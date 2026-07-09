@@ -97,28 +97,38 @@ out-powers. Report §6 rewritten.
       gate in sim_v10 STEP 0 and tests, above and below threshold.
       *Verified: gate passes (|Δr| = 0.013 / 0.004 at N = 500).*
 
-## Phase 3 — Structural confrontations (the two existential items)
+## Phase 3 — Structural confrontations (the two existential items) — **DONE 2026-07-09**
 
-- [ ] **T10. Space-charge validation gate.** (M1)
-      From (I, v, beam radius, path length) compute ions-in-flight and
-      Coulomb/kinetic ratio; fail loudly when occupancy > 1 invalidates the
-      single-particle picture. Same spirit as the spectrum/roundtrip gates.
-      *Check: gate fires at 1 μA / 2 m/s; passes at ≤ 0.3 pA.*
+Full writeup: [phase3_summary.md](phase3_summary.md). Run log:
+[phase3_v10.txt](phase3_v10.txt). 76 tests pass (11 new in
+`test_phase3.py`). Headline: the 1 μA operating point is
+space-charge-invalid by ~6.5 orders (single-ion limit I ≤ 0.33 pA);
+one-at-a-time accumulation is essentially free in dose (≤10² ions to
+95% of ceiling) — the ensemble ceiling from the aperture/coherence
+limits, not the dose, is what caps fidelity.
 
-- [ ] **T11. Single-ion statistical-accumulation mode.** (M1)
-      Poissonian arrivals sampling |ψ|² (with T6's ensemble over noise
-      realizations); output dose-vs-fidelity curves (ions needed to reach
-      SSIM X at shot-noise limit).
-      *Check: SSIM(dose) saturates to the ensemble value; a
-      "dose to SSIM 0.8" number exists for the dots target.*
+- [x] **T10. Space-charge validation gate.** (M1)
+      `CoherentMatterwaveBeam.space_charge_check(path, radius, I)` —
+      ions-in-flight, Coulomb/kinetic ratio, single-ion current limit
+      q·v/L; loud FAIL banner (optional `abort_on_fail`); runs in every
+      `pipeline.run()`.
+      *Verified: fires at 1 μA (3×10⁶ in flight, ratio ~6×10⁶); passes
+      at 0.3 pA; I_max = 0.33 pA at 2.04 m/s.*
 
-- [ ] **T12. Decouple the source interface from Kuramoto.** (M2)
-      Parameterize the source by (Δλ/λ, ξ⊥, current) directly; keep the
-      patent's AB-Kuramoto module as one clearly-labeled provider of those
-      parameters rather than the foundation. Natural home: `iqs/sources/`
-      in the ongoing refactor.
-      *Check: sim_v10 runs with either source provider; downstream code
-      consumes only the three physical parameters.*
+- [x] **T11. Single-ion statistical-accumulation mode.** (M1)
+      `dose_fidelity_curve` / `dose_to_ssim` / `plot_dose_fidelity` in
+      sim_v10; Poisson arrivals sample the T6 ensemble-averaged |ψ|²;
+      DEMO 4 produces the dots dose curve.
+      *Verified: SSIM(dose) saturates to the ensemble value. "Dose to
+      SSIM 0.8": not reachable — ceiling 0.185 at the best coherence;
+      ≤10² ions (~0.2 ms at 0.1 pA) reaches 95% of the ceiling.*
+
+- [x] **T12. Decouple the source interface from Kuramoto.** (M2)
+      `iqs/sources/`: `SourceParams(Δλ/λ, ξ⊥, current, σ_θ)` with
+      `DirectSource` and the clearly-labeled `KuramotoPatentSource`;
+      pipeline stages downstream of the source consume only
+      `SourceParams` (full CMWB move into iqs is reorg milestone 3).
+      *Verified: sim_v10 runs with either provider (test + DEMO 4).*
 
 ## Phase 4 — Design studies (the publishable v11 material)
 
