@@ -286,9 +286,13 @@ class IntegratedPipelineV10:
         if verbose:
             print(f"\n  STAGE 2: Inverse holography ({method.upper()})")
 
+        # Condition the target to the *deliverable* bandwidth: array
+        # Nyquist AND the geometric transport aperture (fable5 T14) —
+        # the optimizer must not chase evanescent/out-of-frame content.
         target_smooth = smooth_target(
             target_pattern, N_loops=self.N_loops,
             corner_radius=0.03, sigma=2,
+            k0=self.k0, L=self.L, z=self.holo_solver.z,
         )
 
         t0 = time.time()

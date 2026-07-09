@@ -130,40 +130,48 @@ limits, not the dose, is what caps fidelity.
       `SourceParams` (full CMWB move into iqs is reorg milestone 3).
       *Verified: sim_v10 runs with either provider (test + DEMO 4).*
 
-## Phase 4 — Design studies (the publishable v11 material)
+## Phase 4 — Design studies (the publishable v11 material) — **DONE 2026-07-09**
 
-- [ ] **T13. Species/velocity trade study.** (M5)
-      Sweep (species, E_k): λ_dB, propagating bandwidth, SSIM at fixed array,
-      AB coupling, image-charge sensitivity, space-charge-limited current.
-      Deliverable: the operating-corner recommendation for generation-1
-      hardware (expected: faster beam, shorter λ, finer array).
-      *Check: one figure showing the trade; a chosen corner with numbers.*
+Full writeup: [phase4_summary.md](phase4_summary.md). Studies log:
+[phase4_studies.txt](phase4_studies.txt). Deliverable:
+[reports/v11_report.md](../reports/v11_report.md). 88 tests pass (12 new
+in `test_phase4.py`). Headline: transport-aware target conditioning is
+the biggest fidelity lever of the whole review (dots SSIM 0.32→0.83,
+eff 0.57→0.95); the trade study shows wavelength matching and
+image-charge safety cannot both be had at the current stage — gen-1
+direction is E_k ≥ 10 meV with a re-matched (finer/shorter) stage.
 
-- [ ] **T14. Wavelength-aware target conditioning.** (M5)
-      `bandlimit_target` cutoff = min(0.8 × array Nyquist, k₀L/2π c/a).
-      Optionally: SSIM-aware loss in the GD solver.
-      *Check: optimizer no longer chases evanescent content; efficiency up
-      on line/letter targets.*
+- [x] **T13. Species/velocity trade study.** (M5)
+      `v11_design_studies.py::t13_trade_study`; figure
+      `results/v11_trade_study.png`. Fixed-stage optimum: wavelength-
+      matched slow beams (Li⁺ ~10⁻⁶ eV SSIM 0.886; He⁺ 10⁻⁵ eV corner)
+      — all image-unsafe (ratio 10²–10⁴); image safety needs
+      E_k > 3.6 meV. Recommendation (v11 §9): faster beam + finer
+      array/shorter z, quantified.
 
-- [ ] **T15. Reframe caging as per-adatom migration suppression.** (M6)
-      Initial states = one A-site at a time; report single-adatom escape
-      probability vs Φ, disorder W, and flux error |Φ−π| (the hardware
-      tolerance spec). Port v9's disorder machinery into the v10 report
-      format.
-      *Check: caging section reports P_escape(Φ, W, δΦ) curves instead of a
-      single loc=1.000.*
+- [x] **T14. Wavelength-aware target conditioning.** (M5)
+      Cutoff = min(0.8·array Nyquist, k₀·sin(atan(L/z))·L/2π) — the
+      geometric aperture, per the Phase 1 finding. Wired into sim_v10.
+      *Verified: dots 0.319→0.830, line 0.180→0.618, letter 0.192→0.749
+      SSIM; efficiency 0.53→0.91–0.95.* (SSIM-aware loss: deferred with
+      E8's power-aware loss.)
 
-- [ ] **T16. Inductance model upgrade.** (E4)
-      Negative coplanar sign; Neumann/Grover values for the first ~3 neighbor
-      shells; dipole tail beyond. Then treat I_max/I_rms and condition number
-      as real design inputs.
-      *Check: M symmetric, negative off-diagonal, nearest-neighbor value
-      matches a Neumann-integral spot check.*
+- [x] **T15. Reframe caging as per-adatom migration suppression.** (M6)
+      `t15_adatom_caging`; figure `results/v11_caging_adatom.png`.
+      *P_escape = 0 at Φ = π vs 0.9+ elsewhere; W ≲ 0.5 J tolerable
+      (1.6%); flux tolerance δΦ ≤ 0.010π ≈ 0.031 rad for < 5% escape.*
 
-- [ ] **T17. Rewrite the v10 (→ v11) report from the corrected pipeline.**
-      Use [03_v10_report_assessment.md](03_v10_report_assessment.md) as the
-      checklist of claims to restate, retire, or newly establish.
-      *Check: every §8 conclusion in the old report is explicitly addressed.*
+- [x] **T16. Inductance model upgrade.** (E4)
+      Neumann double integral for first 3 shells, negative coplanar
+      dipole tail beyond; NN coupling >1.5× the dipole estimate.
+      *Verified: M symmetric, off-diagonals negative, NN matches a
+      finer-discretization Neumann spot check within 5%, roundtrip
+      < 10⁻⁸.*
+
+- [x] **T17. Rewrite the v10 (→ v11) report from the corrected pipeline.**
+      [reports/v11_report.md](../reports/v11_report.md); §11 dispositions
+      all seven v10 §8 conclusions (retired: 1, 3, 7; inverted/
+      conditional: 2; stands-with-cost: 4; reframed: 5; repaired: 6).
 
 ---
 

@@ -101,22 +101,63 @@ class SQUIDArray:
     # ------------------------------------------------------------------
     # MUTUAL INDUCTANCE MODEL
     # ------------------------------------------------------------------
-    def build_inductance_matrix(self, wire_width_frac=0.1):
+    @staticmethod
+    def _square_loop_segments(a, cx, cy, n_seg):
+        """Midpoints and dl vectors of a counterclockwise square filament
+        loop of side a centered at (cx, cy), n_seg segments per side."""
+        h = a / 2
+        # Corners counterclockwise starting bottom-left
+        corners = np.array([[-h, -h], [h, -h], [h, h], [-h, h], [-h, -h]])
+        pts, dls = [], []
+        for k in range(4):
+            p0, p1 = corners[k], corners[k + 1]
+            t = (np.arange(n_seg) + 0.5) / n_seg
+            pts.append(p0 + t[:, None] * (p1 - p0))
+            dls.append(np.tile((p1 - p0) / n_seg, (n_seg, 1)))
+        pts = np.vstack(pts) + np.array([cx, cy])
+        return pts, np.vstack(dls)
+
+    @classmethod
+    def neumann_mutual_square(cls, a, dx, dy, wire_width, n_seg=24):
+        """Mutual inductance of two coplanar square loops via the Neumann
+        double integral M = μ₀/(4π) ∮∮ dl₁·dl₂ / r₁₂ (fable5 E4/T16).
+
+        Filament approximation with the wire width regularizing the
+        near-singular facing-edge contributions (adjacent loops at
+        r = pitch have edges a wire-width apart).  For coplanar loops the
+        result is negative: the coupling samples the equatorial dipole
+        field, antiparallel to the moment.
         """
-        Build the mutual inductance matrix M for the loop array.
+        p1, d1 = cls._square_loop_segments(a, 0.0, 0.0, n_seg)
+        p2, d2 = cls._square_loop_segments(a, dx, dy, n_seg)
+        diff = p1[:, None, :] - p2[None, :, :]
+        r = np.sqrt(diff[..., 0]**2 + diff[..., 1]**2 + wire_width**2)
+        dot = d1[:, None, 0] * d2[None, :, 0] + d1[:, None, 1] * d2[None, :, 1]
+        return mu_0 / (4 * np.pi) * float((dot / r).sum())
+
+    def build_inductance_matrix(self, wire_width_frac=0.1, n_near_shells=3):
+        """
+        Build the mutual inductance matrix M for the loop array
+        (fable5 E4/T16 model).
 
         Self-inductance of each square loop (side a, wire width w):
             L_self ≈ (2 mu_0 a / pi) * [ln(a/w) - 0.774]
 
-        Mutual inductance between coplanar square loops (dipole approx):
-            M_ij ≈ (mu_0 / (4 pi)) * a^4 / r_ij^3
-            (valid for r >> a; nearest-neighbour coupling uses a numerical
-            prefactor from Grover's tables.)
+        Mutual inductance between coplanar square loops:
+          - separations r ≤ n_near_shells·pitch: Neumann double integral
+            (the dipole approximation fails badly at r ≈ a);
+          - beyond: coplanar dipole tail  M_ij = −(mu_0/(4 pi)) a⁴ / r³.
+            The sign is NEGATIVE for coplanar loops — the equatorial
+            dipole field opposes the moment, so neighbouring loops need
+            *more* drive to compensate each other, not less.
 
         Parameters
         ----------
         wire_width_frac : float
             Wire width as a fraction of loop side length (default 0.1).
+        n_near_shells : int
+            Neighbour shells (in units of pitch) computed with the
+            Neumann integral before switching to the dipole tail.
 
         Returns
         -------
@@ -129,22 +170,37 @@ class SQUIDArray:
         # Self-inductance per loop
         L_self = (2 * mu_0 * a / np.pi) * (np.log(a / w) - 0.774)
 
-        # Flatten loop positions
-        xs = self.loop_X.ravel()   # (n_total,)
+        # Integer loop-offset matrices (offsets are multiples of pitch)
+        xs = self.loop_X.ravel()
         ys = self.loop_Y.ravel()
+        mx = np.rint((xs[:, None] - xs[None, :]) / a).astype(int)
+        my = np.rint((ys[:, None] - ys[None, :]) / a).astype(int)
+        r = a * np.sqrt(mx.astype(float)**2 + my.astype(float)**2)
 
-        # Pairwise distance matrix
-        dx = xs[:, None] - xs[None, :]
-        dy = ys[:, None] - ys[None, :]
-        r = np.sqrt(dx**2 + dy**2)
-
-        # Mutual inductance (dipole approximation, coplanar loops)
+        # Far field: coplanar dipole tail (negative)
         with np.errstate(divide='ignore', invalid='ignore'):
-            M = (mu_0 / (4 * np.pi)) * a**4 / r**3
-
-        # Replace diagonal (self-inductance) and fix any inf/nan
-        np.fill_diagonal(M, L_self)
+            M = -(mu_0 / (4 * np.pi)) * a**4 / r**3
         M = np.nan_to_num(M, nan=0.0, posinf=0.0, neginf=0.0)
+
+        # Near field: Neumann integral per unique offset within the
+        # requested shells (by symmetry M depends only on (|m|,|n|),
+        # unordered)
+        cutoff2 = n_near_shells**2
+        near_vals = {}
+        for p in range(0, n_near_shells + 1):
+            for q in range(0, p + 1):
+                if p == 0 and q == 0:
+                    continue
+                if p * p + q * q > cutoff2:
+                    continue
+                near_vals[(p, q)] = self.neumann_mutual_square(
+                    a, p * a, q * a, wire_width=w)
+        for (p, q), val in near_vals.items():
+            mask = ((np.abs(mx) == p) & (np.abs(my) == q)) | \
+                   ((np.abs(mx) == q) & (np.abs(my) == p))
+            M[mask] = val
+
+        np.fill_diagonal(M, L_self)
 
         self._M = M
         self._M_inv = np.linalg.inv(M)
@@ -526,20 +582,26 @@ def target_letter(N, L, letter='H', line_frac=0.04):
     return P / (P.sum() + 1e-30)
 
 
-def bandlimit_target(P, N_loops, rolloff=0.8):
+def bandlimit_target(P, N_loops, rolloff=0.8, k0=None, L=None, z=None):
     """
-    Low-pass filter a target pattern to the spatial bandwidth of the
-    SQUID array.
+    Low-pass filter a target pattern to the bandwidth that is actually
+    *deliverable* — the minimum of the SQUID array's modulation limit and
+    the wave-transport limit (fable5 M5/T14).
 
-    The phase screen is generated by bicubic interpolation from an
-    N_loops x N_loops grid.  It cannot modulate at spatial frequencies
-    above its Nyquist limit (N_loops / 2 cycles across the aperture).
-    Any target content above that frequency is unreachable — the
-    optimizer wastes energy chasing it, driving power into the highest
-    modes it *can* produce, which then diffract out of the target region.
+    Two ceilings:
 
-    This function zeroes out unreachable frequencies with a smooth
-    Butterworth rolloff (no Gibbs ringing from a hard cutoff).
+    1. Array Nyquist: the phase screen is bicubic-interpolated from an
+       N_loops × N_loops grid and cannot modulate above N_loops/2 cycles
+       per aperture.
+    2. Transport: free space propagates only |k⊥| < k₀, and a finite
+       source/observation geometry only connects angles tanθ ≤ L/z, so
+       fields arrive with at most k₀·sin(atan(L/z))·L/(2π) cycles per
+       aperture (the Phase 1 finding: at the v10 geometry this is
+       3.1 c/a — a quarter of the array Nyquist).  Content above this is
+       evanescent or misses the frame; the optimizer chasing it produces
+       dim, catastrophically scattered solutions (E8).
+
+    The filter applies a smooth Butterworth rolloff (no Gibbs ringing).
 
     Parameters
     ----------
@@ -548,9 +610,15 @@ def bandlimit_target(P, N_loops, rolloff=0.8):
     N_loops : int
         Number of SQUID loops per axis.
     rolloff : float
-        Fraction of the Nyquist limit at which the filter reaches -3 dB.
-        Default 0.8 (conservative — keeps only content the array can
-        comfortably reproduce).
+        Fraction of the array Nyquist at which that ceiling is taken.
+    k0 : float or None
+        Beam wavenumber [rad/m].  If given (with L), the transport
+        ceiling is applied too.
+    L : float or None
+        Aperture size [m].
+    z : float or None
+        Propagation distance [m].  If omitted, the free-space limit k₀
+        is used; with z the sharper geometric-aperture limit applies.
 
     Returns
     -------
@@ -558,9 +626,14 @@ def bandlimit_target(P, N_loops, rolloff=0.8):
     """
     N = P.shape[0]
 
-    # Nyquist in grid-frequency units: N_loops/2 cycles per N pixels
-    f_nyquist = N_loops / 2.0
-    f_cutoff = rolloff * f_nyquist
+    # Ceiling 1 — array Nyquist: N_loops/2 cycles per aperture
+    f_cutoff = rolloff * N_loops / 2.0
+
+    # Ceiling 2 — transport (field-level, conservative for intensity)
+    if k0 is not None and L is not None:
+        k_t_max = k0 if z is None else k0 * np.sin(np.arctan(L / z))
+        f_transport = k_t_max * L / (2 * np.pi)
+        f_cutoff = min(f_cutoff, f_transport)
 
     # Frequency grid (in cycles per N pixels)
     fx = np.fft.fftfreq(N) * N   # cycles across the grid
@@ -580,15 +653,17 @@ def bandlimit_target(P, N_loops, rolloff=0.8):
     return P_filtered / (P_filtered.sum() + 1e-30)
 
 
-def smooth_target(P, N_loops=None, corner_radius=None, sigma=None):
+def smooth_target(P, N_loops=None, corner_radius=None, sigma=None,
+                  k0=None, L=None, z=None):
     """
     Apply physically motivated smoothing to a target pattern.
 
     Three complementary stages (all optional, applied in order):
 
-    1. Band-limiting: zero spatial frequencies above the SQUID array's
-       Nyquist limit.  This is the principled fix — you cannot reproduce
-       what you cannot modulate.
+    1. Band-limiting: zero spatial frequencies above the *deliverable*
+       bandwidth — min(array Nyquist, transport limit); pass k0/L/z to
+       enable the transport ceiling (fable5 T14).  You cannot reproduce
+       what you cannot modulate — or transport.
     2. Corner rounding: morphological open+close with a disk element.
        Rounds sharp corners while preserving flat edges.
     3. Gaussian blur: gentle final smoothing.
@@ -614,9 +689,9 @@ def smooth_target(P, N_loops=None, corner_radius=None, sigma=None):
     P_out = P.copy()
     N = P.shape[0]
 
-    # Stage 1: band-limit to SQUID Nyquist
+    # Stage 1: band-limit to the deliverable bandwidth
     if N_loops is not None:
-        P_out = bandlimit_target(P_out, N_loops)
+        P_out = bandlimit_target(P_out, N_loops, k0=k0, L=L, z=z)
 
     # Stage 2: morphological corner rounding
     if corner_radius is not None and corner_radius > 0:
