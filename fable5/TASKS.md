@@ -211,10 +211,24 @@ landing stage, closed-loop printing simulation) — is written up in
       leaders including the v10 geometry — dimness was the entire
       noise-fragility mechanism; v11 report §4 annotated. Caveat: 64²
       at 400 nm = 6.25 nm pitch, buildable only via gen-2 projection.*
+- [x] **T19. Physical phase-noise budget.** — **DONE 2026-07-09**
+      [t19_summary.md](t19_summary.md), log [t19_phase_noise.txt](t19_phase_noise.txt),
+      figure `results/t19_phase_noise.png`, study
+      `src/t19_phase_noise_budget.py`. *Verified: σ_θ(E_k) reproduces
+      the slow-beam catastrophe; per-subsystem spec table produced.
+      Budget σ_θ = 0.1 rad anchored empirically (costs 0.007 SSIM at
+      the T22 stage). Headline: the electrostatic spec depends only on
+      time-of-flight (t_max = σħ/qV) — a cm column at 30 keV needs
+      nV-class differential drift between recalibrations (TEM-holography
+      practice ×10; ions pay √(m/mₑ) ≈ 85× vs electrons). Design rule:
+      shortest possible phase-critical throw (microcolumns) + fast
+      exposure + frequent T21 recalibration. All other subsystems
+      comfortable at gen-2 (drive 0.76% of 2π current; defocus μm-scale
+      at NA ~ 10⁻⁵; stray-B gauss-scale). 1:1 slow operation confirmed
+      dead (0.5 nV spec).*
 - [ ] T18. Aberrated projection stage (gen-2 note §8) — evaluate at the
-      T22-recommended stage.
-- [ ] T19. Physical phase-noise budget (gen-2 note §8) — evaluate at the
-      T22-recommended stage.
+      T22-recommended stage; sharpened by T19: the phase-critical throw
+      must be ≤ cm (preferably ≤ mm) — microcolumn geometry.
 - [ ] T20. Landing stage (gen-2 note §8).
 
 ## Dependency notes

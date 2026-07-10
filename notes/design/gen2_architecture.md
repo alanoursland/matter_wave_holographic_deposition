@@ -303,6 +303,17 @@ conditioning, and the crosstalk-honest current model.
   drive noise (via the T16 matrix), vibration → path-length noise.
   *Check: σ_θ(E_k) reproduces §2.2's slow-beam catastrophe; outputs a
   stability spec per subsystem.*
+  **Done 2026-07-09** — [fable5/t19_summary.md](../../fable5/t19_summary.md).
+  Sharpens §2.2 and quantifies falsifier (a): the electrostatic spec is
+  set by time-of-flight alone, so a cm column at 30 keV needs nV-class
+  differential drift between recalibrations (~10× beyond demonstrated
+  TEM-holography practice; ions pay √(m/mₑ) ≈ 85× vs electrons). The
+  phase-critical throw must be ≤ cm and preferably ≤ mm — the
+  **microcolumn** direction, which independently matches the §5
+  multi-column throughput requirement. All non-electrostatic specs are
+  comfortable at gen-2 (drive 0.76% of the 2π current; defocus in μm at
+  NA ~ 10⁻⁵; stray-B in gauss). T18 inherits the short-throw
+  constraint.
 - **T20. Landing stage.** Neutralization energy release, sticking,
   thermal hopping vs substrate T, template site quantization; replaces
   the diamond-caging stage in the chip-printing configuration (T15

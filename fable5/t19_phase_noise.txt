@@ -1,0 +1,50 @@
+﻿======================================================================
+T19: PHYSICAL PHASE-NOISE BUDGET
+     total budget σ_θ = 0.1 rad (0.050 rad/source × 4 sources in quadrature)
+======================================================================
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+
+  SSIM vs σ_θ at the T22 stage (clean = 0.897):
+    σ_θ = 0.03 rad → SSIM = 0.897 (gap +0.001)
+    σ_θ = 0.10 rad → SSIM = 0.891 (gap +0.007)
+    σ_θ = 0.30 rad → SSIM = 0.838 (gap +0.060)
+    σ_θ = 1.00 rad → SSIM = 0.352 (gap +0.545)
+    σ_θ = 3.00 rad → SSIM = 0.019 (gap +0.879)
+  → budget σ_θ = 0.1 rad costs 0.007 SSIM: acceptable.
+
+  Saved: results/t19_phase_noise.png
+
+  Per-subsystem specs for σ_θ ≤ 0.1 rad (0.050 rad per source):
+
+  A: literal 1:1 T22 stage
+    v = 6.94 m/s, λ = 1.44e+04 pm, NA = 0.633, leg = 4.89e-07 m, t_leg = 7.04e-08 s
+    electrostatic: differential-potential DRIFT ≤ 4.67e-10 V over the leg (static part is calibrated out by the T21 loop)
+    screen drive:  δI ≤ 4.13e+03 μA (0.76% of the 2π drive 541 mA; velocity-independent)
+    defocus/vibration: δz ≤ 5.06e-10 m
+    stray-B differential: δB ≤ 1.68 G (velocity-independent)
+
+  B1: gen-2, 1 keV, 0.1 m column
+    v = 2.2e+05 m/s, λ = 0.454 pm, NA = 4.54e-05, leg = 0.1 m, t_leg = 4.55e-07 s
+    electrostatic: differential-potential DRIFT ≤ 7.23e-11 V over the leg (static part is calibrated out by the T21 loop)
+    screen drive:  δI ≤ 4.13e+03 μA (0.76% of the 2π drive 541 mA; velocity-independent)
+    defocus/vibration: δz ≤ 3.51e-06 m
+    stray-B differential: δB ≤ 1.68 G (velocity-independent)
+
+  B2: gen-2, 30 keV, 0.1 m column
+    v = 1.2e+06 m/s, λ = 0.0829 pm, NA = 8.29e-06, leg = 0.1 m, t_leg = 8.32e-08 s
+    electrostatic: differential-potential DRIFT ≤ 3.96e-10 V over the leg (static part is calibrated out by the T21 loop)
+    screen drive:  δI ≤ 4.13e+03 μA (0.76% of the 2π drive 541 mA; velocity-independent)
+    defocus/vibration: δz ≤ 1.92e-05 m
+    stray-B differential: δB ≤ 1.68 G (velocity-independent)
+
+  Maximum phase-critical column length vs achievable differential-drift class:
+       V_drift      t_max    L @ 1 keV   L @ 30 keV
+         1e-03   3.29e-14     7.23e-09     3.96e-08
+         1e-04   3.29e-13     7.23e-08     3.96e-07
+         1e-05   3.29e-12     7.23e-07     3.96e-06
+         1e-06   3.29e-11     7.23e-06     3.96e-05
+    → even μV-class drift limits the phase-critical throw to tens of μm; a cm-scale column at 30 keV needs nV-class differential stability between calibrations — TEM-holography-grade engineering pushed ~10× (a 300 keV TEM holds the equivalent of ~10 nV over 1 m).  Favor the highest transport energy, the shortest possible throw (microcolumns), and fast exposure with frequent T21 recalibration.
+
+  Mass penalty: at equal energy ions are √(m_i/m_e) ≈ 85× slower than electrons, so every electrostatic spec is that much tighter than in electron holography (e.g. 300 keV TEM: V_drift ≤ 1.07e-08 V over a 1 m column).
+
+Done in 22s. Output: results/t19_phase_noise.png
