@@ -175,6 +175,34 @@ direction is E_k ≥ 10 meV with a re-matched (finer/shorter) stage.
 
 ---
 
+## Beyond Phase 4
+
+All planned tasks are closed. A generation-2 architecture study —
+what a physically buildable machine looks like (keV transport, μm-pitch
+phase screen + demagnifying projection, soft landing, template lock-in,
+closed-loop stochastic printing), why the v10/v11 parameter point is
+unbuildable (26 T flux at 12.5 nm pitch; μV patch-potential phase
+budgets at slow v; 1:1 imaging), and a proposed Phase 5 task list
+(T18–T21: aberrated projection stage, physical phase-noise budget,
+landing stage, closed-loop printing simulation) — is written up in
+[notes/design/gen2_architecture.md](../notes/design/gen2_architecture.md).
+
+- [x] **T21. Closed-loop stochastic printing.** — **DONE 2026-07-09**
+      [t21_summary.md](t21_summary.md), log [t21_closed_loop.txt](t21_closed_loop.txt),
+      figure `results/t21_closed_loop.png`, study
+      `src/t21_closed_loop_printing.py` (+ warm-start `phi_init` in the
+      GD solver). *Verified: defect-rate-vs-throughput curve exists;
+      library-MPC feedback reaches defect specs at 1.8× less dose
+      (≤10%: 1778 vs 3162 ions; ≤1%: 5623 vs 10⁴). Finding: both loops
+      hit a ~2.3% dose-calibrated site-RMS floor — the reachable
+      band-limited hologram set shares a common shape offset, so at
+      high dose the actuator (aperture), not statistics, binds again.
+      Naive deficit-chasing without the predictive gate is
+      counterproductive (28% plateau).*
+- [ ] T18. Aberrated projection stage (gen-2 note §8).
+- [ ] T19. Physical phase-noise budget (gen-2 note §8).
+- [ ] T20. Landing stage (gen-2 note §8).
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).

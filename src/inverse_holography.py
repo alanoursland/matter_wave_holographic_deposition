@@ -435,7 +435,7 @@ class InverseHolographySolver:
     # GRADIENT DESCENT
     # -------------------------------------------------------------------
     def solve_gradient_descent(self, P_target, n_iter=500, lr=0.1,
-                               reg_smooth=1e-4, verbose=True):
+                               reg_smooth=1e-4, phi_init=None, verbose=True):
         if verbose:
             print(f"\n  GD solver: {n_iter} iter, lr={lr}, "
                   f"reg={reg_smooth}")
@@ -444,10 +444,18 @@ class InverseHolographySolver:
         P_t_norm = P_t / (P_t.max() + 1e-30)
 
         # Initialise with random phases (not zeros — flat phase gives no
-        # gradient signal because the propagated beam is nearly symmetric)
-        phi_loops = (torch.rand(self.squid.n_total, dtype=torch.float64,
-                                device=_device) * 0.5
-                     ).requires_grad_(True)
+        # gradient signal because the propagated beam is nearly symmetric),
+        # or warm-start from a supplied solution (fable5 T21: closed-loop
+        # re-solves converge in far fewer iterations from the previous
+        # hologram).
+        if phi_init is not None:
+            phi_loops = torch.tensor(
+                np.asarray(phi_init).ravel(), dtype=torch.float64,
+                device=_device).clone().requires_grad_(True)
+        else:
+            phi_loops = (torch.rand(self.squid.n_total, dtype=torch.float64,
+                                    device=_device) * 0.5
+                         ).requires_grad_(True)
         optimizer = torch.optim.Adam([phi_loops], lr=lr)
 
         history = []

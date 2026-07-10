@@ -1,0 +1,113 @@
+﻿=================================================================
+T21: CLOSED-LOOP STOCHASTIC PRINTING
+=================================================================
+
+  seed 0: open loop
+  [AngularSpectrumPropagator] WARNING: 2.9% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  seed 0: closed loop
+    dose       316: site RMS = 0.2329, defects = 0.458
+      controller: library of 2, plan [1, 1, 0, 0]
+    dose       562: site RMS = 0.1606, defects = 0.167
+      controller: library of 3, plan [2, 0, 0, 0]
+    dose     1e+03: site RMS = 0.1011, defects = 0.000
+      controller: library of 4, plan [0, 0, 0, 0]
+    dose  1.78e+03: site RMS = 0.0936, defects = 0.000
+      controller: library of 5, plan [0, 0, 0, 0]
+    dose  3.16e+03: site RMS = 0.0931, defects = 0.000
+      controller: library of 6, plan [0, 0, 0, 0]
+    dose  5.62e+03: site RMS = 0.0703, defects = 0.000
+      controller: library of 7, plan [0, 0, 0, 0]
+    dose     1e+04: site RMS = 0.0608, defects = 0.000
+      controller: library of 8, plan [0, 0, 0, 0]
+    dose  1.78e+04: site RMS = 0.0521, defects = 0.000
+      controller: library of 9, plan [0, 0, 0, 0]
+    dose  3.16e+04: site RMS = 0.0355, defects = 0.000
+      controller: library of 10, plan [0, 0, 0, 0]
+    dose  5.62e+04: site RMS = 0.0356, defects = 0.000
+      controller: library of 11, plan [0, 0, 0, 0]
+    dose     1e+05: site RMS = 0.0310, defects = 0.000
+      controller: library of 12, plan [0, 0, 0, 0]
+    dose  1.78e+05: site RMS = 0.0291, defects = 0.000
+      controller: library of 13, plan [0, 0, 0, 0]
+    dose  3.16e+05: site RMS = 0.0260, defects = 0.000
+
+  seed 1: open loop
+  seed 1: closed loop
+    dose       316: site RMS = 0.2672, defects = 0.542
+      controller: library of 2, plan [1, 1, 0, 0]
+    dose       562: site RMS = 0.2640, defects = 0.458
+      controller: library of 3, plan [2, 0, 0, 0]
+    dose     1e+03: site RMS = 0.2017, defects = 0.292
+      controller: library of 4, plan [0, 0, 0, 0]
+    dose  1.78e+03: site RMS = 0.1278, defects = 0.042
+      controller: library of 5, plan [0, 0, 0, 0]
+    dose  3.16e+03: site RMS = 0.1052, defects = 0.042
+      controller: library of 6, plan [0, 0, 0, 0]
+    dose  5.62e+03: site RMS = 0.0854, defects = 0.000
+      controller: library of 7, plan [0, 0, 0, 0]
+    dose     1e+04: site RMS = 0.0609, defects = 0.000
+      controller: library of 8, plan [0, 0, 0, 0]
+    dose  1.78e+04: site RMS = 0.0527, defects = 0.000
+      controller: library of 9, plan [0, 0, 0, 0]
+    dose  3.16e+04: site RMS = 0.0522, defects = 0.000
+      controller: library of 10, plan [0, 0, 0, 0]
+    dose  5.62e+04: site RMS = 0.0436, defects = 0.000
+      controller: library of 11, plan [0, 0, 0, 0]
+    dose     1e+05: site RMS = 0.0334, defects = 0.000
+      controller: library of 12, plan [0, 0, 0, 0]
+    dose  1.78e+05: site RMS = 0.0349, defects = 0.000
+      controller: library of 13, plan [0, 0, 0, 0]
+    dose  3.16e+05: site RMS = 0.0309, defects = 0.000
+
+  seed 2: open loop
+  seed 2: closed loop
+    dose       316: site RMS = 0.3849, defects = 0.708
+      controller: library of 2, plan [1, 1, 0, 0]
+    dose       562: site RMS = 0.2555, defects = 0.542
+      controller: library of 3, plan [0, 0, 0, 0]
+    dose     1e+03: site RMS = 0.1911, defects = 0.333
+      controller: library of 4, plan [0, 0, 0, 0]
+    dose  1.78e+03: site RMS = 0.1619, defects = 0.208
+      controller: library of 5, plan [4, 0, 0, 0]
+    dose  3.16e+03: site RMS = 0.1357, defects = 0.083
+      controller: library of 6, plan [0, 0, 0, 0]
+    dose  5.62e+03: site RMS = 0.1064, defects = 0.000
+      controller: library of 7, plan [0, 0, 0, 0]
+    dose     1e+04: site RMS = 0.0576, defects = 0.000
+      controller: library of 8, plan [0, 0, 0, 0]
+    dose  1.78e+04: site RMS = 0.0551, defects = 0.000
+      controller: library of 9, plan [0, 0, 0, 0]
+    dose  3.16e+04: site RMS = 0.0407, defects = 0.000
+      controller: library of 10, plan [0, 0, 0, 0]
+    dose  5.62e+04: site RMS = 0.0376, defects = 0.000
+      controller: library of 11, plan [0, 0, 0, 0]
+    dose     1e+05: site RMS = 0.0374, defects = 0.000
+      controller: library of 12, plan [0, 0, 0, 0]
+    dose  1.78e+05: site RMS = 0.0351, defects = 0.000
+      controller: library of 13, plan [0, 0, 0, 0]
+    dose  3.16e+05: site RMS = 0.0359, defects = 0.000
+
+  Plotting → results/t21_closed_loop.png
+  Saved: results/t21_closed_loop.png
+
+        dose   RMS open  RMS closed  cal open  cal closed  def open  def closed
+  ------------------------------------------------------------------------------
+         316     0.2950      0.2950    0.2997      0.2997     0.569       0.569
+         562     0.2401      0.2267    0.2473      0.2355     0.361       0.389
+       1e+03     0.1934      0.1646    0.1939      0.1682     0.306       0.208
+    1.78e+03     0.1289      0.1278    0.1275      0.1276     0.125       0.083
+    3.16e+03     0.1192      0.1114    0.1191      0.1081     0.097       0.042
+    5.62e+03     0.0894      0.0874    0.0869      0.0849     0.014       0.000
+       1e+04     0.0658      0.0598    0.0612      0.0576     0.000       0.000
+    1.78e+04     0.0515      0.0533    0.0462      0.0473     0.000       0.000
+    3.16e+04     0.0449      0.0428    0.0378      0.0370     0.000       0.000
+    5.62e+04     0.0404      0.0389    0.0347      0.0320     0.000       0.000
+       1e+05     0.0355      0.0339    0.0295      0.0262     0.000       0.000
+    1.78e+05     0.0337      0.0330    0.0250      0.0230     0.000       0.000
+    3.16e+05     0.0308      0.0310    0.0238      0.0228     0.000       0.000
+
+  Final-dose RMS improvement (closed/open): 1.00× absolute, 1.04× dose-calibrated
+  Dose to defect rate ≤  0.1: open = 3162.0, closed = 1778.0
+  Dose to defect rate ≤ 0.01: open = 10000.0, closed = 5623.0
+
+Done in 122s. Output: results/t21_closed_loop.png
