@@ -1,0 +1,31 @@
+﻿======================================================================
+T20: LANDING STAGE
+     substrate Si(100); escape spec P < 0.0001 over τ = 1000 s
+======================================================================
+
+  Impact/neutralization energy budget (E_local vs thresholds [eV]; sputter E_th per pair, displacement 15.0):
+   species   E_th   E_land= 1, f=0.5   E_land= 1, f=1   E_land=10, f=0.5   E_land=10, f=1
+       He+   19.1     10.9 OK      20.8 DMG     19.9 DMG     29.8 DMG
+        P+   39.1      3.8 OK       6.7 OK      12.8 OK      15.7 DMG
+       Si+   37.6      2.7 OK       4.4 OK      11.7 OK      13.4 OK 
+       Ga+   54.1      1.6 OK       2.2 OK      10.6 OK      11.2 OK 
+       Al+   37.0      1.6 OK       2.2 OK      10.6 OK      11.2 OK 
+       In+   66.0      1.5 OK       2.0 OK      10.5 OK      11.0 OK 
+
+  → He⁺ fails at every corner (24.6 eV neutralization release): the λ-convenient probe is not a deposit species.
+
+  Site-locking: max substrate T for P_escape < 0.0001 (ν₀ = 1e+13 Hz, τ = 1000 s):
+    physisorbed / metal terrace    E_a =  0.3 eV → T ≤   75.6 K   (cryo/cooled)
+    Si adatom on Si(100)           E_a =  0.7 eV → T ≤  176.4 K   (cryo/cooled)
+    strong chemisorption           E_a =  1.2 eV → T ≤  302.4 K   (RT-stable)
+    covalent site (H:Si depass.)   E_a =  2.5 eV → T ≤  630.0 K   (RT-stable)
+
+  Saved: results/t20_landing_stage.png
+
+  RECOMMENDED LANDING CORNER:
+    Species: Si⁺ / Al⁺ / P⁺ (deposit or dopant; IP − φ ≈ 1–6 eV → benign neutralization)
+    E_land = 10 eV: impact-safe for all deposit species even at f_dep = 1 — and removes the monochromator (T18).
+    Substrate/template: covalent/templated sites (E_a ≈ 2.5 eV) hold to 630 K; strong chemisorption (1.2 eV) to 302 K (RT-capable); a bare Si adatom (0.7 eV) needs T ≤ 176 K.
+    He⁺: excluded as a deposit — usable only as an imaging/probe species.
+
+Done in 1s. Output: results/t20_landing_stage.png

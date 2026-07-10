@@ -239,9 +239,17 @@ landing stage, closed-loop printing simulation) — is written up in
       independent convergence on the microcolumn. Binding gen-2
       constraint remains T19's electrostatic drift. Caveat: axial model;
       field aberrations/die stitching not modeled.*
-- [ ] T20. Landing stage (gen-2 note §8) — now carries the E_land
-      trade: 10 eV landing removes the monochromator (T18) but must not
-      sputter/displace.
+- [x] **T20. Landing stage.** — **DONE 2026-07-09**
+      [t20_summary.md](t20_summary.md), log [t20_landing.txt](t20_landing.txt),
+      figure `results/t20_landing_stage.png`, study
+      `src/t20_landing_stage.py`. *Verified: a landing corner exists —
+      Si⁺/Al⁺/Ga⁺ at E_land = 10 eV onto templated/chemisorbing Si(100)
+      at ≤ 300 K (RT needs E_a ≥ 1.2 eV; bare adatoms need ≤ 176 K;
+      covalent sites hold to 630 K). T18's monochromator-free 10 eV
+      landing confirmed impact-safe for all deposit species at
+      worst-case neutralization (P⁺ marginal). He⁺ formally excluded as
+      a deposit (24.6 eV neutralization release beats its own landing
+      site's sputter threshold) — probe species only.*
 
 ## Dependency notes
 

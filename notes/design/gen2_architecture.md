@@ -333,6 +333,14 @@ conditioning, and the crosstalk-honest current model.
   methodology retained: P_escape vs control error).
   *Check: a (species, E_land, T_substrate, template) corner where
   placed atoms stay placed.*
+  **Done 2026-07-09** — [fable5/t20_summary.md](../../fable5/t20_summary.md).
+  Corner: Si⁺/Al⁺/Ga⁺ at E_land = 10 eV onto templated/chemisorbing
+  Si(100); RT operation needs E_a ≥ 1.2 eV (covalent sites hold to
+  630 K), bare adatoms need ≤ 176 K. T18's monochromator-free 10 eV
+  point is impact-safe for all deposit species at worst-case
+  neutralization (P⁺ marginal); §3.3's neutralization worry resolves by
+  species choice, and falsifier (c) in §9 is retired — only He⁺ is
+  excluded (24.6 eV release), and it was never a deposit.
 - **T21. Closed-loop stochastic printing.** T11's dose model + arrival
   detection + periodic hologram re-solve; edge-roughness vs dose with
   and without feedback.
@@ -346,7 +354,15 @@ conditioning, and the crosstalk-honest current model.
   richer actuator (T18/stage re-match), not more measurement. Naive
   deficit-chasing without a predictive gate is counterproductive.
 
-Suggested order: T19, T18, T20 (T21 done).
+**All of Phase 5 is complete (T18–T22).** The simulation-level case for
+this architecture is closed: every subsystem — stage geometry (T22),
+noise (T19), aberrations (T18), landing (T20), dose/feedback (T21) —
+has a demonstrated operating corner, and exactly one first-rank
+engineering constraint remains: the T19 electrostatic phase-drift spec
+(microcolumn geometry + fast exposure/recalibration). Next steps live
+outside the simulator: the §7 literature-validation pass (real
+citations for the claimed subsystem capabilities) and an actual
+column/lens design to confirm T18's C_c assumptions.
 
 ## 9. What would falsify this note
 
