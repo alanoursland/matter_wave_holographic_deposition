@@ -239,6 +239,10 @@ detector bandwidth, not space charge.
 
 ## 5. Throughput arithmetic
 
+> Expanded into a full market/business analysis (TSMC comparison,
+> product wedges, price floors, risk register) in
+> [business_case.md](business_case.md) (2026-07-10).
+
 Per column at ~10⁹ ions/s (nA): 10¹⁴ atoms/cm²/layer → ~10⁵ s ≈ a day
 per cm² per column. Alone: hopeless. With the 10³–10⁵-column
 parallelism that multi-beam maskless-litho roadmaps already assume:
