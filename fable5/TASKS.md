@@ -199,8 +199,22 @@ landing stage, closed-loop printing simulation) — is written up in
       high dose the actuator (aperture), not statistics, binds again.
       Naive deficit-chasing without the predictive gate is
       counterproductive (28% plateau).*
-- [ ] T18. Aberrated projection stage (gen-2 note §8).
-- [ ] T19. Physical phase-noise budget (gen-2 note §8).
+- [x] **T22. Stage re-derivation sweep.** — **DONE 2026-07-09**
+      [t22_summary.md](t22_summary.md), log [t22_stage_sweep.txt](t22_stage_sweep.txt),
+      figure `results/t22_stage_sweep.png`, study `src/t22_stage_sweep.py`.
+      *Verified: Pareto front exists with the v10 stage far inside it.
+      Recommended stage: λ = 14.4 nm (He⁺ ~10⁻⁶ eV), z = 489 nm,
+      64² loops — SSIM 0.897 vs the actual wanted pattern (v10: 0.105)
+      with 52% of the beam delivered to mask (v10: 13%), bandwidth-
+      matched (transport ≈ array Nyquist). Bonus finding: with T14
+      conditioning the coherence gap collapses to ≤ 0.006 SSIM at all
+      leaders including the v10 geometry — dimness was the entire
+      noise-fragility mechanism; v11 report §4 annotated. Caveat: 64²
+      at 400 nm = 6.25 nm pitch, buildable only via gen-2 projection.*
+- [ ] T18. Aberrated projection stage (gen-2 note §8) — evaluate at the
+      T22-recommended stage.
+- [ ] T19. Physical phase-noise budget (gen-2 note §8) — evaluate at the
+      T22-recommended stage.
 - [ ] T20. Landing stage (gen-2 note §8).
 
 ## Dependency notes

@@ -68,6 +68,17 @@ the beam into a diffuse halo, which out-powers a pattern that receives
 only ~10⁻³ of the beam. Dim solutions are noise-fragile; brightening
 the pattern (shorter z, §9) is also the noise-robustness fix.
 
+> **Superseded in part by T22 (2026-07-09,
+> [fable5/t22_summary.md](../fable5/t22_summary.md)).** The gap numbers
+> above were measured with pre-T14 target conditioning, whose violent
+> screens delivered ~10⁻³ of the beam. With deliverable-band targets
+> (§3) the delivered fraction is 0.1–0.5 and the same σ_θ = 0.079 rad
+> costs **≤ 0.006 SSIM** even at the v10 geometry. Dimness was the
+> entire fragility mechanism. What stands from this section: the
+> ensemble model itself, the r-dependence, and the vacuum/coherence
+> requirements of §5; what falls: "the gap never closes" as a
+> constraint on a well-conditioned stage.
+
 ## 5. Vacuum is a hard requirement (T8)
 
 With Langevin cross-sections (σ_L = k_L/v — a 2 m/s He⁺ presents

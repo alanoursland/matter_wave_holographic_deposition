@@ -1,0 +1,88 @@
+﻿======================================================================
+T22: STAGE RE-DERIVATION SWEEP
+     L = 400 nm; λ ∈ [48.9, 14.4, 4.54] nm; z ∈ [100, 245, 489, 978] nm; loops ∈ [16, 32, 64]
+======================================================================
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 48.9 nm  z= 100 nm  loops=16  f= 7.93 c/a  SSIM_ref=0.403  SSIM_self=0.643  arrived=8.502e-01  delivered=7.228e-01
+  [AngularSpectrumPropagator] WARNING: 2.1% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 48.9 nm  z= 100 nm  loops=32  f= 7.93 c/a  SSIM_ref=0.685  SSIM_self=0.818  arrived=5.629e-01  delivered=4.954e-01
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 48.9 nm  z= 100 nm  loops=64  f= 7.93 c/a  SSIM_ref=0.699  SSIM_self=0.834  arrived=5.823e-01  delivered=5.147e-01
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 48.9 nm  z= 245 nm  loops=16  f= 6.97 c/a  SSIM_ref=0.418  SSIM_self=0.637  arrived=3.321e-01  delivered=2.754e-01
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 48.9 nm  z= 245 nm  loops=32  f= 6.97 c/a  SSIM_ref=0.498  SSIM_self=0.688  arrived=2.902e-01  delivered=2.470e-01
+  [AngularSpectrumPropagator] WARNING: 2.1% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 48.9 nm  z= 245 nm  loops=64  f= 6.97 c/a  SSIM_ref=0.503  SSIM_self=0.692  arrived=3.182e-01  delivered=2.708e-01
+  [AngularSpectrumPropagator] WARNING: 2.1% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 48.9 nm  z= 489 nm  loops=16  f= 5.18 c/a  SSIM_ref=0.333  SSIM_self=0.650  arrived=1.131e-01  delivered=9.565e-02
+  [AngularSpectrumPropagator] WARNING: 2.2% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 48.9 nm  z= 489 nm  loops=32  f= 5.18 c/a  SSIM_ref=0.382  SSIM_self=0.703  arrived=9.257e-02  delivered=7.984e-02
+  [AngularSpectrumPropagator] WARNING: 2.4% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 48.9 nm  z= 489 nm  loops=64  f= 5.18 c/a  SSIM_ref=0.384  SSIM_self=0.705  arrived=9.802e-02  delivered=8.458e-02
+  [AngularSpectrumPropagator] WARNING: 2.6% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 48.9 nm  z= 978 nm  loops=16  f= 3.10 c/a  SSIM_ref=0.103  SSIM_self=0.816  arrived=1.490e-01  delivered=1.406e-01
+  [AngularSpectrumPropagator] WARNING: 2.9% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 48.9 nm  z= 978 nm  loops=32  f= 3.10 c/a  SSIM_ref=0.105  SSIM_self=0.822  arrived=1.374e-01  delivered=1.301e-01
+  [AngularSpectrumPropagator] WARNING: 3.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 48.9 nm  z= 978 nm  loops=64  f= 3.10 c/a  SSIM_ref=0.107  SSIM_self=0.827  arrived=1.308e-01  delivered=1.240e-01
+  λ= 14.4 nm  z= 100 nm  loops=16  f=26.94 c/a  SSIM_ref=0.379  SSIM_self=0.464  arrived=9.766e-01  delivered=6.508e-01
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 14.4 nm  z= 100 nm  loops=32  f=26.94 c/a  SSIM_ref=0.390  SSIM_self=0.390  arrived=6.157e-01  delivered=4.061e-01
+  [AngularSpectrumPropagator] WARNING: 2.1% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 14.4 nm  z= 100 nm  loops=64  f=26.94 c/a  SSIM_ref=0.690  SSIM_self=0.694  arrived=5.444e-01  delivered=4.420e-01
+  λ= 14.4 nm  z= 245 nm  loops=16  f=23.68 c/a  SSIM_ref=0.267  SSIM_self=0.425  arrived=9.655e-01  delivered=6.957e-01
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 14.4 nm  z= 245 nm  loops=32  f=23.68 c/a  SSIM_ref=0.569  SSIM_self=0.569  arrived=7.895e-01  delivered=6.105e-01
+  [AngularSpectrumPropagator] WARNING: 2.1% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 14.4 nm  z= 245 nm  loops=64  f=23.68 c/a  SSIM_ref=0.825  SSIM_self=0.829  arrived=7.202e-01  delivered=6.171e-01
+  λ= 14.4 nm  z= 489 nm  loops=16  f=17.58 c/a  SSIM_ref=0.334  SSIM_self=0.540  arrived=9.272e-01  delivered=7.376e-01
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 14.4 nm  z= 489 nm  loops=32  f=17.58 c/a  SSIM_ref=0.787  SSIM_self=0.787  arrived=5.962e-01  delivered=5.015e-01
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 14.4 nm  z= 489 nm  loops=64  f=17.58 c/a  SSIM_ref=0.897  SSIM_self=0.897  arrived=5.930e-01  delivered=5.170e-01
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 14.4 nm  z= 978 nm  loops=16  f=10.51 c/a  SSIM_ref=0.402  SSIM_self=0.629  arrived=4.233e-01  delivered=3.534e-01
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 14.4 nm  z= 978 nm  loops=32  f=10.51 c/a  SSIM_ref=0.793  SSIM_self=0.824  arrived=1.900e-01  delivered=1.624e-01
+  [AngularSpectrumPropagator] WARNING: 2.1% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ= 14.4 nm  z= 978 nm  loops=64  f=10.51 c/a  SSIM_ref=0.812  SSIM_self=0.843  arrived=2.050e-01  delivered=1.768e-01
+  λ=  4.5 nm  z= 100 nm  loops=16  f=85.46 c/a  SSIM_ref=0.387  SSIM_self=0.409  arrived=9.649e-01  delivered=6.120e-01
+  λ=  4.5 nm  z= 100 nm  loops=32  f=85.46 c/a  SSIM_ref=0.382  SSIM_self=0.382  arrived=9.449e-01  delivered=5.007e-01
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ=  4.5 nm  z= 100 nm  loops=64  f=85.46 c/a  SSIM_ref=0.250  SSIM_self=0.257  arrived=7.425e-01  delivered=3.734e-01
+  λ=  4.5 nm  z= 245 nm  loops=16  f=75.12 c/a  SSIM_ref=0.403  SSIM_self=0.445  arrived=9.822e-01  delivered=6.659e-01
+  λ=  4.5 nm  z= 245 nm  loops=32  f=75.12 c/a  SSIM_ref=0.322  SSIM_self=0.322  arrived=9.285e-01  delivered=5.041e-01
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ=  4.5 nm  z= 245 nm  loops=64  f=75.12 c/a  SSIM_ref=0.308  SSIM_self=0.312  arrived=7.997e-01  delivered=5.016e-01
+  λ=  4.5 nm  z= 489 nm  loops=16  f=55.77 c/a  SSIM_ref=0.347  SSIM_self=0.441  arrived=9.741e-01  delivered=6.435e-01
+  λ=  4.5 nm  z= 489 nm  loops=32  f=55.77 c/a  SSIM_ref=0.328  SSIM_self=0.328  arrived=8.764e-01  delivered=5.484e-01
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ=  4.5 nm  z= 489 nm  loops=64  f=55.77 c/a  SSIM_ref=0.519  SSIM_self=0.521  arrived=7.361e-01  delivered=5.540e-01
+  λ=  4.5 nm  z= 978 nm  loops=16  f=33.34 c/a  SSIM_ref=0.280  SSIM_self=0.476  arrived=9.437e-01  delivered=7.387e-01
+  λ=  4.5 nm  z= 978 nm  loops=32  f=33.34 c/a  SSIM_ref=0.556  SSIM_self=0.556  arrived=8.400e-01  delivered=6.440e-01
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+  λ=  4.5 nm  z= 978 nm  loops=64  f=33.34 c/a  SSIM_ref=0.826  SSIM_self=0.829  arrived=7.207e-01  delivered=6.175e-01
+
+  Plotting → results/t22_stage_sweep.png
+  Saved: results/t22_stage_sweep.png
+
+  Pareto front (delivered ↑, SSIM_ref ↑):
+    λ= 14.4  z= 489  loops=64  SSIM_ref=0.897  delivered=5.170e-01
+    λ=  4.5  z= 978  loops=64  SSIM_ref=0.826  delivered=6.175e-01
+    λ=  4.5  z= 978  loops=32  SSIM_ref=0.556  delivered=6.440e-01
+    λ= 48.9  z= 100  loops=16  SSIM_ref=0.403  delivered=7.228e-01
+    λ= 14.4  z= 489  loops=16  SSIM_ref=0.334  delivered=7.376e-01
+    λ=  4.5  z= 978  loops=16  SSIM_ref=0.280  delivered=7.387e-01
+
+  Ensemble-noise evaluation (σ_θ = 0.079 rad) of leaders:
+    λ= 14.4  z= 489  loops=64: SSIM clean=0.897 actual=0.894  gap=0.004
+    λ=  4.5  z= 978  loops=64: SSIM clean=0.829 actual=0.828  gap=0.001
+    λ=  4.5  z= 978  loops=32: SSIM clean=0.556 actual=0.555  gap=0.001
+    λ= 48.9  z= 978  loops=32: SSIM clean=0.822 actual=0.817  gap=0.006 (v10 stage)
+
+  RECOMMENDED STAGE: λ = 14.4 nm, z = 489 nm, 64² loops
+    SSIM_ref = 0.897, delivered = 5.170e-01, transport band = 17.6 c/a
+    vs v10 stage: SSIM_ref = 0.105, delivered = 1.301e-01
+
+Done in 88s. Output: results/t22_stage_sweep.png
