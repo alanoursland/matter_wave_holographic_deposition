@@ -1,0 +1,45 @@
+﻿======================================================================
+T18: ABERRATED PROJECTION STAGE (wave-optical, image side)
+     pattern: T22 stage (17.6 c/a over 400 nm ≈ 11 nm features)
+======================================================================
+  CHROMATIC-SCALING GATE: blur(1 mm)/blur(0.5 mm) = 2.24 (expect ≈2); blur = 9.4 nm vs Barth–Kruit FW50 10.7 nm  [OK]
+  [AngularSpectrumPropagator] WARNING: 2.0% of the input power lies outside the propagating band (evanescent |k_t| > k0, or beyond the band-limited aperture k_t > k_limit) and will be zeroed.  Check the input field for unphysical transverse phase structure (fable5 E1/T4).
+
+  Ideal image SSIM (no aberrations): 0.897
+  C_s = 1 m at E_land = 1 eV (θ_max = 0.63 mrad): SSIM = 0.898 (ideal 0.897) — spherical negligible
+  C_s = 1 m at E_land = 10 eV (θ_max = 0.20 mrad): SSIM = 0.897 (ideal 0.897) — spherical negligible
+
+  Chromatic sweep (SSIM; analytic blur d_c in nm):
+   E_land      C_c  ΔE=  0.5 eV  ΔE=  0.1 eV  ΔE= 0.01 eV  ΔE=0.001 eV
+        1    0.1mm  0.886/  31.6  0.897/   6.3  0.897/   0.6  0.897/   0.1
+        1    1.0mm  0.236/ 315.9  0.834/  63.2  0.897/   6.3  0.897/   0.6
+        1   10.0mm  0.112/3158.7  0.135/ 631.7  0.834/  63.2  0.897/   6.3
+       10    0.1mm  0.897/   1.0  0.897/   0.2  0.897/   0.0  0.897/   0.0
+       10    1.0mm  0.896/  10.0  0.897/   2.0  0.897/   0.2  0.897/   0.0
+       10   10.0mm  0.731/  99.9  0.894/  20.0  0.897/   2.0  0.897/   0.2
+
+  Saved: results/t18_aberrated_projection.png
+
+  Feasible set (SSIM ≥ 0.8):
+    E_land =    1 eV, C_c =   0.1 mm, ΔE ≤ 0.001 eV   (d_c = 0.06 nm, SSIM = 0.897)
+    E_land =    1 eV, C_c =   0.1 mm, ΔE ≤ 0.01 eV   (d_c = 0.63 nm, SSIM = 0.897)
+    E_land =    1 eV, C_c =   0.1 mm, ΔE ≤ 0.1 eV   (d_c = 6.32 nm, SSIM = 0.897)
+    E_land =    1 eV, C_c =   0.1 mm, ΔE ≤ 0.5 eV   (d_c = 31.59 nm, SSIM = 0.886)
+    E_land =    1 eV, C_c =   1.0 mm, ΔE ≤ 0.001 eV   (d_c = 0.63 nm, SSIM = 0.897)
+    E_land =    1 eV, C_c =   1.0 mm, ΔE ≤ 0.01 eV   (d_c = 6.32 nm, SSIM = 0.897)
+    E_land =    1 eV, C_c =   1.0 mm, ΔE ≤ 0.1 eV   (d_c = 63.17 nm, SSIM = 0.834)
+    E_land =    1 eV, C_c =  10.0 mm, ΔE ≤ 0.001 eV   (d_c = 6.32 nm, SSIM = 0.897)
+    E_land =    1 eV, C_c =  10.0 mm, ΔE ≤ 0.01 eV   (d_c = 63.17 nm, SSIM = 0.834)
+    E_land =   10 eV, C_c =   0.1 mm, ΔE ≤ 0.001 eV   (d_c = 0.00 nm, SSIM = 0.897)
+    E_land =   10 eV, C_c =   0.1 mm, ΔE ≤ 0.01 eV   (d_c = 0.02 nm, SSIM = 0.897)
+    E_land =   10 eV, C_c =   0.1 mm, ΔE ≤ 0.1 eV   (d_c = 0.20 nm, SSIM = 0.897)
+    E_land =   10 eV, C_c =   0.1 mm, ΔE ≤ 0.5 eV   (d_c = 1.00 nm, SSIM = 0.897)
+    E_land =   10 eV, C_c =   1.0 mm, ΔE ≤ 0.001 eV   (d_c = 0.02 nm, SSIM = 0.897)
+    E_land =   10 eV, C_c =   1.0 mm, ΔE ≤ 0.01 eV   (d_c = 0.20 nm, SSIM = 0.897)
+    E_land =   10 eV, C_c =   1.0 mm, ΔE ≤ 0.1 eV   (d_c = 2.00 nm, SSIM = 0.897)
+    E_land =   10 eV, C_c =   1.0 mm, ΔE ≤ 0.5 eV   (d_c = 9.99 nm, SSIM = 0.896)
+    E_land =   10 eV, C_c =  10.0 mm, ΔE ≤ 0.001 eV   (d_c = 0.20 nm, SSIM = 0.897)
+    E_land =   10 eV, C_c =  10.0 mm, ΔE ≤ 0.01 eV   (d_c = 2.00 nm, SSIM = 0.897)
+    E_land =   10 eV, C_c =  10.0 mm, ΔE ≤ 0.1 eV   (d_c = 19.98 nm, SSIM = 0.894)
+
+Done in 10s. Output: results/t18_aberrated_projection.png

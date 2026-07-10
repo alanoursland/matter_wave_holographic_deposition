@@ -226,10 +226,22 @@ landing stage, closed-loop printing simulation) — is written up in
       comfortable at gen-2 (drive 0.76% of 2π current; defocus μm-scale
       at NA ~ 10⁻⁵; stray-B gauss-scale). 1:1 slow operation confirmed
       dead (0.5 nV spec).*
-- [ ] T18. Aberrated projection stage (gen-2 note §8) — evaluate at the
-      T22-recommended stage; sharpened by T19: the phase-critical throw
-      must be ≤ cm (preferably ≤ mm) — microcolumn geometry.
-- [ ] T20. Landing stage (gen-2 note §8).
+- [x] **T18. Aberrated projection stage.** — **DONE 2026-07-09**
+      [t18_summary.md](t18_summary.md), log [t18_aberration.txt](t18_aberration.txt),
+      figure `results/t18_aberrated_projection.png`, study
+      `src/t18_aberrated_projection.py`. *Verified: wave model
+      reproduces the Barth–Kruit chromatic FW50 (0.34·C_c·α·ΔE/E within
+      12%, linear C_c scaling). Verdict: aberrations do NOT kill gen-2 —
+      spherical is irrelevant at sub-mrad NA; chromatic is comfortable
+      at E_land = 10 eV with the raw 0.5 eV source spread (SSIM 0.896 at
+      C_c = 1 mm), or at 1 eV with ΔE ≲ 10 meV / C_c ≈ 0.1 mm. d_c ∝
+      E_land^{−3/2}. C_c ≤ 1 mm ⇔ mm-scale decel gap — the third
+      independent convergence on the microcolumn. Binding gen-2
+      constraint remains T19's electrostatic drift. Caveat: axial model;
+      field aberrations/die stitching not modeled.*
+- [ ] T20. Landing stage (gen-2 note §8) — now carries the E_land
+      trade: 10 eV landing removes the monochromator (T18) but must not
+      sputter/displace.
 
 ## Dependency notes
 

@@ -298,6 +298,19 @@ conditioning, and the crosstalk-honest current model.
   *Check: reproduces the known aberration-limited probe-size scaling
   of ion columns; identifies the (M, C_c, C_s) region where 10 nm
   features survive.*
+  **Done 2026-07-09** — [fable5/t18_summary.md](../../fable5/t18_summary.md).
+  Model validated against the Barth–Kruit chromatic FW50. Verdict:
+  aberrations do not kill gen-2 — spherical is irrelevant at the
+  sub-mrad image NA, and chromatic is comfortable at E_land = 10 eV
+  even with the raw 0.5 eV source spread (or at 1 eV with ≲10 meV
+  monochromation / C_c ≈ 0.1 mm). d_c ∝ E_land^{−3/2}. C_c ≤ 1 mm
+  implies a mm-scale decel gap — the **third** independent convergence
+  on the microcolumn (throughput §5, phase drift T19, now aberrations).
+  §3.3's "aberrations are the machine's real resolution risk" is
+  downgraded: the risk is real but bounded and engineerable; the
+  binding constraint remains T19's electrostatic drift. E_land trade
+  handed to T20 (10 eV landing removes the monochromator but must not
+  sputter).
 - **T19. Physical phase-noise budget.** Replace the free σ_θ with a
   composed budget: patch-potential spectrum × transit time, screen
   drive noise (via the T16 matrix), vibration → path-length noise.
