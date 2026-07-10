@@ -3,7 +3,10 @@
 *Design note, 2026-07-09. Written after the fable5 review closed out
 (Phases 0–4, [fable5/TASKS.md](../../fable5/TASKS.md)); assumes the
 corrected v11 pipeline ([reports/v11_report.md](../../reports/v11_report.md))
-as the starting point. Companion notes:
+as the starting point. **Capability claims fact-checked against the
+literature** (deep-research pass, same date):
+[fable5/literature_validation.md](../../fable5/literature_validation.md)
+— citations, confidence tiers, and five corrections (marked ✎ inline). Companion notes:
 [ion optics](../deposition_beam_shaping/ion_optics_and_charged_particle_beam_control.md),
 [atom lithography](../deposition_substrate_confinement/atom_lithography_and_nanoscale_fabrication.md),
 [SQUID holography](../holography/squid_holography.md),
@@ -74,7 +77,11 @@ An ion crossing a potential patch V over length ℓ accumulates
 | He⁺, 10 meV | 694 m/s | ~5 μV |
 | He⁺, 30 keV | 1.2×10⁶ m/s | ~8 mV |
 
-Real surfaces carry *millivolt-scale* patch potentials that drift.
+Real surfaces carry patch potentials that drift — Kelvin-probe work on
+polycrystalline Au shows ~30 meV-FWHM work-function distributions,
+adsorbate-dominated (✎ and patch sizes of 50–100 nm, *not* the μm scale
+originally assumed here: patch fields are rougher but decay faster with
+standoff; NJP 23, 103028 (2021)).
 A 10 meV beam sees ~10²–10³ rad of uncontrolled phase; the 1 mK beam
 sees ~10⁵. Only at keV does the phase budget meet realistic surface
 physics. **Transport must happen at keV; decelerate only at the very
@@ -120,8 +127,8 @@ fixes:
                               templated / cryogenic substrate
                               (site lock-in by chemistry, not flux)
                                             │
-                              secondary-electron single-ion
-                              detection ──► closed-loop dose control
+                              single-ion arrival detection (IBIC ✎)
+                                        ──► closed-loop dose control
 ```
 
 ### 3.1 Source
@@ -198,7 +205,8 @@ control parameter just stops being flux.
 Neutral atoms delete space charge, image charge, and patch potentials
 in one stroke; phase control by SLM-shaped far-detuned light; atom
 holography (Shimizu, Ne*, 1996) and standing-wave atom lithography
-(Cr, ~40 nm pitch, 1990s) both demonstrated. It stalled because
+(Cr: 65±6 nm lines at 213 nm = λ/2 pitch, Science 262, 877 (1993) ✎;
+~40 nm belongs to later refinements) both demonstrated. It stalled because
 neutral-atom *optics* is weak: no good demagnification, so the
 ~250 nm optical-pixel floor is nearly the feature floor. Charged wins
 on optics; neutral wins on robustness. For chips: charged + keV +
@@ -220,9 +228,10 @@ transport (I ≤ qv/L). Three consequences flip from cost to benefit:
 2. **Dose is nearly free** (T11: ~10² ions to 95% of the fidelity
    ceiling per feature-set) — the current budget goes to *counting*,
    not flux.
-3. **Every arrival is detectable** (secondary electrons; deterministic
-   single-ion implantation is practiced today for donor qubits) —
-   which enables §6.
+3. **Every arrival is detectable** (✎ via ion-beam-induced charge,
+   IBIC — 99.87% single-ion confidence demonstrated for 14 keV P⁺,
+   Adv. Mater. 34, 2103235 (2022); secondary-electron detection exists
+   but has only reached ~80%) — which enables §6.
 
 At keV transport the occupancy constraint relaxes to ~nA per column
 (Coulomb energy at achievable spacings ≪ E_k), so throughput is set by
@@ -261,7 +270,12 @@ the cheapest high-value study on the list (T21).
 ## 7. Distance to goal
 
 **No new physics is required — "only" a decade-class integration
-program.** Subsystem status:
+program.** Subsystem status (now fact-checked with citations in
+[fable5/literature_validation.md](../../fable5/literature_validation.md);
+headline confirmations: 48-px electron phase plate is real and
+published, IPL demonstrated 70 nm at 3–10× demag, IMS multi-beam runs
+262,144 beams commercially, TEM holography holds 2π/1050 phase over
+900 s, deterministic single-ion counting reaches 99.87%):
 
 | Subsystem | Exists today as | TRL |
 |---|---|---|

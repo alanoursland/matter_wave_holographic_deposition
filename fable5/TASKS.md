@@ -239,6 +239,19 @@ landing stage, closed-loop printing simulation) — is written up in
       independent convergence on the microcolumn. Binding gen-2
       constraint remains T19's electrostatic drift. Caveat: axial model;
       field aberrations/die stitching not modeled.*
+- [x] **Literature validation pass.** — **DONE 2026-07-09**
+      [literature_validation.md](literature_validation.md) (deep-research
+      workflow: 114 agents, 31 sources, 25 claims 3-vote verified).
+      *12 of 17 gen-2 capability claims confirmed with citations
+      (48-px phase plate published; IPL 70 nm demonstrated; IMS 262k
+      beams commercial; TEM holography 2π/1050 over 900 s; single-ion
+      counting 99.87%; AB caging observed twice — photonic + SC
+      circuit; the Lockheed patent confirmed purely theoretical).
+      5 corrections applied to the gen-2 note (✎): IBIC not
+      secondary-electron detection; patch correlation 50–100 nm not
+      μm; Cr atom lithography 65 nm (1993); Si displacement
+      direction-resolved (min 12.5 eV, avg 36 eV); IPL end-reason
+      uncited. None change a simulator conclusion.*
 - [x] **T20. Landing stage.** — **DONE 2026-07-09**
       [t20_summary.md](t20_summary.md), log [t20_landing.txt](t20_landing.txt),
       figure `results/t20_landing_stage.png`, study
