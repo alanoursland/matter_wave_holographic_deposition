@@ -7,6 +7,17 @@ Claim-by-claim disposition of the v10 conclusions:
 [fable5/03_v10_report_assessment.md](../fable5/03_v10_report_assessment.md)
 and §10 below.
 
+> **Actuator-model correction (2026-07-10).** The optimized loop values in
+> this report parameterize an **ideal local phase plate**. Bicubic loop-phase
+> interpolation is not a derivation of the phase produced by a coplanar SQUID
+> geometry. A filamentary coplanar loop array crossed by straight normally
+> incident rays has `A_z = 0` and therefore zero axial thin-screen phase. The
+> propagation, bandwidth, and inverse-design conclusions remain valid
+> conditionally on a realizable phase actuator; the SQUID implementation does
+> not yet satisfy that condition. See
+> [phase-actuator status](../notes/holography/phase_actuator_status.md) and
+> `SQUIDArray.phase_authority_report()`.
+
 ---
 
 ## 1. What changed since v10

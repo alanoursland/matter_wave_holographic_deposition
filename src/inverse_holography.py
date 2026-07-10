@@ -31,6 +31,7 @@ warnings.filterwarnings('ignore')
 
 from sim_v9 import IntegratedQuantumSubstrate
 from iqs.constants import hbar, k_B, m_He, m_e, Phi_0_e
+from iqs.actuators import CoplanarSquareLoopArray
 from iqs.numerics.device import get_device
 from iqs.numerics.metrics import michelson_contrast, ssim_score, min_feature_size
 from iqs.numerics.propagation import AngularSpectrumPropagator
@@ -49,12 +50,14 @@ os.makedirs('results', exist_ok=True)
 
 class SQUIDArray:
     """
-    2D grid of N_loops x N_loops superconducting loops.
+    Idealized phase-control grid plus a coplanar-loop electrical model.
 
-    Each loop has a controllable phase phi_i (the AB phase imprinted on a
-    passing matter wave).  The array generates a continuous phase screen by
-    bicubic interpolation from the discrete loop phases onto the simulation
-    grid.
+    ``phases_to_screen`` implements the ideal phase-plate contract required
+    by the inverse solver.  It does not derive those phases from the magnetic
+    vector potential of the loop geometry.  Use ``phase_authority_report``
+    before interpreting an optimized screen as a physical AB actuator.
+
+    The retained class name is for compatibility with the v10/v11 studies.
     """
 
     def __init__(self, N_loops=32, N_grid=256, L_grid=400e-9):
@@ -74,7 +77,12 @@ class SQUIDArray:
 
     def phases_to_screen(self, phi_loops):
         """
-        Interpolate discrete loop phases to continuous (N_grid, N_grid) screen.
+        Interpolate ideal actuator coordinates to a continuous phase screen.
+
+        This is a numerical control-surface model, not a loop-flux-to-beam-
+        phase calculation.  In particular, a normally incident beam crossing
+        coplanar current loops has zero axial thin-screen phase in the
+        filamentary electromagnetic model; see ``phase_authority_report``.
 
         Parameters
         ----------
@@ -92,6 +100,64 @@ class SQUIDArray:
         out = F.interpolate(inp, size=(self.N_grid, self.N_grid),
                             mode='bicubic', align_corners=True)
         return out.squeeze(0).squeeze(0)
+
+    def _coplanar_actuator(self):
+        """Build the physical filament model matching this loop layout."""
+        centers = np.column_stack((self.loop_X.ravel(), self.loop_Y.ravel()))
+        return CoplanarSquareLoopArray(
+            centers_xy=centers,
+            side_length=self.pitch,
+            z_plane=0.0,
+            wire_radius=0.05 * self.pitch,
+        )
+
+    def phase_authority_report(self, phi_loops=None, currents=None,
+                               required_span_rad=np.pi):
+        """Check whether the coplanar geometry supplies local AB phase.
+
+        Either ideal loop coordinates ``phi_loops`` or physical ``currents``
+        may be supplied.  The former are converted through the inductance
+        model.  For normal incidence the report currently fails by geometry:
+        coplanar loop currents have no axial vector-potential component.
+        """
+        if (phi_loops is None) == (currents is None):
+            raise ValueError("provide exactly one of phi_loops or currents")
+        if currents is None:
+            currents = self.flux_to_currents(phi_loops)
+        return self._coplanar_actuator().authority_report(
+            currents, required_span_rad=required_span_rad
+        )
+
+    def require_physical_phase_authority(self, phi_loops=None, currents=None,
+                                         required_span_rad=np.pi):
+        """Raise when the current loop geometry cannot realize the screen."""
+        return self.phase_authority_report(
+            phi_loops=phi_loops,
+            currents=currents,
+            required_span_rad=required_span_rad,
+        ).require()
+
+    def physical_axial_phase_screen(self, phi_loops=None, currents=None,
+                                    z_start=None, z_stop=None):
+        """Compute the physical phase of straight normally incident rays.
+
+        This is separate from ``phases_to_screen`` so the ideal and physical
+        actuator hypotheses cannot be confused.  The present coplanar model
+        returns zero analytically.
+        """
+        if (phi_loops is None) == (currents is None):
+            raise ValueError("provide exactly one of phi_loops or currents")
+        if currents is None:
+            currents = self.flux_to_currents(phi_loops)
+        if z_start is None:
+            z_start = -self.pitch
+        if z_stop is None:
+            z_stop = self.pitch
+        axis = np.linspace(-self.L_grid / 2, self.L_grid / 2, self.N_grid)
+        x, y = np.meshgrid(axis, axis, indexing='ij')
+        return self._coplanar_actuator().axial_phase_screen(
+            x, y, z_start, z_stop, currents
+        )
 
     @staticmethod
     def phase_screen_to_transmission(screen):

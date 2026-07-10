@@ -162,6 +162,16 @@ negative coplanar coupling, I_max/I_rms, condition number) is directly
 the design tool for that layer at μm pitch, where drive currents are mA
 instead of the v10 model's impossible values.
 
+**Actuator-model gate (2026-07-10).** The research branch cannot use the
+v11 local rule `phi_i = q Phi_i / hbar` as a pixel transfer function. For
+the modeled coplanar loops and normal beam incidence, `A_z = 0` and the
+straight-ray thin-screen phase is zero. Any AB corrector must first derive a
+gauge-invariant path geometry that encloses confined flux while keeping the
+beam out of nonzero magnetic field. Until then, all T18/T22 holography
+results describe an ideal or electrostatic phase plate, not a demonstrated
+SQUID phase screen. See
+[phase-actuator status](../holography/phase_actuator_status.md).
+
 ### 3.3 Projection and landing
 
 Demagnifying column ending in a deceleration stage to soft-landing
