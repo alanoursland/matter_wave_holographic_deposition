@@ -34,7 +34,10 @@ from iqs.constants import hbar, k_B, m_He, m_e, Phi_0_e
 from iqs.actuators import CoplanarSquareLoopArray
 from iqs.numerics.device import get_device
 from iqs.numerics.metrics import michelson_contrast, ssim_score, min_feature_size
-from iqs.numerics.propagation import AngularSpectrumPropagator
+from iqs.numerics.propagation import (
+    AngularSpectrumPropagator,
+    PolychromaticAngularSpectrumPropagator,
+)
 
 _device = get_device()
 mu_0 = 4 * np.pi * 1e-7   # vacuum permeability [H/m]
@@ -399,6 +402,49 @@ class InverseHolographySolver:
         # Precompute propagation transfer function via shared propagator
         self._propagator = AngularSpectrumPropagator(
             N=N, L=L, k0=self.k0, z=self.z, device=_device)
+        self._ensemble_propagator = None
+        self.ensemble_wavelengths = np.array([self.lam])
+        self.ensemble_weights = np.array([1.0])
+
+    @property
+    def is_polychromatic(self):
+        return self.ensemble_wavelengths.size > 1
+
+    def set_wavelength_ensemble(self, wavelengths, weights=None):
+        """Configure the incoherent spectrum used by ``forward``.
+
+        The central propagator remains available through ``forward_central``
+        for diagnostics and clean/ensemble metric separation.
+        """
+        wavelengths = np.asarray(wavelengths, dtype=float).reshape(-1)
+        if wavelengths.size == 0 or np.any(wavelengths <= 0):
+            raise ValueError("wavelengths must be a non-empty positive array")
+        if weights is None:
+            weights = np.ones(wavelengths.size, dtype=float)
+        weights = np.asarray(weights, dtype=float).reshape(-1)
+        if weights.size != wavelengths.size or np.any(weights < 0):
+            raise ValueError("weights must be non-negative and match wavelengths")
+        if weights.sum() <= 0:
+            raise ValueError("at least one wavelength weight must be positive")
+        weights = weights / weights.sum()
+
+        self.ensemble_wavelengths = wavelengths.copy()
+        self.ensemble_weights = weights.copy()
+        central_only = (
+            wavelengths.size == 1
+            and np.isclose(wavelengths[0], self.lam, rtol=1e-14, atol=0.0)
+        )
+        if central_only:
+            self._ensemble_propagator = None
+        else:
+            self._ensemble_propagator = PolychromaticAngularSpectrumPropagator(
+                N=self.N, L=self.L, wavelengths=wavelengths, z=self.z,
+                weights=weights, device=_device,
+            )
+
+    def release_wavelength_ensemble(self):
+        """Release batched transfer kernels after an inverse solve."""
+        self._ensemble_propagator = None
 
     def make_propagator(self, wavelength):
         """Build a propagator for ``wavelength`` at the same physical z.
@@ -436,7 +482,14 @@ class InverseHolographySolver:
         """
         T = SQUIDArray.phase_screen_to_transmission(phase_screen)
         psi_mod = self.psi_in_t * T
-        psi_target = self._propagate_torch(psi_mod, forward=True)
+        if self._ensemble_propagator is not None:
+            return self._ensemble_propagator.forward_intensity(psi_mod)
+        return self.forward_central(phase_screen)
+
+    def forward_central(self, phase_screen):
+        """Forward intensity at the central design wavelength only."""
+        T = SQUIDArray.phase_screen_to_transmission(phase_screen)
+        psi_target = self._propagate_torch(self.psi_in_t * T, forward=True)
         return torch.abs(psi_target)**2
 
     def forward_from_loops(self, phi_loops):

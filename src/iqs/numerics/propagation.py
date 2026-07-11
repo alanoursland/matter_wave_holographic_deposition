@@ -223,3 +223,117 @@ class AngularSpectrumPropagator:
         torch.Tensor, dtype complex128, shape (N, N)
         """
         return self._apply(psi_t, self._H_bwd)
+
+
+class PolychromaticAngularSpectrumPropagator:
+    """Differentiable incoherent propagation over several wavelengths.
+
+    The phase-modulated input field is common to every spectral component.
+    Its padded FFT is therefore computed once, multiplied by one forward
+    transfer function per wavelength, and transformed as a batch. Detector
+    intensities are combined with normalized non-negative weights.
+
+    Every component uses the same physical propagation distance ``z``.
+    """
+
+    def __init__(self, N: int, L: float, wavelengths, z: float,
+                 weights=None, device: torch.device | None = None,
+                 pad_factor: int = 4, band_limit: bool = True,
+                 evanescent_warn_frac: float = 0.02):
+        if device is None:
+            device = get_device()
+
+        wavelengths = np.asarray(wavelengths, dtype=float).reshape(-1)
+        if wavelengths.size == 0 or not np.all(np.isfinite(wavelengths)):
+            raise ValueError("wavelengths must be a non-empty finite array")
+        if np.any(wavelengths <= 0):
+            raise ValueError("wavelengths must be positive")
+
+        if weights is None:
+            weights = np.ones(wavelengths.size, dtype=float)
+        weights = np.asarray(weights, dtype=float).reshape(-1)
+        if weights.size != wavelengths.size:
+            raise ValueError("one weight is required per wavelength")
+        if not np.all(np.isfinite(weights)) or np.any(weights < 0):
+            raise ValueError("weights must be finite and non-negative")
+        if weights.sum() <= 0:
+            raise ValueError("at least one wavelength weight must be positive")
+        weights = weights / weights.sum()
+
+        self.N = int(N)
+        self.L = float(L)
+        self.dx = self.L / self.N
+        self.z = float(z)
+        self.wavelengths = wavelengths
+        self.device = device
+        self.pad_factor = max(int(pad_factor), 1)
+        self.N_pad = self.pad_factor * self.N
+        self._pad = (self.N_pad - self.N) // 2
+        self.evanescent_warn_frac = float(evanescent_warn_frac)
+        self.last_evanescent_frac = 0.0
+        self._warned = False
+        self.weights_t = torch.tensor(
+            weights, dtype=torch.float64, device=device)
+
+        shape = (wavelengths.size, self.N_pad, self.N_pad)
+        self._H_fwd = torch.empty(
+            shape, dtype=torch.complex128, device=device)
+        self._valid = torch.empty(shape, dtype=torch.bool, device=device)
+
+        # Reuse the validated monochromatic constructor so cutoffs and
+        # transfer phases cannot drift between the two implementations.
+        for index, wavelength in enumerate(wavelengths):
+            prop = AngularSpectrumPropagator(
+                N=self.N, L=self.L, k0=2 * np.pi / wavelength, z=self.z,
+                device=device, pad_factor=self.pad_factor,
+                band_limit=band_limit,
+                evanescent_warn_frac=evanescent_warn_frac,
+            )
+            self._H_fwd[index].copy_(prop._H_fwd)
+            self._valid[index].copy_(prop._valid)
+
+    def _embed(self, psi_t: torch.Tensor) -> torch.Tensor:
+        if self.pad_factor == 1:
+            return psi_t
+        p = self._pad
+        return F.pad(psi_t, (p, p, p, p))
+
+    def _crop_batch(self, psi_t: torch.Tensor) -> torch.Tensor:
+        if self.pad_factor == 1:
+            return psi_t
+        p = self._pad
+        return psi_t[..., p:p + self.N, p:p + self.N]
+
+    def _check_evanescent(self, spec_t: torch.Tensor) -> None:
+        with torch.no_grad():
+            power = torch.abs(spec_t) ** 2
+            total = power.sum()
+            if total > 0:
+                fractions = torch.stack([
+                    1.0 - power[valid].sum() / total
+                    for valid in self._valid
+                ])
+                frac = float(fractions.max())
+            else:
+                frac = 0.0
+        self.last_evanescent_frac = frac
+        if frac > self.evanescent_warn_frac and not self._warned:
+            self._warned = True
+            print(
+                f"  [PolychromaticAngularSpectrumPropagator] WARNING: "
+                f"up to {frac:.1%} of input power lies outside a sampled "
+                f"wavelength's deliverable band and will be zeroed."
+            )
+
+    def forward_fields(self, psi_t: torch.Tensor) -> torch.Tensor:
+        """Return propagated fields with shape ``(Q, N, N)``."""
+        spec = torch.fft.fft2(self._embed(psi_t))
+        self._check_evanescent(spec)
+        fields = torch.fft.ifft2(spec.unsqueeze(0) * self._H_fwd)
+        return self._crop_batch(fields)
+
+    def forward_intensity(self, psi_t: torch.Tensor) -> torch.Tensor:
+        """Return the incoherent weighted intensity average."""
+        intensities = torch.abs(self.forward_fields(psi_t)) ** 2
+        return torch.sum(
+            intensities * self.weights_t[:, None, None], dim=0)
