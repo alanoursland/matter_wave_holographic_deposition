@@ -83,7 +83,9 @@ Tests verify:
 
 ## Remaining limitations
 
-- The gate diagnoses but does not solve a three-dimensional electrode field.
+- **Partially closed by T27 (2026-07-11):** a Laplace-consistent periodic
+  membrane field and multislice fallback now quantify finite-thickness error.
+  Real aperture/electrode CAD fields remain external inputs.
 - Longitudinal acceleration, finite-thickness diffraction, and curved paths
   beyond first-order eikonal dynamics require a multislice or trajectory
   model when this gate fails.

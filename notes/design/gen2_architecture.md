@@ -178,6 +178,14 @@ length, transport energy, voltage, deflection, and walkoff. A failing gate
 calls for a 3D multislice/trajectory model; it must not be patched by adding a
 second thin kick.
 
+**3D fallback result (T27, 2026-07-11).** A Laplace-consistent membrane
+fringe field propagated with multislice confirms that the tested 30 keV,
+micron-pitch plate is safely in the thin-screen regime, while the original
+slow nanometer geometry is not: it walks off by 7.74 pixel pitches inside the
+field and changes output intensity by 8.1% relative to the collapsed screen.
+The next hardware-facing step is to replace the membrane boundary with an
+actual aperture/electrode FEM field through the same field-map interface.
+
 **Actuator-model gate (2026-07-10).** The research branch cannot use the
 v11 local rule `phi_i = q Phi_i / hbar` as a pixel transfer function. For
 the modeled coplanar loops and normal beam incidence, `A_z = 0` and the

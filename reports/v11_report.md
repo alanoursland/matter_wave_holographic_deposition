@@ -123,6 +123,14 @@ the pattern (shorter z, §9) is also the noise-robustness fix.
 > the demagnified target grid. See
 > [t26_electrostatic_thin_screen_gate.md](../fable5/t26_electrostatic_thin_screen_gate.md).
 
+> **3D fringe-field multislice (T27, 2026-07-11).** A Fourier-Laplace
+> membrane field and split-step matter-wave propagator now test the finite
+> electrostatic volume directly. The v10-like slow/nanometer corner fails
+> (`theta_max = 0.484 rad`, walkoff `7.74` pitches, intensity difference
+> `8.1%`), while the 30 keV/micron gen-2 corner is indistinguishable from the
+> thin screen. The T26 gate correctly predicts both outcomes. See
+> [t27_electrostatic_multislice.md](../fable5/t27_electrostatic_multislice.md).
+
 ## 5. Vacuum is a hard requirement (T8)
 
 With Langevin cross-sections (σ_L = k_L/v — a 2 m/s He⁺ presents
