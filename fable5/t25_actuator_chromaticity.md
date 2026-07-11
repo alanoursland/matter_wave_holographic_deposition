@@ -69,8 +69,9 @@ controls.
 ## Remaining limitations
 
 - Straight rays and a wavelength-independent potential integral are assumed.
-- Electrostatic fringe fields, lens action, charging, and trajectory changes
-  are not included in this thin-screen response.
+- **Sharpened by T26 (2026-07-11):** the phase gradient already contains the
+  first-order lens action. A new gate now checks voltage, deflection, and
+  finite-thickness walkoff; full 3D fields remain unmodeled.
 - Energy-position and energy-angle correlations remain absent from the
   source model.
 - The model describes conservative phase accumulation; it does not imply a

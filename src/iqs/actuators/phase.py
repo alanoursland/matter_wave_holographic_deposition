@@ -52,6 +52,147 @@ class ElectrostaticPhaseResponse:
         return wavelengths / float(lambda0)
 
 
+@dataclass(frozen=True)
+class ElectrostaticValidityReport:
+    """Thin-screen validity and hardware requirements for one phase map."""
+
+    ok: bool
+    max_voltage_V: float
+    rms_voltage_V: float
+    max_energy_ratio: float
+    max_deflection_rad: float
+    rms_deflection_rad: float
+    max_walkoff_m: float
+    max_walkoff_pitch_ratio: float
+    max_transverse_field_V_m: float
+    phase_span_rad: float
+    violations: tuple[str, ...]
+
+    def require(self) -> "ElectrostaticValidityReport":
+        if not self.ok:
+            raise PhaseAuthorityError(
+                "electrostatic thin-screen gate failed: "
+                + "; ".join(self.violations)
+            )
+        return self
+
+
+@dataclass(frozen=True)
+class ElectrostaticPlateGeometry:
+    """Physical geometry used to validate an electrostatic phase plate.
+
+    ``pixel_pitch_m`` and ``interaction_length_m`` belong to the physical
+    control plane, not a demagnified image-side simulation grid.
+    """
+
+    pixel_pitch_m: float
+    interaction_length_m: float
+    kinetic_energy_eV: float
+    particle_mass_kg: float
+    charge_C: float = e_C
+    max_energy_ratio: float = 0.1
+    max_walkoff_pitch_ratio: float = 0.1
+    max_deflection_rad: float = 0.1
+    voltage_limit_V: float | None = None
+    transverse_field_limit_V_m: float | None = None
+
+    def __post_init__(self):
+        positive = (
+            self.pixel_pitch_m, self.interaction_length_m,
+            self.kinetic_energy_eV, self.particle_mass_kg,
+            abs(self.charge_C), self.max_energy_ratio,
+            self.max_walkoff_pitch_ratio, self.max_deflection_rad,
+        )
+        if not all(np.isfinite(value) and value > 0 for value in positive):
+            raise ValueError("electrostatic plate parameters must be positive")
+        optional = (self.voltage_limit_V, self.transverse_field_limit_V_m)
+        if not all(value is None or (np.isfinite(value) and value > 0)
+                   for value in optional):
+            raise ValueError("optional hardware limits must be positive")
+
+    def evaluate(self, phase_controls) -> ElectrostaticValidityReport:
+        """Evaluate voltage, kick, and finite-thickness walkoff.
+
+        A spatially uniform phase is removed because it is globally
+        unobservable and can be supplied by the reference electrode. The
+        remaining voltage map is the minimum-peak realization obtained by
+        centering the phase range.
+        """
+        phase = np.asarray(phase_controls, dtype=float)
+        if phase.ndim != 2 or min(phase.shape) < 2:
+            raise ValueError("phase_controls must be a 2D array at least 2x2")
+        if not np.all(np.isfinite(phase)):
+            raise ValueError("phase_controls must be finite")
+
+        energy_J = self.kinetic_energy_eV * e_C
+        velocity = np.sqrt(2 * energy_J / self.particle_mass_kg)
+        k0 = self.particle_mass_kg * velocity / hbar
+
+        offset = 0.5 * (float(phase.max()) + float(phase.min()))
+        phase_centered = phase - offset
+        voltage = (
+            -phase_centered * hbar * velocity
+            / (self.charge_C * self.interaction_length_m)
+        )
+
+        edge_order = 2 if min(phase.shape) >= 3 else 1
+        grad_y, grad_x = np.gradient(
+            phase_centered, self.pixel_pitch_m,
+            self.pixel_pitch_m, edge_order=edge_order)
+        grad_mag = np.sqrt(grad_x**2 + grad_y**2)
+        deflection = grad_mag / k0
+        walkoff = deflection * self.interaction_length_m
+
+        field_y, field_x = np.gradient(
+            voltage, self.pixel_pitch_m,
+            self.pixel_pitch_m, edge_order=edge_order)
+        field_mag = np.sqrt(field_x**2 + field_y**2)
+        energy_ratio = np.abs(self.charge_C * voltage) / energy_J
+
+        max_voltage = float(np.abs(voltage).max())
+        max_field = float(field_mag.max())
+        max_energy = float(energy_ratio.max())
+        max_theta = float(deflection.max())
+        max_walkoff = float(walkoff.max())
+        walkoff_ratio = max_walkoff / self.pixel_pitch_m
+        violations = []
+        if max_energy > self.max_energy_ratio:
+            violations.append(
+                f"|qV|/E={max_energy:.3g} > {self.max_energy_ratio:.3g}")
+        if max_theta > self.max_deflection_rad:
+            violations.append(
+                f"theta={max_theta:.3g} rad > "
+                f"{self.max_deflection_rad:.3g} rad")
+        if walkoff_ratio > self.max_walkoff_pitch_ratio:
+            violations.append(
+                f"walkoff/pitch={walkoff_ratio:.3g} > "
+                f"{self.max_walkoff_pitch_ratio:.3g}")
+        if (self.voltage_limit_V is not None
+                and max_voltage > self.voltage_limit_V):
+            violations.append(
+                f"|V|={max_voltage:.3g} V > "
+                f"{self.voltage_limit_V:.3g} V")
+        if (self.transverse_field_limit_V_m is not None
+                and max_field > self.transverse_field_limit_V_m):
+            violations.append(
+                f"|E_perp|={max_field:.3g} V/m > "
+                f"{self.transverse_field_limit_V_m:.3g} V/m")
+
+        return ElectrostaticValidityReport(
+            ok=not violations,
+            max_voltage_V=max_voltage,
+            rms_voltage_V=float(np.sqrt(np.mean(voltage**2))),
+            max_energy_ratio=max_energy,
+            max_deflection_rad=max_theta,
+            rms_deflection_rad=float(np.sqrt(np.mean(deflection**2))),
+            max_walkoff_m=max_walkoff,
+            max_walkoff_pitch_ratio=float(walkoff_ratio),
+            max_transverse_field_V_m=max_field,
+            phase_span_rad=float(np.ptp(phase)),
+            violations=tuple(violations),
+        )
+
+
 def _validated_wavelengths(wavelengths, lambda0):
     wavelengths = np.asarray(wavelengths, dtype=float).reshape(-1)
     lambda0 = float(lambda0)

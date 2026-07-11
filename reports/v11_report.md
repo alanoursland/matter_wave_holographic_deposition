@@ -114,6 +114,15 @@ the pattern (shorter z, §9) is also the noise-robustness fix.
 > because a `2 pi` wrap is not equivalent away from the design wavelength.
 > See [t25_actuator_chromaticity.md](../fable5/t25_actuator_chromaticity.md).
 
+> **Electrostatic thin-screen gate (T26, 2026-07-11).** The phase gradient
+> already supplies the first-order momentum kick `hbar grad(phi)`; adding a
+> separate fringe kick would double-count lensing. The new physical-geometry
+> gate instead checks required voltage, `|qV|/E`, deflection angle,
+> in-plate walkoff, transverse field, and optional hardware limits. Plate
+> pitch and thickness are explicit control-plane inputs, not inferred from
+> the demagnified target grid. See
+> [t26_electrostatic_thin_screen_gate.md](../fable5/t26_electrostatic_thin_screen_gate.md).
+
 ## 5. Vacuum is a hard requirement (T8)
 
 With Langevin cross-sections (σ_L = k_L/v — a 2 m/s He⁺ presents

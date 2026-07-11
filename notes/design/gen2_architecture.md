@@ -170,6 +170,14 @@ equivalence does not survive at other wavelengths. This closes the ideal
 plate's actuator-chromaticity omission, but not fringe-field lensing,
 charging, or trajectory deflection.
 
+**Thin-screen gate update (T26, 2026-07-11).** The wording above is now more
+precise: `grad(phi)` already produces the first-order electrostatic momentum
+kick in wave propagation. The simulator now checks whether the real plate can
+be reduced to that eikonal screen using explicit physical pitch, interaction
+length, transport energy, voltage, deflection, and walkoff. A failing gate
+calls for a 3D multislice/trajectory model; it must not be patched by adding a
+second thin kick.
+
 **Actuator-model gate (2026-07-10).** The research branch cannot use the
 v11 local rule `phi_i = q Phi_i / hbar` as a pixel transfer function. For
 the modeled coplanar loops and normal beam incidence, `A_z = 0` and the

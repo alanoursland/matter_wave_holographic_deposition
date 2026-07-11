@@ -127,6 +127,7 @@ class IntegratedPipelineV10:
                  coherence_xi=50e-9, n_noise_realizations=100,
                  n_wavelength_samples=5,
                  phase_actuator='achromatic',
+                 electrostatic_plate=None,
                  source=None):
         self.N = N
         self.L = L
@@ -139,6 +140,7 @@ class IntegratedPipelineV10:
         self.n_noise_realizations = n_noise_realizations
         self.n_wavelength_samples = n_wavelength_samples
         self.phase_actuator = phase_actuator
+        self.electrostatic_plate = electrostatic_plate
         self.prop_distance_lam = prop_distance_lam
         self.use_floquet = use_floquet
         self.V_max_floquet = V_max_floquet
@@ -195,6 +197,13 @@ class IntegratedPipelineV10:
         self.v = self.holo_solver.v
         self.k0 = self.holo_solver.k0
         self.lam = self.holo_solver.lam
+        if (electrostatic_plate is not None
+                and self.holo_solver.phase_response.name != 'electrostatic'):
+            raise ValueError(
+                "electrostatic_plate requires phase_actuator='electrostatic'")
+        if (electrostatic_plate is not None
+                and not callable(getattr(electrostatic_plate, 'evaluate', None))):
+            raise TypeError("electrostatic_plate must provide evaluate()")
 
         # --- v9 substrate sim (for optional Floquet) ---
         if self.use_floquet:
@@ -350,6 +359,12 @@ class IntegratedPipelineV10:
             central = self.holo_solver.forward_central(screen_t)
         central_np = central.detach().cpu().numpy()
         metrics_central = compute_metrics(central_np, target_smooth)
+        electrostatic_report = None
+        if (self.holo_solver.phase_response.name == 'electrostatic'
+                and self.electrostatic_plate is not None):
+            controls = np.asarray(raw['phi_loops_control']).reshape(
+                self.N_loops, self.N_loops)
+            electrostatic_report = self.electrostatic_plate.evaluate(controls)
 
         if verbose:
             label = "polychromatic" if self.holo_solver.is_polychromatic \
@@ -358,6 +373,12 @@ class IntegratedPipelineV10:
                   f"central = {metrics_central['ssim']:.4f}, "
                   f"eff = {metrics['efficiency']:.4f}, "
                   f"time = {elapsed:.1f}s")
+            if electrostatic_report is not None:
+                print(f"    Electrostatic gate: "
+                      f"{'PASS' if electrostatic_report.ok else 'FAIL'}, "
+                      f"|V|max = {electrostatic_report.max_voltage_V:.3e} V, "
+                      f"theta_max = "
+                      f"{electrostatic_report.max_deflection_rad:.3e} rad")
 
         return {
             'phase_screen':   raw['phase_screen'],
@@ -371,6 +392,7 @@ class IntegratedPipelineV10:
             'polychromatic':  self.holo_solver.is_polychromatic,
             'phase_response': self.holo_solver.phase_response.name,
             'phase_scales': self.holo_solver.ensemble_phase_scales.copy(),
+            'electrostatic_validity': electrostatic_report,
             'method':         method,
             'time_s':         elapsed,
             'phi_loops':      raw.get('phi_loops', None),
@@ -593,6 +615,7 @@ class IntegratedPipelineV10:
             'dlam_frac_applied': fractional_rms(wavelengths),
             'phase_actuator': self.holo_solver.phase_response.name,
             'phase_scales': phase_scales,
+            'electrostatic_validity': holo.get('electrostatic_validity'),
             'source_params':    params,
             'space_charge':     space_charge,
             'transport_survival': transport_surv,
@@ -638,6 +661,13 @@ class IntegratedPipelineV10:
         scales = np.asarray(r.get('phase_scales', [1.0]))
         print(f"  Actuator: {r.get('phase_actuator', 'achromatic')}, "
               f"phase scale = {scales.min():.6f}–{scales.max():.6f}")
+        electrostatic = r.get('electrostatic_validity')
+        if electrostatic is not None:
+            print(f"  Electrostatic thin screen: "
+                  f"{'PASS' if electrostatic.ok else 'FAIL'}, "
+                  f"|qV|/E = {electrostatic.max_energy_ratio:.3e}, "
+                  f"walkoff/pitch = "
+                  f"{electrostatic.max_walkoff_pitch_ratio:.3e}")
         print(f"  Transport survival: {r.get('transport_survival', 1):.3e}")
         sc = r.get('space_charge')
         if sc is not None:

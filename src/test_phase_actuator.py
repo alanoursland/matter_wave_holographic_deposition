@@ -12,11 +12,13 @@ from inverse_holography import SQUIDArray
 from iqs.actuators import (
     AchromaticPhaseResponse,
     CoplanarSquareLoopArray,
+    ElectrostaticPlateGeometry,
     ElectrostaticPhaseResponse,
     IdealPhasePlate,
     PhaseAuthorityError,
     resolve_phase_response,
 )
+from iqs.constants import e_C, hbar, m_He
 
 
 class TestIdealPhasePlate:
@@ -47,6 +49,66 @@ class TestSpectralResponse:
     ])
     def test_response_aliases(self, name, expected):
         assert resolve_phase_response(name).name == expected
+
+
+class TestElectrostaticThinScreen:
+
+    def test_uniform_phase_requires_no_differential_voltage(self):
+        geometry = ElectrostaticPlateGeometry(
+            pixel_pitch_m=1e-6, interaction_length_m=1e-6,
+            kinetic_energy_eV=30e3, particle_mass_kg=m_He)
+        report = geometry.evaluate(np.full((4, 4), 7.0))
+        assert report.ok
+        assert report.max_voltage_V == 0.0
+        assert report.max_deflection_rad == 0.0
+
+    def test_phase_gradient_matches_eikonal_momentum_kick(self):
+        pitch = 1e-6
+        energy_eV = 30e3
+        gradient = 2e5  # rad/m
+        x = np.arange(5) * pitch
+        phase = np.repeat((gradient * x)[:, None], 5, axis=1)
+        geometry = ElectrostaticPlateGeometry(
+            pixel_pitch_m=pitch, interaction_length_m=2e-6,
+            kinetic_energy_eV=energy_eV, particle_mass_kg=m_He)
+        report = geometry.evaluate(phase)
+
+        velocity = np.sqrt(2 * energy_eV * e_C / m_He)
+        k0 = m_He * velocity / hbar
+        assert abs(report.max_deflection_rad / (gradient / k0) - 1) < 1e-12
+        assert abs(report.max_walkoff_m
+                   / (gradient * geometry.interaction_length_m / k0) - 1) < 1e-12
+
+    def test_slow_nanometer_plate_fails(self):
+        phase = np.indices((4, 4)).sum(axis=0) % 2
+        phase = (2 * phase - 1) * np.pi
+        geometry = ElectrostaticPlateGeometry(
+            pixel_pitch_m=12.5e-9, interaction_length_m=10e-9,
+            kinetic_energy_eV=8.617e-8, particle_mass_kg=m_He)
+        report = geometry.evaluate(phase)
+        assert not report.ok
+        assert report.max_energy_ratio > 1
+        assert report.max_deflection_rad > 0.1
+
+    def test_fast_micron_plate_passes(self):
+        phase = np.linspace(-np.pi, np.pi, 25).reshape(5, 5)
+        geometry = ElectrostaticPlateGeometry(
+            pixel_pitch_m=1e-6, interaction_length_m=1e-6,
+            kinetic_energy_eV=30e3, particle_mass_kg=m_He)
+        report = geometry.evaluate(phase)
+        assert report.ok
+        assert report.max_energy_ratio < 1e-5
+        assert report.max_walkoff_pitch_ratio < 1e-5
+
+    def test_hardware_voltage_limit_is_enforced(self):
+        phase = np.linspace(-np.pi, np.pi, 16).reshape(4, 4)
+        geometry = ElectrostaticPlateGeometry(
+            pixel_pitch_m=1e-6, interaction_length_m=1e-6,
+            kinetic_energy_eV=30e3, particle_mass_kg=m_He,
+            voltage_limit_V=1e-9)
+        report = geometry.evaluate(phase)
+        assert not report.ok
+        assert any("|V|=" in violation for violation in report.violations)
 
 
 class TestCoplanarLoopPhysics:

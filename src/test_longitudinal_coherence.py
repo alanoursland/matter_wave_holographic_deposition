@@ -169,14 +169,19 @@ class TestPolychromaticPropagation:
     def test_pipeline_exposes_electrostatic_response(self):
         from sim_v10 import IntegratedPipelineV10
         from iqs.sources import DirectSource
+        from iqs.actuators import ElectrostaticPlateGeometry
+        from iqs.constants import m_He
 
         source = DirectSource(
             dlam_frac=0.05, xi_perp=50e-9,
             current_A=0.1e-12, sigma_theta=0.0)
+        plate = ElectrostaticPlateGeometry(
+            pixel_pitch_m=1e-6, interaction_length_m=1e-6,
+            kinetic_energy_eV=30e3, particle_mass_kg=m_He)
         pipe = IntegratedPipelineV10(
             N=24, L=400e-9, N_loops=4, prop_distance_lam=10.0,
             n_wavelength_samples=3, phase_actuator='electrostatic',
-            source=source)
+            electrostatic_plate=plate, source=source)
         pipe.generate_source(seed=1, verbose=False)
         target = target_single_spot(24, 400e-9, sigma_frac=0.12)
         result = pipe.solve_holography(
@@ -185,6 +190,7 @@ class TestPolychromaticPropagation:
         assert result['phase_response'] == 'electrostatic'
         expected = pipe._wavelength_samples / pipe.lam
         assert np.allclose(result['phase_scales'], expected)
+        assert result['electrostatic_validity'].ok
 
     def test_electrostatic_controls_are_not_wrapped(self):
         N = 16

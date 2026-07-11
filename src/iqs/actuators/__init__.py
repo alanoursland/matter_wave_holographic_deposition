@@ -3,7 +3,9 @@
 from .phase import (
     AchromaticPhaseResponse,
     CoplanarSquareLoopArray,
+    ElectrostaticPlateGeometry,
     ElectrostaticPhaseResponse,
+    ElectrostaticValidityReport,
     IdealPhasePlate,
     PhaseAuthorityError,
     PhaseAuthorityReport,
@@ -13,7 +15,9 @@ from .phase import (
 __all__ = [
     "AchromaticPhaseResponse",
     "CoplanarSquareLoopArray",
+    "ElectrostaticPlateGeometry",
     "ElectrostaticPhaseResponse",
+    "ElectrostaticValidityReport",
     "IdealPhasePlate",
     "PhaseAuthorityError",
     "PhaseAuthorityReport",
