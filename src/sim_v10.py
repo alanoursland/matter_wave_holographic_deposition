@@ -4,26 +4,25 @@ Integrated Quantum Substrate v10
 
 End-to-end pipeline for controllable matter deposition:
 
-  He⁺ CMWB source → SQUID holography → diamond caging
+  He⁺ source → ideal phase-plate holography → deposition model
 
 Physical concept:
   1. A coherent He⁺ ion beam is generated in a diode cavity array via
      Aharonov-Bohm phase synchronization (US Patent 9,502,202 B2).
      The Kuramoto order parameter r quantifies beam coherence and
      depends on B-field, cavity pressure, and energy spread.
-  2. The charged He⁺ beam passes through a 32×32 SQUID phase screen.
-     Each SQUID loop threads a controllable flux Φ, imprinting an
-     Aharonov-Bohm phase shift φ = (q/ℏ)∮A·dl on the ions.
-     Charge is essential: the AB phase is proportional to q, so
-     neutral atoms would acquire no phase imprint.
+  2. The charged He⁺ beam passes through an ideal programmable phase
+     plate. The legacy SQUID control grid parameterizes that ideal plate;
+     a physical coplanar-loop realization fails the axial phase-authority
+     gate and remains an implementation hypothesis.
   3. Loop phases are computed by inverse holography to produce a desired
      target deposition pattern after Fresnel propagation.
   4. The deposited pattern is stabilized by Aharonov-Bohm caging on a
      2D diamond lattice (flat bands at Φ=π).
 
-Key result: He⁺ at 1 mK has de Broglie wavelength λ ≈ 49 nm.  The
-SQUID array geometry (32×32, 12.5 nm pitch, 400 nm substrate) is
-wavelength-matched.
+The corrected pipeline treats transport bandwidth, transverse coherence,
+and longitudinal wavelength spread as ensemble properties. The v10 stage is
+not wavelength-matched; see reports/v11_report.md.
 
 Dependencies: coherent_matterwave_beam.py, inverse_holography.py,
               sim_v9.py, diamond_caging.py
@@ -58,7 +57,10 @@ from sim_v9 import (
 from iqs.lattices.diamond import DiamondNetwork
 from iqs.lattices.density_mapping import DensityPeakMapper
 from iqs.numerics.device import get_device
-from iqs.sources import SourceParams, DirectSource, KuramotoPatentSource
+from iqs.sources import (
+    SourceParams, DirectSource, KuramotoPatentSource,
+    gaussian_wavelength_samples, fractional_rms,
+)
 
 _device = get_device()
 os.makedirs('results', exist_ok=True)
@@ -123,6 +125,7 @@ class IntegratedPipelineV10:
                  n_resonant=0,
                  N_diamond_x=16, N_diamond_y=16,
                  coherence_xi=50e-9, n_noise_realizations=100,
+                 n_wavelength_samples=5,
                  source=None):
         self.N = N
         self.L = L
@@ -133,6 +136,7 @@ class IntegratedPipelineV10:
         # the intensity average that models incoherent ion arrivals.
         self.coherence_xi = coherence_xi
         self.n_noise_realizations = n_noise_realizations
+        self.n_wavelength_samples = n_wavelength_samples
         self.prop_distance_lam = prop_distance_lam
         self.use_floquet = use_floquet
         self.V_max_floquet = V_max_floquet
@@ -168,6 +172,7 @@ class IntegratedPipelineV10:
             source = KuramotoPatentSource(self.cmwb, xi_perp=coherence_xi)
         self.source = source
         self._source_params = None
+        self._wavelength_samples = None
 
         # --- He⁺ beam parameters ---
         self.mass = m_He
@@ -181,6 +186,12 @@ class IntegratedPipelineV10:
             squid_array=self.squid, N=N, L=L, T_beam=T_beam,
             prop_distance_lam=prop_distance_lam,
         )
+        # Use one exact central wavelength for reporting, conditioning, and
+        # every spectral component in the propagation ensemble.
+        self.mass = self.holo_solver.mass
+        self.v = self.holo_solver.v
+        self.k0 = self.holo_solver.k0
+        self.lam = self.holo_solver.lam
 
         # --- v9 substrate sim (for optional Floquet) ---
         if self.use_floquet:
@@ -239,6 +250,9 @@ class IntegratedPipelineV10:
 
         params, sync = self.source.source_params(seed=seed, verbose=verbose)
         self._source_params = params
+        self._wavelength_samples = gaussian_wavelength_samples(
+            self.lam, params.dlam_frac, self.n_wavelength_samples
+        )
         r = params.r_equivalent
 
         # Build the He⁺ beam wavefunction.
@@ -272,6 +286,10 @@ class IntegratedPipelineV10:
                   f"applied RMS = {noise.std():.4f} rad, "
                   f"ξ⊥ = {params.xi_perp*1e9:.0f} nm, "
                   f"Δλ/λ = {params.dlam_frac:.2%}")
+            print(f"    Wavelength ensemble: Q = "
+                  f"{len(self._wavelength_samples)}, "
+                  f"applied RMS Δλ/λ = "
+                  f"{fractional_rms(self._wavelength_samples):.2%}")
 
         return psi, sync
 
@@ -289,10 +307,17 @@ class IntegratedPipelineV10:
         # Condition the target to the *deliverable* bandwidth: array
         # Nyquist AND the geometric transport aperture (fable5 T14) —
         # the optimizer must not chase evanescent/out-of-frame content.
+        wavelengths = self._wavelength_samples
+        if wavelengths is None:
+            wavelengths = np.array([self.lam])
+        # Condition to the longest sampled wavelength, which has the
+        # narrowest propagating band. Every source component can therefore
+        # reach the target bandwidth presented to the optimizer.
+        k0_condition = 2 * np.pi / float(np.max(wavelengths))
         target_smooth = smooth_target(
             target_pattern, N_loops=self.N_loops,
             corner_radius=0.03, sigma=2,
-            k0=self.k0, L=self.L, z=self.holo_solver.z,
+            k0=k0_condition, L=self.L, z=self.holo_solver.z,
         )
 
         t0 = time.time()
@@ -412,35 +437,69 @@ class IntegratedPipelineV10:
 
         density_holo = holo['P_achieved']
 
-        # Evaluate actual deposition (fable5 E2/T6): partial coherence is
-        # an ENSEMBLE property — ions arrive sequentially and their
-        # intensities add incoherently.  Average |ψ|² over M independent
-        # phase-noise realizations at σ_θ = √(−2 ln r); a single frozen
-        # screen merely re-steers a coherent beam and cannot blur.
+        # Evaluate actual deposition (fable5 E2/T6/T23): partial coherence
+        # is an ensemble property. Sequential ions sample both the source
+        # wavelength distribution and independent transverse phase noise;
+        # their intensities, not amplitudes, add at the target.
         screen_t = torch.tensor(holo['phase_screen'], dtype=torch.float64,
                                  device=_device)
         T_screen = SQUIDArray.phase_screen_to_transmission(screen_t)
 
         params = self._source_params
         sigma_theta = params.sigma_theta
-        M = self.n_noise_realizations if sigma_theta > 0 else 1
+        wavelengths = self._wavelength_samples
+        if wavelengths is None:
+            wavelengths = np.array([self.lam])
+        Q = len(wavelengths)
+
+        # Balance independent transverse-noise realizations across the
+        # equal-weight wavelength quadrature. This evaluates the joint
+        # incoherent source distribution with approximately the old total
+        # propagation count, rather than multiplying M by Q.
+        M_requested = self.n_noise_realizations if sigma_theta > 0 else 1
+        phase_per_wavelength = (
+            max(1, int(np.ceil(M_requested / Q))) if sigma_theta > 0 else 1
+        )
+        M = Q * phase_per_wavelength
         rng = np.random.default_rng(seed)
         xi_pix = params.xi_perp / self.dx
 
+        density_longitudinal = np.zeros((self.N, self.N))
         density_actual = np.zeros((self.N, self.N))
         rms_applied = []
-        for _ in range(M):
-            noise = sample_phase_noise(self.N, sigma_theta, xi_pix, rng)
-            rms_applied.append(noise.std())
-            psi_m = psi_profile * np.exp(1j * noise)
-            psi_m /= np.sqrt(np.sum(np.abs(psi_m)**2) * self.dx**2)
-            psi_m_t = torch.tensor(psi_m, dtype=torch.complex128,
-                                   device=_device)
-            psi_out = self.holo_solver._propagate_torch(
-                psi_m_t * T_screen, forward=True)
-            density_actual += torch.abs(psi_out).cpu().numpy()**2
+
+        for wavelength in wavelengths:
+            # All spectral components cross the same physical source-to-
+            # target distance. Only k0 changes with wavelength.
+            propagator = self.holo_solver.make_propagator(wavelength)
+
+            psi_clean = self.holo_solver._propagate_torch(
+                psi_profile_t * T_screen, forward=True,
+                propagator=propagator)
+            density_longitudinal += (
+                torch.abs(psi_clean).cpu().numpy()**2 / Q
+            )
+
+            for _ in range(phase_per_wavelength):
+                noise = sample_phase_noise(
+                    self.N, sigma_theta, xi_pix, rng)
+                rms_applied.append(noise.std())
+                psi_m = psi_profile * np.exp(1j * noise)
+                psi_m /= np.sqrt(
+                    np.sum(np.abs(psi_m)**2) * self.dx**2)
+                psi_m_t = torch.tensor(
+                    psi_m, dtype=torch.complex128, device=_device)
+                psi_out = self.holo_solver._propagate_torch(
+                    psi_m_t * T_screen, forward=True,
+                    propagator=propagator)
+                density_actual += torch.abs(psi_out).cpu().numpy()**2
+
+            del propagator
+
         density_actual /= M
         rms_applied = float(np.mean(rms_applied))
+        metrics_longitudinal = compute_metrics(
+            density_longitudinal, holo['P_target'])
         metrics_actual = compute_metrics(density_actual, holo['P_target'])
 
         # Transport attenuation (fable5 E6/T8): survival of the beam over
@@ -457,8 +516,15 @@ class IntegratedPipelineV10:
             current_A=params.current_A, verbose=verbose)
 
         if verbose:
-            print(f"\n  Ensemble deposition: M = {M} realizations, "
-                  f"σ_θ nominal = {sigma_theta:.4f} rad, "
+            print(f"\n  Ensemble deposition: Q = {Q} wavelengths, "
+                  f"M_θ = {phase_per_wavelength} per wavelength, "
+                  f"M_total = {M}")
+            print(f"  Longitudinal: Δλ/λ nominal = "
+                  f"{params.dlam_frac:.3%}, applied RMS = "
+                  f"{fractional_rms(wavelengths):.3%}, "
+                  f"range = {wavelengths.min()*1e9:.3f}–"
+                  f"{wavelengths.max()*1e9:.3f} nm")
+            print(f"  Transverse: σ_θ nominal = {sigma_theta:.4f} rad, "
                   f"applied RMS = {rms_applied:.4f} rad")
             print(f"  Transport survival over {L_transport*1e9:.0f} nm at "
                   f"P = {self.cmwb.cavity.pressure:.3g} Pa: "
@@ -485,6 +551,8 @@ class IntegratedPipelineV10:
             'r_source':         sync_result['r_final'],
             'holo':             holo,
             'density_holo':     density_holo,
+            'density_longitudinal': density_longitudinal,
+            'metrics_longitudinal': metrics_longitudinal,
             'density_actual':   density_actual,
             'metrics_actual':   metrics_actual,
             'density_filtered': density_post_floquet,
@@ -494,6 +562,11 @@ class IntegratedPipelineV10:
             'sigma_theta':      sigma_theta,
             'noise_rms_applied': rms_applied,
             'M_realizations':   M,
+            'M_phase_per_wavelength': phase_per_wavelength,
+            'n_wavelength_samples': Q,
+            'wavelength_samples_nm': wavelengths * 1e9,
+            'dlam_frac_nominal': params.dlam_frac,
+            'dlam_frac_applied': fractional_rms(wavelengths),
             'source_params':    params,
             'space_charge':     space_charge,
             'transport_survival': transport_surv,
@@ -524,12 +597,18 @@ class IntegratedPipelineV10:
               f"n_eff = {r['n_eff']:.0f}, "
               f"mode = {sync_mode}")
         m_clean = r['holo']['metrics']
-        m_actual = r.get('metrics_actual', m_clean)
+        m_long = r.get('metrics_longitudinal', m_clean)
+        m_actual = r.get('metrics_actual', m_long)
         print(f"  Holo:   SSIM = {m_clean['ssim']:.4f} (clean), "
-              f"{m_actual['ssim']:.4f} (actual, M={r.get('M_realizations', 1)}), "
+              f"{m_long['ssim']:.4f} (longitudinal), "
+              f"{m_actual['ssim']:.4f} "
+              f"(joint, M={r.get('M_realizations', 1)}), "
               f"gap = {m_clean['ssim'] - m_actual['ssim']:.4f}")
         print(f"  Noise:  σ_θ = {r.get('sigma_theta', 0):.4f} rad nominal, "
               f"{r.get('noise_rms_applied', 0):.4f} rad applied")
+        print(f"  Spectrum: Δλ/λ = "
+              f"{r.get('dlam_frac_applied', 0):.3%} RMS, "
+              f"Q = {r.get('n_wavelength_samples', 1)}")
         print(f"  Transport survival: {r.get('transport_survival', 1):.3e}")
         sc = r.get('space_charge')
         if sc is not None:

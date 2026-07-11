@@ -90,6 +90,15 @@ the pattern (shorter z, §9) is also the noise-robustness fix.
 > requirements of §5; what falls: "the gap never closes" as a
 > constraint on a well-conditioned stage.
 
+> **Longitudinal-coherence implementation (T23, 2026-07-10).**
+> `SourceParams.dlam_frac` is now defined as RMS `sigma_lambda/lambda` and
+> propagated as an incoherent Gaussian wavelength ensemble through one fixed
+> physical distance. Runs separately report central-wavelength,
+> longitudinal-only, and joint longitudinal/transverse metrics. Target
+> conditioning uses the longest sampled wavelength. The historical numbers
+> in this report predate T23 and were not recomputed here. See
+> [t23_longitudinal_coherence.md](../fable5/t23_longitudinal_coherence.md).
+
 ## 5. Vacuum is a hard requirement (T8)
 
 With Langevin cross-sections (σ_L = k_L/v — a 2 m/s He⁺ presents

@@ -24,7 +24,8 @@ class SourceParams:
     Attributes
     ----------
     dlam_frac : float
-        Monochromaticity Δλ/λ (= Δv/v = ΔE/E / 2).
+        RMS monochromaticity sigma_lambda/lambda (= sigma_v/v =
+        sigma_E/(2E) in the nonrelativistic narrow-spread limit).
     xi_perp : float
         Transverse coherence length of the source [m]; sets the
         correlation length of the phase-noise screens.
@@ -45,6 +46,20 @@ class SourceParams:
     sigma_theta: float
     provider: str = 'direct'
     meta: dict = field(default_factory=dict)
+
+    def __post_init__(self):
+        values = (self.dlam_frac, self.xi_perp,
+                  self.current_A, self.sigma_theta)
+        if not all(np.isfinite(v) for v in values):
+            raise ValueError("source parameters must be finite")
+        if self.dlam_frac < 0:
+            raise ValueError("dlam_frac must be non-negative")
+        if self.xi_perp <= 0:
+            raise ValueError("xi_perp must be positive")
+        if self.current_A < 0:
+            raise ValueError("current_A must be non-negative")
+        if self.sigma_theta < 0:
+            raise ValueError("sigma_theta must be non-negative")
 
     @property
     def r_equivalent(self):
@@ -94,7 +109,8 @@ class KuramotoPatentSource:
 
     Wraps a `CoherentMatterwaveBeam` (US 9,502,202 B2 model): runs the
     Kuramoto synchronization and maps its order parameter to the physical
-    source parameters via σ_θ = √(−2 ln r) and Δλ/λ = dE_frac/2.  This is
+    source parameters via σ_θ = √(−2 ln r) and nominal RMS
+    σ_λ/λ = dE_frac/2.  This is
     the most speculative element of the chain (fable5 M2: a common
     external A-field cannot synchronize relative phases) — kept as one
     clearly-labeled option, not the foundation.
@@ -115,6 +131,9 @@ class KuramotoPatentSource:
             current_A=self.cmwb.beam_current_A,
             sigma_theta=SourceParams.sigma_theta_from_r(sync['r_final']),
             provider='kuramoto-patent',
-            meta={'sync': sync},
+            meta={
+                'sync': sync,
+                'dlam_mapping': 'nominal-rms from dE_frac/2',
+            },
         )
         return params, sync

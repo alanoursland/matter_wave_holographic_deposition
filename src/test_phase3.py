@@ -163,6 +163,9 @@ class TestSourceInterface:
         assert isinstance(p, SourceParams)
         assert res['sigma_theta'] == p.sigma_theta
         assert 'space_charge' in res
+        assert res['n_wavelength_samples'] == 5
+        assert abs(res['dlam_frac_applied'] - p.dlam_frac) < 1e-12
+        assert 'metrics_longitudinal' in res
         if provider == 'direct':
             assert p.provider == 'direct'
             assert abs(p.sigma_theta - 0.1) < 1e-12

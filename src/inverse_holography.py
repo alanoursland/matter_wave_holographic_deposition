@@ -379,7 +379,7 @@ class InverseHolographySolver:
         # Physical parameters (He+ ion at T_beam: neutral He-4 mass minus
         # the removed electron, fable5 E7 — 0.007% correction)
         self.mass = m_He - m_e
-        self.v    = np.sqrt(2 * k_B * T_beam / m_He)
+        self.v    = np.sqrt(2 * k_B * T_beam / self.mass)
         self.k0   = self.mass * self.v / hbar
         self.lam  = 2 * np.pi / self.k0
         self.z    = prop_distance_lam * self.lam
@@ -400,11 +400,27 @@ class InverseHolographySolver:
         self._propagator = AngularSpectrumPropagator(
             N=N, L=L, k0=self.k0, z=self.z, device=_device)
 
-    def _propagate_torch(self, psi_t, forward=True):
-        """Angular spectrum propagator — pure torch, differentiable."""
+    def make_propagator(self, wavelength):
+        """Build a propagator for ``wavelength`` at the same physical z.
+
+        Longitudinally incoherent source components traverse one apparatus,
+        so the propagation distance stays fixed while ``k0`` changes. This
+        differs from preserving ``prop_distance_lam`` for every wavelength.
+        """
+        wavelength = float(wavelength)
+        if not np.isfinite(wavelength) or wavelength <= 0:
+            raise ValueError("wavelength must be finite and positive")
+        return AngularSpectrumPropagator(
+            N=self.N, L=self.L, k0=2 * np.pi / wavelength,
+            z=self.z, device=_device,
+        )
+
+    def _propagate_torch(self, psi_t, forward=True, propagator=None):
+        """Angular spectrum propagator - pure torch, differentiable."""
+        prop = self._propagator if propagator is None else propagator
         if forward:
-            return self._propagator.forward(psi_t)
-        return self._propagator.backward(psi_t)
+            return prop.forward(psi_t)
+        return prop.backward(psi_t)
 
     def forward(self, phase_screen):
         """
