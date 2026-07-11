@@ -23,6 +23,64 @@ import numpy as np
 from iqs.constants import e_C, hbar, mu_0
 
 
+class AchromaticPhaseResponse:
+    """Velocity-independent phase response for an ideal or AB plate."""
+
+    name = "achromatic"
+    periodic_controls = True
+
+    @staticmethod
+    def phase_scales(wavelengths, lambda0):
+        wavelengths = _validated_wavelengths(wavelengths, lambda0)
+        return np.ones_like(wavelengths)
+
+
+class ElectrostaticPhaseResponse:
+    """Thin static-potential phase response in the straight-ray limit.
+
+    For a fixed potential integral, ``phi = -q integral(V dl)/(hbar v)``.
+    Nonrelativistically ``lambda = h/(m v)``, hence a control phase defined
+    at ``lambda0`` scales as ``phi(lambda) = phi0 * lambda/lambda0``.
+    """
+
+    name = "electrostatic"
+    periodic_controls = False
+
+    @staticmethod
+    def phase_scales(wavelengths, lambda0):
+        wavelengths = _validated_wavelengths(wavelengths, lambda0)
+        return wavelengths / float(lambda0)
+
+
+def _validated_wavelengths(wavelengths, lambda0):
+    wavelengths = np.asarray(wavelengths, dtype=float).reshape(-1)
+    lambda0 = float(lambda0)
+    if wavelengths.size == 0 or not np.all(np.isfinite(wavelengths)):
+        raise ValueError("wavelengths must be a non-empty finite array")
+    if np.any(wavelengths <= 0) or not np.isfinite(lambda0) or lambda0 <= 0:
+        raise ValueError("wavelengths and lambda0 must be positive")
+    return wavelengths
+
+
+def resolve_phase_response(response):
+    """Resolve a response name or validate a response object."""
+    if isinstance(response, str):
+        key = response.strip().lower()
+        if key in {"ideal", "ab", "achromatic"}:
+            return AchromaticPhaseResponse()
+        if key in {"electrostatic", "electric"}:
+            return ElectrostaticPhaseResponse()
+        raise ValueError(
+            "phase response must be 'achromatic' or 'electrostatic'"
+        )
+    if not hasattr(response, "name") or not callable(
+            getattr(response, "phase_scales", None)):
+        raise TypeError("phase response must define name and phase_scales()")
+    if not hasattr(response, "periodic_controls"):
+        raise TypeError("phase response must define periodic_controls")
+    return response
+
+
 class PhaseAuthorityError(RuntimeError):
     """Raised when an actuator cannot supply the requested phase span."""
 

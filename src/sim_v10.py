@@ -126,6 +126,7 @@ class IntegratedPipelineV10:
                  N_diamond_x=16, N_diamond_y=16,
                  coherence_xi=50e-9, n_noise_realizations=100,
                  n_wavelength_samples=5,
+                 phase_actuator='achromatic',
                  source=None):
         self.N = N
         self.L = L
@@ -137,6 +138,7 @@ class IntegratedPipelineV10:
         self.coherence_xi = coherence_xi
         self.n_noise_realizations = n_noise_realizations
         self.n_wavelength_samples = n_wavelength_samples
+        self.phase_actuator = phase_actuator
         self.prop_distance_lam = prop_distance_lam
         self.use_floquet = use_floquet
         self.V_max_floquet = V_max_floquet
@@ -185,6 +187,7 @@ class IntegratedPipelineV10:
         self.holo_solver = InverseHolographySolver(
             squid_array=self.squid, N=N, L=L, T_beam=T_beam,
             prop_distance_lam=prop_distance_lam,
+            phase_response=phase_actuator,
         )
         # Use one exact central wavelength for reporting, conditioning, and
         # every spectral component in the propagation ensemble.
@@ -223,6 +226,7 @@ class IntegratedPipelineV10:
               f"dx = {self.dx*1e9:.2f} nm")
         print(f"  SQUID: {self.N_loops}×{self.N_loops} "
               f"(pitch = {self.squid.pitch*1e9:.1f} nm)")
+        print(f"  Phase actuator: {self.holo_solver.phase_response.name}")
         print(f"  Propagation: {self.prop_distance_lam}λ "
               f"= {self.prop_distance_lam * self.lam * 1e9:.1f} nm")
         print(f"  Floquet: {'ON' if self.use_floquet else 'OFF'}")
@@ -365,9 +369,13 @@ class IntegratedPipelineV10:
             'metrics':        metrics,
             'metrics_central': metrics_central,
             'polychromatic':  self.holo_solver.is_polychromatic,
+            'phase_response': self.holo_solver.phase_response.name,
+            'phase_scales': self.holo_solver.ensemble_phase_scales.copy(),
             'method':         method,
             'time_s':         elapsed,
             'phi_loops':      raw.get('phi_loops', None),
+            'phi_loops_control': raw.get('phi_loops_control', None),
+            'phi_loops_wrapped': raw.get('phi_loops_wrapped', None),
         }
 
     # -------------------------------------------------------------------
@@ -467,7 +475,6 @@ class IntegratedPipelineV10:
         # their intensities, not amplitudes, add at the target.
         screen_t = torch.tensor(holo['phase_screen'], dtype=torch.float64,
                                  device=_device)
-        T_screen = SQUIDArray.phase_screen_to_transmission(screen_t)
 
         params = self._source_params
         sigma_theta = params.sigma_theta
@@ -475,6 +482,7 @@ class IntegratedPipelineV10:
         if wavelengths is None:
             wavelengths = np.array([self.lam])
         Q = len(wavelengths)
+        phase_scales = self.holo_solver.phase_scales(wavelengths)
 
         # Balance independent transverse-noise realizations across the
         # equal-weight wavelength quadrature. This evaluates the joint
@@ -491,10 +499,12 @@ class IntegratedPipelineV10:
         density_actual = np.zeros((self.N, self.N))
         rms_applied = []
 
-        for wavelength in wavelengths:
+        for wavelength, phase_scale in zip(wavelengths, phase_scales):
             # All spectral components cross the same physical source-to-
             # target distance. Only k0 changes with wavelength.
             propagator = self.holo_solver.make_propagator(wavelength)
+            T_screen = SQUIDArray.phase_screen_to_transmission(
+                screen_t * float(phase_scale))
 
             for _ in range(phase_per_wavelength):
                 noise = sample_phase_noise(
@@ -581,6 +591,8 @@ class IntegratedPipelineV10:
             'wavelength_samples_nm': wavelengths * 1e9,
             'dlam_frac_nominal': params.dlam_frac,
             'dlam_frac_applied': fractional_rms(wavelengths),
+            'phase_actuator': self.holo_solver.phase_response.name,
+            'phase_scales': phase_scales,
             'source_params':    params,
             'space_charge':     space_charge,
             'transport_survival': transport_surv,
@@ -623,6 +635,9 @@ class IntegratedPipelineV10:
         print(f"  Spectrum: Δλ/λ = "
               f"{r.get('dlam_frac_applied', 0):.3%} RMS, "
               f"Q = {r.get('n_wavelength_samples', 1)}")
+        scales = np.asarray(r.get('phase_scales', [1.0]))
+        print(f"  Actuator: {r.get('phase_actuator', 'achromatic')}, "
+              f"phase scale = {scales.min():.6f}–{scales.max():.6f}")
         print(f"  Transport survival: {r.get('transport_survival', 1):.3e}")
         sc = r.get('space_charge')
         if sc is not None:

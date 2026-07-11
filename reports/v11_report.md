@@ -107,6 +107,13 @@ the pattern (shorter z, §9) is also the noise-robustness fix.
 > represents that mixture. See
 > [t24_polychromatic_optimization.md](../fable5/t24_polychromatic_optimization.md).
 
+> **Actuator chromaticity (T25, 2026-07-11).** The solver now supports an
+> achromatic ideal/AB response and a static electrostatic response
+> `phi(lambda) = phi0 lambda/lambda0`. The latter is applied during both
+> optimization and noisy evaluation. Electrostatic controls remain unwrapped
+> because a `2 pi` wrap is not equivalent away from the design wavelength.
+> See [t25_actuator_chromaticity.md](../fable5/t25_actuator_chromaticity.md).
+
 ## 5. Vacuum is a hard requirement (T8)
 
 With Langevin cross-sections (σ_L = k_L/v — a 2 m/s He⁺ presents

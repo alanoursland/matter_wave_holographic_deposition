@@ -10,9 +10,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from inverse_holography import SQUIDArray
 from iqs.actuators import (
+    AchromaticPhaseResponse,
     CoplanarSquareLoopArray,
+    ElectrostaticPhaseResponse,
     IdealPhasePlate,
     PhaseAuthorityError,
+    resolve_phase_response,
 )
 
 
@@ -23,6 +26,27 @@ class TestIdealPhasePlate:
         plate = IdealPhasePlate(phase)
         assert np.allclose(np.abs(plate.transmission()), 1.0)
         assert plate.authority_report(required_span_rad=np.pi).ok
+
+
+class TestSpectralResponse:
+
+    def test_achromatic_phase_is_wavelength_independent(self):
+        wavelengths = np.array([80e-9, 100e-9, 120e-9])
+        scales = AchromaticPhaseResponse.phase_scales(wavelengths, 100e-9)
+        assert np.array_equal(scales, np.ones(3))
+
+    def test_electrostatic_phase_scales_as_inverse_velocity(self):
+        wavelengths = np.array([80e-9, 100e-9, 120e-9])
+        scales = ElectrostaticPhaseResponse.phase_scales(
+            wavelengths, 100e-9)
+        assert np.allclose(scales, [0.8, 1.0, 1.2])
+
+    @pytest.mark.parametrize('name, expected', [
+        ('ideal', 'achromatic'), ('ab', 'achromatic'),
+        ('electrostatic', 'electrostatic'),
+    ])
+    def test_response_aliases(self, name, expected):
+        assert resolve_phase_response(name).name == expected
 
 
 class TestCoplanarLoopPhysics:

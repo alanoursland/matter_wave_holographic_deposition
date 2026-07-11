@@ -162,6 +162,14 @@ negative coplanar coupling, I_max/I_rms, condition number) is directly
 the design tool for that layer at μm pitch, where drive currents are mA
 instead of the v10 model's impossible values.
 
+**Simulation update (T25, 2026-07-11).** The electrostatic option is now an
+explicit spectral actuator model: `phi(lambda) = phi0 lambda/lambda0`, used
+inside polychromatic inverse optimization and joint source-noise evaluation.
+Its hardware controls are kept unwrapped because central-wavelength `2 pi`
+equivalence does not survive at other wavelengths. This closes the ideal
+plate's actuator-chromaticity omission, but not fringe-field lensing,
+charging, or trajectory deflection.
+
 **Actuator-model gate (2026-07-10).** The research branch cannot use the
 v11 local rule `phi_i = q Phi_i / hbar` as a pixel transfer function. For
 the modeled coplanar loops and normal beam incidence, `A_z = 0` and the

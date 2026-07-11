@@ -52,6 +52,6 @@ Tests verify:
 - The spectrum is still represented by a small Gaussian quadrature.
 - Source energy remains independent of transverse position, angle, and phase
   noise.
-- Wavelength-dependent actuator response is absent. This is exact for an
-  ideal achromatic phase plate, but not generally for an electrostatic plate.
+- **Closed by T25 (2026-07-11):** wavelength-dependent electrostatic phase
+  response is now included in optimization and evaluation.
 - Reported v11/T22 headline numbers have not yet been rerun under T24.

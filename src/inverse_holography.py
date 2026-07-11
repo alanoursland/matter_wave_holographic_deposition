@@ -31,7 +31,7 @@ warnings.filterwarnings('ignore')
 
 from sim_v9 import IntegratedQuantumSubstrate
 from iqs.constants import hbar, k_B, m_He, m_e, Phi_0_e
-from iqs.actuators import CoplanarSquareLoopArray
+from iqs.actuators import CoplanarSquareLoopArray, resolve_phase_response
 from iqs.numerics.device import get_device
 from iqs.numerics.metrics import michelson_contrast, ssim_score, min_feature_size
 from iqs.numerics.propagation import (
@@ -371,13 +371,14 @@ class InverseHolographySolver:
     """
 
     def __init__(self, squid_array, N=256, L=400e-9, T_beam=1e-3,
-                 prop_distance_lam=20.0):
+                 prop_distance_lam=20.0, phase_response='achromatic'):
         self.squid  = squid_array
         self.N      = N
         self.L      = L
         self.dx     = L / N
         self.T_beam = T_beam
         self.prop_distance_lam = prop_distance_lam
+        self.phase_response = resolve_phase_response(phase_response)
 
         # Physical parameters (He+ ion at T_beam: neutral He-4 mass minus
         # the removed electron, fable5 E7 — 0.007% correction)
@@ -405,6 +406,7 @@ class InverseHolographySolver:
         self._ensemble_propagator = None
         self.ensemble_wavelengths = np.array([self.lam])
         self.ensemble_weights = np.array([1.0])
+        self.ensemble_phase_scales = np.array([1.0])
 
     @property
     def is_polychromatic(self):
@@ -430,6 +432,8 @@ class InverseHolographySolver:
 
         self.ensemble_wavelengths = wavelengths.copy()
         self.ensemble_weights = weights.copy()
+        self.ensemble_phase_scales = self.phase_response.phase_scales(
+            wavelengths, self.lam)
         central_only = (
             wavelengths.size == 1
             and np.isclose(wavelengths[0], self.lam, rtol=1e-14, atol=0.0)
@@ -447,6 +451,11 @@ class InverseHolographySolver:
         self._ensemble_propagator = None
         self.ensemble_wavelengths = np.array([self.lam])
         self.ensemble_weights = np.array([1.0])
+        self.ensemble_phase_scales = np.array([1.0])
+
+    def phase_scales(self, wavelengths):
+        """Return actuator phase multipliers for physical wavelengths."""
+        return self.phase_response.phase_scales(wavelengths, self.lam)
 
     def make_propagator(self, wavelength):
         """Build a propagator for ``wavelength`` at the same physical z.
@@ -482,10 +491,16 @@ class InverseHolographySolver:
         -------
         intensity : torch.Tensor (N, N) float64
         """
+        if self._ensemble_propagator is not None:
+            if np.allclose(self.ensemble_phase_scales, 1.0,
+                           rtol=0.0, atol=1e-15):
+                T = SQUIDArray.phase_screen_to_transmission(phase_screen)
+                return self._ensemble_propagator.forward_intensity(
+                    self.psi_in_t * T)
+            return self._ensemble_propagator.forward_intensity_phase_screen(
+                self.psi_in_t, phase_screen, self.ensemble_phase_scales)
         T = SQUIDArray.phase_screen_to_transmission(phase_screen)
         psi_mod = self.psi_in_t * T
-        if self._ensemble_propagator is not None:
-            return self._ensemble_propagator.forward_intensity(psi_mod)
         psi_target = self._propagate_torch(psi_mod, forward=True)
         return torch.abs(psi_target)**2
 
@@ -646,11 +661,21 @@ class InverseHolographySolver:
         screen_best = self.squid.phases_to_screen(phi_loops_best)
         I_best = self.forward(screen_best)
 
-        # Wrap phases mod 2*pi
+        phi_control = phi_loops_best.detach().cpu().numpy()
+        # A 2*pi wrap is valid for an achromatic phase actuator. It is not
+        # valid for a chromatic actuator: off-design wavelengths multiply
+        # the control by a non-integer scale and can distinguish phi from
+        # phi + 2*pi.
         phi_wrapped = (phi_loops_best % (2 * np.pi)).detach().cpu().numpy()
+        phi_programmed = (
+            phi_wrapped if self.phase_response.periodic_controls
+            else phi_control
+        )
 
         return {
-            'phi_loops':    phi_wrapped,
+            'phi_loops':    phi_programmed,
+            'phi_loops_control': phi_control,
+            'phi_loops_wrapped': phi_wrapped,
             'phase_screen': screen_best.detach().cpu().numpy(),
             'achieved':     I_best.detach().cpu().numpy(),
             'convergence':  history,

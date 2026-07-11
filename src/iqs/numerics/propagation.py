@@ -325,6 +325,27 @@ class PolychromaticAngularSpectrumPropagator:
                 f"wavelength's deliverable band and will be zeroed."
             )
 
+    def _check_evanescent_batch(self, spec_t: torch.Tensor) -> None:
+        """Norm gate when each wavelength has a different input field."""
+        with torch.no_grad():
+            fractions = []
+            for spectrum, valid in zip(spec_t, self._valid):
+                power = torch.abs(spectrum) ** 2
+                total = power.sum()
+                fractions.append(
+                    1.0 - power[valid].sum() / total if total > 0
+                    else torch.tensor(0.0, device=power.device)
+                )
+            frac = float(torch.stack(fractions).max())
+        self.last_evanescent_frac = frac
+        if frac > self.evanescent_warn_frac and not self._warned:
+            self._warned = True
+            print(
+                f"  [PolychromaticAngularSpectrumPropagator] WARNING: "
+                f"up to {frac:.1%} of wavelength-dependent input power "
+                f"lies outside its deliverable band and will be zeroed."
+            )
+
     def forward_fields(self, psi_t: torch.Tensor) -> torch.Tensor:
         """Return propagated fields with shape ``(Q, N, N)``."""
         spec = torch.fft.fft2(self._embed(psi_t))
@@ -335,5 +356,38 @@ class PolychromaticAngularSpectrumPropagator:
     def forward_intensity(self, psi_t: torch.Tensor) -> torch.Tensor:
         """Return the incoherent weighted intensity average."""
         intensities = torch.abs(self.forward_fields(psi_t)) ** 2
+        return torch.sum(
+            intensities * self.weights_t[:, None, None], dim=0)
+
+    def forward_fields_phase_screen(self, psi_in_t: torch.Tensor,
+                                    phase_screen: torch.Tensor,
+                                    phase_scales) -> torch.Tensor:
+        """Propagate a wavelength-dependent phase actuator.
+
+        ``phase_screen`` is the control phase at the central wavelength;
+        ``phase_scales[j]`` maps it to wavelength ``j``. The input amplitude
+        and any pre-actuator phase in ``psi_in_t`` are otherwise shared.
+        """
+        scales = torch.as_tensor(
+            phase_scales, dtype=torch.float64, device=self.device).reshape(-1)
+        if scales.numel() != self.wavelengths.size:
+            raise ValueError("one phase scale is required per wavelength")
+        if not torch.all(torch.isfinite(scales)):
+            raise ValueError("phase scales must be finite")
+
+        transmission = torch.exp(
+            1j * scales[:, None, None] * phase_screen[None, :, :])
+        inputs = psi_in_t[None, :, :] * transmission
+        spectra = torch.fft.fft2(self._embed(inputs))
+        self._check_evanescent_batch(spectra)
+        fields = torch.fft.ifft2(spectra * self._H_fwd)
+        return self._crop_batch(fields)
+
+    def forward_intensity_phase_screen(self, psi_in_t: torch.Tensor,
+                                       phase_screen: torch.Tensor,
+                                       phase_scales) -> torch.Tensor:
+        """Return incoherent intensity for a chromatic phase actuator."""
+        intensities = torch.abs(self.forward_fields_phase_screen(
+            psi_in_t, phase_screen, phase_scales)) ** 2
         return torch.sum(
             intensities * self.weights_t[:, None, None], dim=0)

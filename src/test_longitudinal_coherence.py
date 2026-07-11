@@ -131,11 +131,11 @@ class TestPolychromaticPropagation:
         N = 24
         phase = torch.zeros((N, N), dtype=torch.float64, requires_grad=True)
         amplitude = torch.abs(self._field(N)).to(torch.float64)
-        field = amplitude * torch.exp(1j * phase)
         poly = PolychromaticAngularSpectrumPropagator(
             N=N, L=800e-9, wavelengths=[80e-9, 100e-9, 120e-9],
             z=500e-9, device=torch.device('cpu'), pad_factor=2)
-        intensity = poly.forward_intensity(field)
+        intensity = poly.forward_intensity_phase_screen(
+            amplitude.to(torch.complex128), phase, [0.8, 1.0, 1.2])
         target_weight = torch.linspace(0.1, 1.0, N)[:, None]
         loss = torch.sum(intensity * target_weight)
         loss.backward()
@@ -143,6 +143,63 @@ class TestPolychromaticPropagation:
         assert phase.grad is not None
         assert torch.all(torch.isfinite(phase.grad))
         assert torch.linalg.vector_norm(phase.grad) > 0
+
+    def test_chromatic_phase_response_matches_manual_average(self):
+        N, L, z = 24, 800e-9, 500e-9
+        wavelengths = np.array([80e-9, 100e-9, 120e-9])
+        scales = wavelengths / 100e-9
+        weights = np.array([0.25, 0.5, 0.25])
+        psi_in = torch.abs(self._field(N)).to(torch.complex128)
+        phase = torch.angle(self._field(N)).to(torch.float64)
+        poly = PolychromaticAngularSpectrumPropagator(
+            N=N, L=L, wavelengths=wavelengths, z=z, weights=weights,
+            device=torch.device('cpu'), pad_factor=2)
+        batched = poly.forward_intensity_phase_screen(
+            psi_in, phase, scales)
+
+        manual = torch.zeros((N, N), dtype=torch.float64)
+        for wavelength, scale, weight in zip(wavelengths, scales, weights):
+            prop = AngularSpectrumPropagator(
+                N=N, L=L, k0=2 * np.pi / wavelength, z=z,
+                device=torch.device('cpu'), pad_factor=2)
+            field = psi_in * torch.exp(1j * scale * phase)
+            manual += weight * torch.abs(prop.forward(field))**2
+        assert torch.allclose(batched, manual, rtol=1e-12, atol=1e-12)
+
+    def test_pipeline_exposes_electrostatic_response(self):
+        from sim_v10 import IntegratedPipelineV10
+        from iqs.sources import DirectSource
+
+        source = DirectSource(
+            dlam_frac=0.05, xi_perp=50e-9,
+            current_A=0.1e-12, sigma_theta=0.0)
+        pipe = IntegratedPipelineV10(
+            N=24, L=400e-9, N_loops=4, prop_distance_lam=10.0,
+            n_wavelength_samples=3, phase_actuator='electrostatic',
+            source=source)
+        pipe.generate_source(seed=1, verbose=False)
+        target = target_single_spot(24, 400e-9, sigma_frac=0.12)
+        result = pipe.solve_holography(
+            target, method='gd', n_iter_gd=10, verbose=False)
+
+        assert result['phase_response'] == 'electrostatic'
+        expected = pipe._wavelength_samples / pipe.lam
+        assert np.allclose(result['phase_scales'], expected)
+
+    def test_electrostatic_controls_are_not_wrapped(self):
+        N = 16
+        squid = SQUIDArray(N_loops=4, N_grid=N, L_grid=400e-9)
+        solver = InverseHolographySolver(
+            squid, N=N, L=400e-9, T_beam=1e-3,
+            prop_distance_lam=10.0, phase_response='electrostatic')
+        target = target_single_spot(N, 400e-9)
+        initial = np.full(squid.n_total, 2 * np.pi + 0.3)
+        result = solver.solve_gradient_descent(
+            target, n_iter=1, lr=0.0, phi_init=initial, verbose=False)
+
+        assert np.all(result['phi_loops'] > 2 * np.pi)
+        assert np.allclose(result['phi_loops'], result['phi_loops_control'])
+        assert np.allclose(result['phi_loops_wrapped'], 0.3)
 
     def test_gradient_descent_optimizes_ensemble_intensity(self):
         N = 24
