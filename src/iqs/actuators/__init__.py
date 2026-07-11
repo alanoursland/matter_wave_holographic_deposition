@@ -19,6 +19,14 @@ from .electrostatic_3d import (
     LaplaceFringeFieldModel,
     MultisliceComparison,
 )
+from .fem_import import (
+    FEMFieldImportReport,
+    FEMFieldImportResult,
+    FEMGridSpec,
+    load_fem_csv,
+    load_fem_npz,
+    save_fem_npz,
+)
 
 __all__ = [
     "AchromaticPhaseResponse",
@@ -36,4 +44,10 @@ __all__ = [
     "LaplaceFringeFieldModel",
     "MultisliceComparison",
     "analyze_electrostatic_plate_3d",
+    "FEMFieldImportReport",
+    "FEMFieldImportResult",
+    "FEMGridSpec",
+    "load_fem_csv",
+    "load_fem_npz",
+    "save_fem_npz",
 ]

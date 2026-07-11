@@ -28,6 +28,8 @@ class ElectrostaticFieldMap:
     z_m: np.ndarray
     pixel_pitch_m: float
     boundary_voltage_V: np.ndarray
+    x_m: np.ndarray | None = None
+    y_m: np.ndarray | None = None
 
     def __post_init__(self):
         potential = np.asarray(self.potential_V, dtype=float)
@@ -49,9 +51,34 @@ class ElectrostaticFieldMap:
         if not np.isfinite(self.pixel_pitch_m) or self.pixel_pitch_m <= 0:
             raise ValueError("pixel_pitch_m must be positive")
 
+        if self.x_m is None:
+            x = (np.arange(potential.shape[2])
+                 - (potential.shape[2] - 1) / 2) * self.pixel_pitch_m
+        else:
+            x = np.asarray(self.x_m, dtype=float)
+        if self.y_m is None:
+            y = (np.arange(potential.shape[1])
+                 - (potential.shape[1] - 1) / 2) * self.pixel_pitch_m
+        else:
+            y = np.asarray(self.y_m, dtype=float)
+        if x.shape != (potential.shape[2],) or y.shape != (potential.shape[1],):
+            raise ValueError("x_m and y_m must match the transverse grid")
+        if not (np.all(np.isfinite(x)) and np.all(np.isfinite(y))):
+            raise ValueError("transverse coordinates must be finite")
+        if not (np.all(np.diff(x) > 0) and np.all(np.diff(y) > 0)):
+            raise ValueError("x_m and y_m must be strictly increasing")
+        spacing_atol = self.pixel_pitch_m * 1e-10
+        if not (np.allclose(np.diff(x), self.pixel_pitch_m,
+                            rtol=1e-8, atol=spacing_atol)
+                and np.allclose(np.diff(y), self.pixel_pitch_m,
+                                rtol=1e-8, atol=spacing_atol)):
+            raise ValueError("x/y spacing must match pixel_pitch_m")
+
         object.__setattr__(self, "potential_V", potential)
         object.__setattr__(self, "z_m", z)
         object.__setattr__(self, "boundary_voltage_V", boundary)
+        object.__setattr__(self, "x_m", x)
+        object.__setattr__(self, "y_m", y)
 
     @property
     def N(self):

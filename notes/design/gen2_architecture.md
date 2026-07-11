@@ -186,6 +186,13 @@ field and changes output intensity by 8.1% relative to the collapsed screen.
 The next hardware-facing step is to replace the membrane boundary with an
 actual aperture/electrode FEM field through the same field-map interface.
 
+**FEM import boundary (T28, 2026-07-11).** That interface is now operational:
+Cartesian or adaptive `x,y,z,V` electrostatic exports can be unit-converted,
+coverage-gated, resampled, cached, and sent directly through T27 multislice.
+The repository still lacks a real electrode CAD/FEM export, so the next
+hardware deliverable is external: one concrete micron-pixel aperture design
+with surrounding lens boundary conditions and its solved 3D potential.
+
 **Actuator-model gate (2026-07-10).** The research branch cannot use the
 v11 local rule `phi_i = q Phi_i / hbar` as a pixel transfer function. For
 the modeled coplanar loops and normal beam incidence, `A_z = 0` and the

@@ -85,8 +85,9 @@ than repairing it.
 
 ## Remaining limitations
 
-- Replace the membrane boundary with a real aperture/electrode FEM field.
-- Import that field through the `ElectrostaticFieldMap` contract.
+- **Import path completed by T28 (2026-07-11):** real aperture/electrode CSV
+  fields can now be validated, resampled, cached, and passed through the
+  `ElectrostaticFieldMap` contract. An actual device export is still needed.
 - Add nonparaxial classical trajectories when deflection approaches the T26
   paraxial threshold; the present multislice propagator remains paraxial.
 - Couple the physical control plane to a concrete projection-column model,

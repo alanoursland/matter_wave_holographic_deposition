@@ -131,6 +131,14 @@ the pattern (shorter z, §9) is also the noise-robustness fix.
 > thin screen. The T26 gate correctly predicts both outcomes. See
 > [t27_electrostatic_multislice.md](../fable5/t27_electrostatic_multislice.md).
 
+> **Real FEM field import (T28, 2026-07-11).** Structured or adaptive
+> `x,y,z,V` exports from COMSOL/ANSYS-class electrostatic solvers can now be
+> unit-converted, coverage-checked, interpolated onto a uniform multislice
+> grid, cached as validated NPZ, and propagated through T27. No actual
+> electrode export is currently present, so this is an ingestion capability,
+> not hardware validation. See
+> [t28_fem_field_import.md](../fable5/t28_fem_field_import.md).
+
 ## 5. Vacuum is a hard requirement (T8)
 
 With Langevin cross-sections (σ_L = k_L/v — a 2 m/s He⁺ presents
