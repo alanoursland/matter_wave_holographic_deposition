@@ -443,8 +443,10 @@ class InverseHolographySolver:
             )
 
     def release_wavelength_ensemble(self):
-        """Release batched transfer kernels after an inverse solve."""
+        """Release batched kernels and restore central-wavelength mode."""
         self._ensemble_propagator = None
+        self.ensemble_wavelengths = np.array([self.lam])
+        self.ensemble_weights = np.array([1.0])
 
     def make_propagator(self, wavelength):
         """Build a propagator for ``wavelength`` at the same physical z.
@@ -484,7 +486,8 @@ class InverseHolographySolver:
         psi_mod = self.psi_in_t * T
         if self._ensemble_propagator is not None:
             return self._ensemble_propagator.forward_intensity(psi_mod)
-        return self.forward_central(phase_screen)
+        psi_target = self._propagate_torch(psi_mod, forward=True)
+        return torch.abs(psi_target)**2
 
     def forward_central(self, phase_screen):
         """Forward intensity at the central design wavelength only."""
@@ -502,6 +505,11 @@ class InverseHolographySolver:
     # -------------------------------------------------------------------
     def solve_gerchberg_saxton(self, P_target, n_iter=300, n_restarts=3,
                                verbose=True):
+        if self.is_polychromatic:
+            raise ValueError(
+                "Gerchberg-Saxton requires one coherent target-plane "
+                "field and cannot optimize an incoherent wavelength mixture"
+            )
         if verbose:
             print(f"\n  GS solver: {n_iter} iter x {n_restarts} restarts")
 

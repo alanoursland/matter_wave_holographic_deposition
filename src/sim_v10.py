@@ -310,6 +310,12 @@ class IntegratedPipelineV10:
         wavelengths = self._wavelength_samples
         if wavelengths is None:
             wavelengths = np.array([self.lam])
+        self.holo_solver.set_wavelength_ensemble(wavelengths)
+        if method == 'gs' and self.holo_solver.is_polychromatic:
+            raise ValueError(
+                "Gerchberg-Saxton cannot optimize an incoherent wavelength "
+                "mixture; use method='gd' or set dlam_frac=0"
+            )
         # Condition to the longest sampled wavelength, which has the
         # narrowest propagating band. Every source component can therefore
         # reach the target bandwidth presented to the optimizer.
@@ -334,19 +340,31 @@ class IntegratedPipelineV10:
         elapsed = time.time() - t0
 
         metrics = compute_metrics(raw['achieved'], target_smooth)
+        screen_t = torch.tensor(
+            raw['phase_screen'], dtype=torch.float64, device=_device)
+        with torch.no_grad():
+            central = self.holo_solver.forward_central(screen_t)
+        central_np = central.detach().cpu().numpy()
+        metrics_central = compute_metrics(central_np, target_smooth)
 
         if verbose:
-            print(f"    SSIM = {metrics['ssim']:.4f}, "
+            label = "polychromatic" if self.holo_solver.is_polychromatic \
+                else "central"
+            print(f"    SSIM = {metrics['ssim']:.4f} ({label}), "
+                  f"central = {metrics_central['ssim']:.4f}, "
                   f"eff = {metrics['efficiency']:.4f}, "
                   f"time = {elapsed:.1f}s")
 
         return {
             'phase_screen':   raw['phase_screen'],
             'P_achieved':     raw['achieved'],
+            'P_achieved_central': central_np,
             'P_target':       target_smooth,
             'P_target_raw':   target_pattern,
             'convergence':    raw['convergence'],
             'metrics':        metrics,
+            'metrics_central': metrics_central,
+            'polychromatic':  self.holo_solver.is_polychromatic,
             'method':         method,
             'time_s':         elapsed,
             'phi_loops':      raw.get('phi_loops', None),
@@ -436,6 +454,12 @@ class IntegratedPipelineV10:
             target_pattern, method=method, verbose=verbose)
 
         density_holo = holo['P_achieved']
+        density_longitudinal = density_holo.copy()
+        metrics_longitudinal = holo['metrics']
+        # The batched kernels are no longer needed after optimization. Free
+        # them before the stochastic evaluation, which streams one
+        # wavelength propagator at a time to bound device memory.
+        self.holo_solver.release_wavelength_ensemble()
 
         # Evaluate actual deposition (fable5 E2/T6/T23): partial coherence
         # is an ensemble property. Sequential ions sample both the source
@@ -464,7 +488,6 @@ class IntegratedPipelineV10:
         rng = np.random.default_rng(seed)
         xi_pix = params.xi_perp / self.dx
 
-        density_longitudinal = np.zeros((self.N, self.N))
         density_actual = np.zeros((self.N, self.N))
         rms_applied = []
 
@@ -472,13 +495,6 @@ class IntegratedPipelineV10:
             # All spectral components cross the same physical source-to-
             # target distance. Only k0 changes with wavelength.
             propagator = self.holo_solver.make_propagator(wavelength)
-
-            psi_clean = self.holo_solver._propagate_torch(
-                psi_profile_t * T_screen, forward=True,
-                propagator=propagator)
-            density_longitudinal += (
-                torch.abs(psi_clean).cpu().numpy()**2 / Q
-            )
 
             for _ in range(phase_per_wavelength):
                 noise = sample_phase_noise(
@@ -498,8 +514,6 @@ class IntegratedPipelineV10:
 
         density_actual /= M
         rms_applied = float(np.mean(rms_applied))
-        metrics_longitudinal = compute_metrics(
-            density_longitudinal, holo['P_target'])
         metrics_actual = compute_metrics(density_actual, holo['P_target'])
 
         # Transport attenuation (fable5 E6/T8): survival of the beam over
@@ -596,8 +610,8 @@ class IntegratedPipelineV10:
               f"K_dim = {r['K_dim']:.3f}, "
               f"n_eff = {r['n_eff']:.0f}, "
               f"mode = {sync_mode}")
-        m_clean = r['holo']['metrics']
-        m_long = r.get('metrics_longitudinal', m_clean)
+        m_clean = r['holo'].get('metrics_central', r['holo']['metrics'])
+        m_long = r.get('metrics_longitudinal', r['holo']['metrics'])
         m_actual = r.get('metrics_actual', m_long)
         print(f"  Holo:   SSIM = {m_clean['ssim']:.4f} (clean), "
               f"{m_long['ssim']:.4f} (longitudinal), "

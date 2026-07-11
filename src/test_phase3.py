@@ -166,6 +166,9 @@ class TestSourceInterface:
         assert res['n_wavelength_samples'] == 5
         assert abs(res['dlam_frac_applied'] - p.dlam_frac) < 1e-12
         assert 'metrics_longitudinal' in res
+        assert res['holo']['polychromatic']
+        assert abs(res['holo']['metrics']['ssim']
+                   - res['metrics_longitudinal']['ssim']) < 1e-12
         if provider == 'direct':
             assert p.provider == 'direct'
             assert abs(p.sigma_theta - 0.1) < 1e-12

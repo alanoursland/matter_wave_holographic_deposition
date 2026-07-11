@@ -36,8 +36,11 @@ a multiple of the wavelength count, keeping runtime close to the old model
 instead of multiplying the two ensemble sizes.
 
 Target conditioning uses the longest sampled wavelength, whose transport
-band is narrowest. The optimizer itself remains central-wavelength; this is a
-robust bandwidth constraint, not yet a fully polychromatic inverse solve.
+band is narrowest.
+
+**Superseded by T24 (2026-07-11):** gradient descent now optimizes the
+wavelength-averaged intensity directly. See
+`fable5/t24_polychromatic_optimization.md`.
 
 ## Validation
 
@@ -57,6 +60,5 @@ Tests establish that:
 - The Kuramoto provider's `dE_frac/2` mapping is only a nominal RMS
   approximation; a measured source spectrum should use `DirectSource`.
 - No wavelength-dependent transverse coherence length or actuator response.
-- The inverse solve is not yet optimized over wavelength samples.
 - All holography conclusions remain conditional on a realizable phase
   actuator; see `notes/holography/phase_actuator_status.md`.

@@ -9,8 +9,13 @@ import torch
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from inverse_holography import InverseHolographySolver, SQUIDArray
-from iqs.numerics.propagation import AngularSpectrumPropagator
+from inverse_holography import (
+    InverseHolographySolver, SQUIDArray, target_single_spot,
+)
+from iqs.numerics.propagation import (
+    AngularSpectrumPropagator,
+    PolychromaticAngularSpectrumPropagator,
+)
 from iqs.sources import gaussian_wavelength_samples, fractional_rms
 
 
@@ -90,3 +95,90 @@ class TestFixedDistancePropagation:
 
         assert contrast(central) > 0.99
         assert contrast(averaged) < 0.75
+
+
+class TestPolychromaticPropagation:
+
+    @staticmethod
+    def _field(N):
+        axis = torch.linspace(-1.0, 1.0, N, dtype=torch.float64)
+        x, y = torch.meshgrid(axis, axis, indexing='ij')
+        amplitude = torch.exp(-(x**2 + y**2) / 0.4)
+        phase = 0.3 * x + 0.2 * y**2
+        return amplitude * torch.exp(1j * phase)
+
+    def test_batched_intensity_matches_manual_average(self):
+        N, L, z = 32, 1e-6, 600e-9
+        wavelengths = np.array([80e-9, 100e-9, 120e-9])
+        weights = np.array([0.2, 0.5, 0.3])
+        field = self._field(N).to(torch.complex128)
+
+        poly = PolychromaticAngularSpectrumPropagator(
+            N=N, L=L, wavelengths=wavelengths, z=z, weights=weights,
+            device=torch.device('cpu'), pad_factor=2)
+        batched = poly.forward_intensity(field)
+
+        manual = torch.zeros((N, N), dtype=torch.float64)
+        for wavelength, weight in zip(wavelengths, weights):
+            prop = AngularSpectrumPropagator(
+                N=N, L=L, k0=2 * np.pi / wavelength, z=z,
+                device=torch.device('cpu'), pad_factor=2)
+            manual += weight * torch.abs(prop.forward(field))**2
+
+        assert torch.allclose(batched, manual, rtol=1e-12, atol=1e-12)
+
+    def test_intensity_average_is_differentiable(self):
+        N = 24
+        phase = torch.zeros((N, N), dtype=torch.float64, requires_grad=True)
+        amplitude = torch.abs(self._field(N)).to(torch.float64)
+        field = amplitude * torch.exp(1j * phase)
+        poly = PolychromaticAngularSpectrumPropagator(
+            N=N, L=800e-9, wavelengths=[80e-9, 100e-9, 120e-9],
+            z=500e-9, device=torch.device('cpu'), pad_factor=2)
+        intensity = poly.forward_intensity(field)
+        target_weight = torch.linspace(0.1, 1.0, N)[:, None]
+        loss = torch.sum(intensity * target_weight)
+        loss.backward()
+
+        assert phase.grad is not None
+        assert torch.all(torch.isfinite(phase.grad))
+        assert torch.linalg.vector_norm(phase.grad) > 0
+
+    def test_gradient_descent_optimizes_ensemble_intensity(self):
+        N = 24
+        squid = SQUIDArray(N_loops=4, N_grid=N, L_grid=400e-9)
+        solver = InverseHolographySolver(
+            squid, N=N, L=400e-9, T_beam=1e-3,
+            prop_distance_lam=10.0)
+        wavelengths = gaussian_wavelength_samples(solver.lam, 0.05, 3)
+        solver.set_wavelength_ensemble(wavelengths)
+        target = target_single_spot(N, 400e-9, sigma_frac=0.12)
+
+        torch.manual_seed(7)
+        result = solver.solve_gradient_descent(
+            target, n_iter=30, lr=0.05, verbose=False)
+        assert min(result['convergence'][1:]) < result['convergence'][0]
+
+        screen = torch.tensor(result['phase_screen'], dtype=torch.float64,
+                              device=solver.psi_in_t.device)
+        expected = solver.forward(screen).detach().cpu().numpy()
+        assert np.allclose(result['achieved'], expected, rtol=1e-12,
+                           atol=1e-12)
+
+    def test_gerchberg_saxton_rejects_incoherent_spectrum(self):
+        N = 16
+        squid = SQUIDArray(N_loops=4, N_grid=N, L_grid=400e-9)
+        solver = InverseHolographySolver(
+            squid, N=N, L=400e-9, T_beam=1e-3,
+            prop_distance_lam=10.0)
+        solver.set_wavelength_ensemble(
+            gaussian_wavelength_samples(solver.lam, 0.01, 3))
+        target = target_single_spot(N, 400e-9)
+        with pytest.raises(ValueError, match="incoherent wavelength"):
+            solver.solve_gerchberg_saxton(target, n_iter=1, verbose=False)
+
+        solver.release_wavelength_ensemble()
+        assert not solver.is_polychromatic
+        central = solver.forward(torch.zeros(
+            (N, N), dtype=torch.float64, device=solver.psi_in_t.device))
+        assert torch.all(torch.isfinite(central))

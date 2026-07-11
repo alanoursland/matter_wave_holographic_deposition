@@ -99,6 +99,14 @@ the pattern (shorter z, §9) is also the noise-robustness fix.
 > in this report predate T23 and were not recomputed here. See
 > [t23_longitudinal_coherence.md](../fable5/t23_longitudinal_coherence.md).
 
+> **Polychromatic optimization (T24, 2026-07-11).** Gradient descent now
+> minimizes error in the incoherent wavelength-averaged intensity itself,
+> using a batched differentiable propagator. Central-wavelength metrics are
+> retained as diagnostics. Gerchberg-Saxton explicitly rejects a
+> multi-wavelength source because no single coherent target-plane field
+> represents that mixture. See
+> [t24_polychromatic_optimization.md](../fable5/t24_polychromatic_optimization.md).
+
 ## 5. Vacuum is a hard requirement (T8)
 
 With Langevin cross-sections (σ_L = k_L/v — a 2 m/s He⁺ presents
