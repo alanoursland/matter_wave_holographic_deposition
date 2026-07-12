@@ -103,3 +103,7 @@ ideal edge singularity. It should use local mesh refinement or an imported FEM
 mesh around the Si/BOX/air triple line, including a finite sidewall damage
 layer. In parallel, the fabrication coupon should specify a 20 nm plan radius
 and directly measure leakage after etch, clean, vacuum exposure, and anneal.
+
+T37 follows the transport branch directly. It replaces the rectangular
+leakage estimate with a converged KinoPulse surface-current solve and limits
+conductive lateral sidewall residue to 5 nm.

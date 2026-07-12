@@ -1,0 +1,782 @@
+{
+  "study": "T37 geometry-resolved SOI surface transport",
+  "kinopulse_version": "0.1.0.dev2026071116",
+  "equation": "2D div(Gsheet grad(V)) = 0",
+  "geometry": {
+    "pitch_m": 1.0000000000000001e-07,
+    "mesa_width_m": 7.500000000000001e-08,
+    "voltage_V": 1.0,
+    "analytic_clean_rectangle_factor": 3.0000000000000004
+  },
+  "qualification": {
+    "surface_sheet_resistance_ohm_sq": 10000000000.0,
+    "max_pair_leakage_a": 1e-09,
+    "maximum_passing_tested_residue_width_m": 5e-09,
+    "recommended_max_residue_width_m": 5e-09,
+    "recommendation_requires_grid_error_below_fraction": 0.05
+  },
+  "runs": [
+    {
+      "radius_m": 0.0,
+      "residue_width_m": 0.0,
+      "effective_centerline_gap_m": 2.5e-08,
+      "spacing_m": 5e-09,
+      "shape": [
+        61,
+        45
+      ],
+      "iterations": 186,
+      "relative_residual": 9.795755145976937e-10,
+      "elapsed_s": 0.08577180001884699,
+      "geometry_factor": 4.047383877053598,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 1.3491279590178658,
+      "required_surface_sheet_resistance_ohm_sq": 4047383877.0535975,
+      "qualified_pair_leakage_a": 4.047383877053598e-10,
+      "qualified_isolation_pass": true,
+      "cross_section_flux_relative_variation": 4.0329943291405017e-10,
+      "cuts": [
+        {
+          "requested_x_m": -6.25e-09,
+          "sampled_x_m": -5.000000000000005e-09,
+          "geometry_factor": 4.047383876371242
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 4.047383876785999
+        },
+        {
+          "requested_x_m": 6.25e-09,
+          "sampled_x_m": 5.000000000000005e-09,
+          "geometry_factor": 4.04738387800355
+        }
+      ]
+    },
+    {
+      "radius_m": 0.0,
+      "residue_width_m": 2.5e-09,
+      "effective_centerline_gap_m": 2e-08,
+      "spacing_m": 5e-09,
+      "shape": [
+        61,
+        45
+      ],
+      "iterations": 181,
+      "relative_residual": 8.185559707106784e-10,
+      "elapsed_s": 0.07798659999389201,
+      "geometry_factor": 4.344272463338762,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 1.4480908211129204,
+      "required_surface_sheet_resistance_ohm_sq": 4344272463.338762,
+      "qualified_pair_leakage_a": 4.344272463338762e-10,
+      "qualified_isolation_pass": true,
+      "cross_section_flux_relative_variation": 5.502752323830869e-10,
+      "cuts": [
+        {
+          "requested_x_m": -5e-09,
+          "sampled_x_m": -5.000000000000005e-09,
+          "geometry_factor": 4.3442724646272275
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 4.344272463152377
+        },
+        {
+          "requested_x_m": 5e-09,
+          "sampled_x_m": 5.000000000000005e-09,
+          "geometry_factor": 4.344272462236682
+        }
+      ]
+    },
+    {
+      "radius_m": 0.0,
+      "residue_width_m": 5e-09,
+      "effective_centerline_gap_m": 1.5e-08,
+      "spacing_m": 5e-09,
+      "shape": [
+        61,
+        45
+      ],
+      "iterations": 177,
+      "relative_residual": 8.57066509249068e-10,
+      "elapsed_s": 0.07218920008745044,
+      "geometry_factor": 5.973465437392483,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 1.991155145797494,
+      "required_surface_sheet_resistance_ohm_sq": 5973465437.392483,
+      "qualified_pair_leakage_a": 5.973465437392484e-10,
+      "qualified_isolation_pass": true,
+      "cross_section_flux_relative_variation": 2.7438931907022505e-10,
+      "cuts": [
+        {
+          "requested_x_m": -3.75e-09,
+          "sampled_x_m": -5.000000000000005e-09,
+          "geometry_factor": 5.973465438203711
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 5.973465437409081
+        },
+        {
+          "requested_x_m": 3.75e-09,
+          "sampled_x_m": 5.000000000000005e-09,
+          "geometry_factor": 5.973465436564656
+        }
+      ]
+    },
+    {
+      "radius_m": 0.0,
+      "residue_width_m": 1e-08,
+      "effective_centerline_gap_m": 4.9999999999999985e-09,
+      "spacing_m": 5e-09,
+      "shape": [
+        61,
+        45
+      ],
+      "iterations": 172,
+      "relative_residual": 8.937675128121867e-10,
+      "elapsed_s": 0.07072439999319613,
+      "geometry_factor": 10.906249799712839,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 3.635416599904279,
+      "required_surface_sheet_resistance_ohm_sq": 10906249799.71284,
+      "qualified_pair_leakage_a": 1.090624979971284e-09,
+      "qualified_isolation_pass": false,
+      "cross_section_flux_relative_variation": 0.0,
+      "cuts": [
+        {
+          "requested_x_m": -1.2499999999999996e-09,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 10.906249799712839
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 10.906249799712839
+        },
+        {
+          "requested_x_m": 1.2499999999999996e-09,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 10.906249799712839
+        }
+      ]
+    },
+    {
+      "radius_m": 2e-08,
+      "residue_width_m": 0.0,
+      "effective_centerline_gap_m": 2.5e-08,
+      "spacing_m": 5e-09,
+      "shape": [
+        61,
+        45
+      ],
+      "iterations": 188,
+      "relative_residual": 9.038643048981786e-10,
+      "elapsed_s": 0.08018900000024587,
+      "geometry_factor": 3.7096274464081396,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 1.2365424821360465,
+      "required_surface_sheet_resistance_ohm_sq": 3709627446.408139,
+      "qualified_pair_leakage_a": 3.7096274464081394e-10,
+      "qualified_isolation_pass": true,
+      "cross_section_flux_relative_variation": 1.7509394822129694e-10,
+      "cuts": [
+        {
+          "requested_x_m": -6.25e-09,
+          "sampled_x_m": -5.000000000000005e-09,
+          "geometry_factor": 3.709627446643397
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 3.709627445993864
+        },
+        {
+          "requested_x_m": 6.25e-09,
+          "sampled_x_m": 5.000000000000005e-09,
+          "geometry_factor": 3.7096274465871577
+        }
+      ]
+    },
+    {
+      "radius_m": 2e-08,
+      "residue_width_m": 2.5e-09,
+      "effective_centerline_gap_m": 2e-08,
+      "spacing_m": 5e-09,
+      "shape": [
+        61,
+        45
+      ],
+      "iterations": 185,
+      "relative_residual": 8.265282855142058e-10,
+      "elapsed_s": 0.08128849999047816,
+      "geometry_factor": 3.9482041122737157,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 1.3160680374245717,
+      "required_surface_sheet_resistance_ohm_sq": 3948204112.2737155,
+      "qualified_pair_leakage_a": 3.948204112273716e-10,
+      "qualified_isolation_pass": true,
+      "cross_section_flux_relative_variation": 6.59252456115273e-10,
+      "cuts": [
+        {
+          "requested_x_m": -5e-09,
+          "sampled_x_m": -5.000000000000005e-09,
+          "geometry_factor": 3.948204110979891
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 3.9482041122585017
+        },
+        {
+          "requested_x_m": 5e-09,
+          "sampled_x_m": 5.000000000000005e-09,
+          "geometry_factor": 3.9482041135827544
+        }
+      ]
+    },
+    {
+      "radius_m": 2e-08,
+      "residue_width_m": 5e-09,
+      "effective_centerline_gap_m": 1.5e-08,
+      "spacing_m": 5e-09,
+      "shape": [
+        61,
+        45
+      ],
+      "iterations": 181,
+      "relative_residual": 9.179182180817702e-10,
+      "elapsed_s": 0.08148099994286895,
+      "geometry_factor": 5.158650600745335,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 1.7195502002484448,
+      "required_surface_sheet_resistance_ohm_sq": 5158650600.745335,
+      "qualified_pair_leakage_a": 5.158650600745335e-10,
+      "qualified_isolation_pass": true,
+      "cross_section_flux_relative_variation": 5.4412920151291626e-11,
+      "cuts": [
+        {
+          "requested_x_m": -3.75e-09,
+          "sampled_x_m": -5.000000000000005e-09,
+          "geometry_factor": 5.15865060077844
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 5.158650600869131
+        },
+        {
+          "requested_x_m": 3.75e-09,
+          "sampled_x_m": 5.000000000000005e-09,
+          "geometry_factor": 5.158650600588434
+        }
+      ]
+    },
+    {
+      "radius_m": 2e-08,
+      "residue_width_m": 1e-08,
+      "effective_centerline_gap_m": 4.9999999999999985e-09,
+      "spacing_m": 5e-09,
+      "shape": [
+        61,
+        45
+      ],
+      "iterations": 174,
+      "relative_residual": 8.880973210010817e-10,
+      "elapsed_s": 0.0734587999759242,
+      "geometry_factor": 8.754142523025584,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 2.918047507675194,
+      "required_surface_sheet_resistance_ohm_sq": 8754142523.025583,
+      "qualified_pair_leakage_a": 8.754142523025583e-10,
+      "qualified_isolation_pass": true,
+      "cross_section_flux_relative_variation": 0.0,
+      "cuts": [
+        {
+          "requested_x_m": -1.2499999999999996e-09,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 8.754142523025584
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 8.754142523025584
+        },
+        {
+          "requested_x_m": 1.2499999999999996e-09,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 8.754142523025584
+        }
+      ]
+    },
+    {
+      "radius_m": 0.0,
+      "residue_width_m": 0.0,
+      "effective_centerline_gap_m": 2.5e-08,
+      "spacing_m": 2.5e-09,
+      "shape": [
+        121,
+        89
+      ],
+      "iterations": 358,
+      "relative_residual": 9.519742828444984e-10,
+      "elapsed_s": 0.2219578999793157,
+      "geometry_factor": 4.158142888506889,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 1.386047629502296,
+      "required_surface_sheet_resistance_ohm_sq": 4158142888.506889,
+      "qualified_pair_leakage_a": 4.158142888506889e-10,
+      "qualified_isolation_pass": true,
+      "cross_section_flux_relative_variation": 2.776380876249079e-09,
+      "cuts": [
+        {
+          "requested_x_m": -6.25e-09,
+          "sampled_x_m": -7.499999999999981e-09,
+          "geometry_factor": 4.158142893871799
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 4.15814288932166
+        },
+        {
+          "requested_x_m": 6.25e-09,
+          "sampled_x_m": 7.499999999999981e-09,
+          "geometry_factor": 4.15814288232721
+        }
+      ]
+    },
+    {
+      "radius_m": 0.0,
+      "residue_width_m": 2.5e-09,
+      "effective_centerline_gap_m": 2e-08,
+      "spacing_m": 2.5e-09,
+      "shape": [
+        121,
+        89
+      ],
+      "iterations": 353,
+      "relative_residual": 9.84729650577795e-10,
+      "elapsed_s": 0.21853650000412017,
+      "geometry_factor": 4.959227229404127,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 1.6530757431347087,
+      "required_surface_sheet_resistance_ohm_sq": 4959227229.404127,
+      "qualified_pair_leakage_a": 4.959227229404127e-10,
+      "qualified_isolation_pass": true,
+      "cross_section_flux_relative_variation": 2.7298411079916397e-09,
+      "cuts": [
+        {
+          "requested_x_m": -5e-09,
+          "sampled_x_m": -5.000000000000005e-09,
+          "geometry_factor": 4.959227236291566
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 4.959227229167149
+        },
+        {
+          "requested_x_m": 5e-09,
+          "sampled_x_m": 5.000000000000005e-09,
+          "geometry_factor": 4.959227222753664
+        }
+      ]
+    },
+    {
+      "radius_m": 0.0,
+      "residue_width_m": 5e-09,
+      "effective_centerline_gap_m": 1.5e-08,
+      "spacing_m": 2.5e-09,
+      "shape": [
+        121,
+        89
+      ],
+      "iterations": 348,
+      "relative_residual": 8.573839685742685e-10,
+      "elapsed_s": 0.22353730001486838,
+      "geometry_factor": 6.040700580783322,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 2.013566860261107,
+      "required_surface_sheet_resistance_ohm_sq": 6040700580.783321,
+      "qualified_pair_leakage_a": 6.040700580783322e-10,
+      "qualified_isolation_pass": true,
+      "cross_section_flux_relative_variation": 4.684109649090258e-10,
+      "cuts": [
+        {
+          "requested_x_m": -3.75e-09,
+          "sampled_x_m": -2.5000000000000025e-09,
+          "geometry_factor": 6.0407005820670605
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 6.040700581045375
+        },
+        {
+          "requested_x_m": 3.75e-09,
+          "sampled_x_m": 2.5000000000000025e-09,
+          "geometry_factor": 6.04070057923753
+        }
+      ]
+    },
+    {
+      "radius_m": 0.0,
+      "residue_width_m": 1e-08,
+      "effective_centerline_gap_m": 4.9999999999999985e-09,
+      "spacing_m": 2.5e-09,
+      "shape": [
+        121,
+        89
+      ],
+      "iterations": 335,
+      "relative_residual": 9.952790871209331e-10,
+      "elapsed_s": 0.20845749997533858,
+      "geometry_factor": 19.159493111077172,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 6.38649770369239,
+      "required_surface_sheet_resistance_ohm_sq": 19159493111.07717,
+      "qualified_pair_leakage_a": 1.915949311107717e-09,
+      "qualified_isolation_pass": false,
+      "cross_section_flux_relative_variation": 0.0,
+      "cuts": [
+        {
+          "requested_x_m": -1.2499999999999996e-09,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 19.159493111077172
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 19.159493111077172
+        },
+        {
+          "requested_x_m": 1.2499999999999996e-09,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 19.159493111077172
+        }
+      ]
+    },
+    {
+      "radius_m": 2e-08,
+      "residue_width_m": 0.0,
+      "effective_centerline_gap_m": 2.5e-08,
+      "spacing_m": 2.5e-09,
+      "shape": [
+        121,
+        89
+      ],
+      "iterations": 364,
+      "relative_residual": 8.955764544067031e-10,
+      "elapsed_s": 0.2230950000230223,
+      "geometry_factor": 3.755957543045417,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 1.2519858476818055,
+      "required_surface_sheet_resistance_ohm_sq": 3755957543.045417,
+      "qualified_pair_leakage_a": 3.755957543045417e-10,
+      "qualified_isolation_pass": true,
+      "cross_section_flux_relative_variation": 1.0628930722701145e-09,
+      "cuts": [
+        {
+          "requested_x_m": -6.25e-09,
+          "sampled_x_m": -7.499999999999981e-09,
+          "geometry_factor": 3.7559575414221515
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 3.7559575422997664
+        },
+        {
+          "requested_x_m": 6.25e-09,
+          "sampled_x_m": 7.499999999999981e-09,
+          "geometry_factor": 3.755957545414333
+        }
+      ]
+    },
+    {
+      "radius_m": 2e-08,
+      "residue_width_m": 2.5e-09,
+      "effective_centerline_gap_m": 2e-08,
+      "spacing_m": 2.5e-09,
+      "shape": [
+        121,
+        89
+      ],
+      "iterations": 360,
+      "relative_residual": 9.389610140229091e-10,
+      "elapsed_s": 0.22855510003864765,
+      "geometry_factor": 4.391387941380518,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 1.4637959804601726,
+      "required_surface_sheet_resistance_ohm_sq": 4391387941.380518,
+      "qualified_pair_leakage_a": 4.3913879413805185e-10,
+      "qualified_isolation_pass": true,
+      "cross_section_flux_relative_variation": 1.3743663359477924e-09,
+      "cuts": [
+        {
+          "requested_x_m": -5e-09,
+          "sampled_x_m": -5.000000000000005e-09,
+          "geometry_factor": 4.391387944542194
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 4.391387941092543
+        },
+        {
+          "requested_x_m": 5e-09,
+          "sampled_x_m": 5.000000000000005e-09,
+          "geometry_factor": 4.391387938506818
+        }
+      ]
+    },
+    {
+      "radius_m": 2e-08,
+      "residue_width_m": 5e-09,
+      "effective_centerline_gap_m": 1.5e-08,
+      "spacing_m": 2.5e-09,
+      "shape": [
+        121,
+        89
+      ],
+      "iterations": 355,
+      "relative_residual": 9.331568431144794e-10,
+      "elapsed_s": 0.236124400049448,
+      "geometry_factor": 5.26530553449748,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 1.7551018448324929,
+      "required_surface_sheet_resistance_ohm_sq": 5265305534.497479,
+      "qualified_pair_leakage_a": 5.26530553449748e-10,
+      "qualified_isolation_pass": true,
+      "cross_section_flux_relative_variation": 7.030036219071853e-10,
+      "cuts": [
+        {
+          "requested_x_m": -3.75e-09,
+          "sampled_x_m": -2.5000000000000025e-09,
+          "geometry_factor": 5.265305536299919
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 5.265305534594132
+        },
+        {
+          "requested_x_m": 3.75e-09,
+          "sampled_x_m": 2.5000000000000025e-09,
+          "geometry_factor": 5.26530553259839
+        }
+      ]
+    },
+    {
+      "radius_m": 2e-08,
+      "residue_width_m": 1e-08,
+      "effective_centerline_gap_m": 4.9999999999999985e-09,
+      "spacing_m": 2.5e-09,
+      "shape": [
+        121,
+        89
+      ],
+      "iterations": 341,
+      "relative_residual": 9.59537166438368e-10,
+      "elapsed_s": 0.22164699994027615,
+      "geometry_factor": 12.982444611207788,
+      "analytic_clean_rectangle_factor": 3.0000000000000004,
+      "geometry_factor_vs_clean_rectangle": 4.327481537069262,
+      "required_surface_sheet_resistance_ohm_sq": 12982444611.207787,
+      "qualified_pair_leakage_a": 1.2982444611207787e-09,
+      "qualified_isolation_pass": false,
+      "cross_section_flux_relative_variation": 0.0,
+      "cuts": [
+        {
+          "requested_x_m": -1.2499999999999996e-09,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 12.982444611207788
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 12.982444611207788
+        },
+        {
+          "requested_x_m": 1.2499999999999996e-09,
+          "sampled_x_m": 0.0,
+          "geometry_factor": 12.982444611207788
+        }
+      ]
+    }
+  ],
+  "grid_convergence": [
+    {
+      "radius_m": 0.0,
+      "residue_width_m": 0.0,
+      "fine_spacing_m": 2.5e-09,
+      "runs": [
+        {
+          "spacing_m": 5e-09,
+          "geometry_factor_relative_error": 0.026636653530937932
+        },
+        {
+          "spacing_m": 2.5e-09,
+          "geometry_factor_relative_error": 0.0
+        }
+      ]
+    },
+    {
+      "radius_m": 0.0,
+      "residue_width_m": 2.5e-09,
+      "fine_spacing_m": 2.5e-09,
+      "runs": [
+        {
+          "spacing_m": 5e-09,
+          "geometry_factor_relative_error": 0.12400213533656824
+        },
+        {
+          "spacing_m": 2.5e-09,
+          "geometry_factor_relative_error": 0.0
+        }
+      ]
+    },
+    {
+      "radius_m": 0.0,
+      "residue_width_m": 5e-09,
+      "fine_spacing_m": 2.5e-09,
+      "runs": [
+        {
+          "spacing_m": 5e-09,
+          "geometry_factor_relative_error": 0.011130355244675984
+        },
+        {
+          "spacing_m": 2.5e-09,
+          "geometry_factor_relative_error": 0.0
+        }
+      ]
+    },
+    {
+      "radius_m": 0.0,
+      "residue_width_m": 1e-08,
+      "fine_spacing_m": 2.5e-09,
+      "runs": [
+        {
+          "spacing_m": 5e-09,
+          "geometry_factor_relative_error": 0.4307652224156532
+        },
+        {
+          "spacing_m": 2.5e-09,
+          "geometry_factor_relative_error": 0.0
+        }
+      ]
+    },
+    {
+      "radius_m": 2e-08,
+      "residue_width_m": 0.0,
+      "fine_spacing_m": 2.5e-09,
+      "runs": [
+        {
+          "spacing_m": 5e-09,
+          "geometry_factor_relative_error": 0.012335095939266658
+        },
+        {
+          "spacing_m": 2.5e-09,
+          "geometry_factor_relative_error": 0.0
+        }
+      ]
+    },
+    {
+      "radius_m": 2e-08,
+      "residue_width_m": 2.5e-09,
+      "fine_spacing_m": 2.5e-09,
+      "runs": [
+        {
+          "spacing_m": 5e-09,
+          "geometry_factor_relative_error": 0.10092112904228616
+        },
+        {
+          "spacing_m": 2.5e-09,
+          "geometry_factor_relative_error": 0.0
+        }
+      ]
+    },
+    {
+      "radius_m": 2e-08,
+      "residue_width_m": 5e-09,
+      "fine_spacing_m": 2.5e-09,
+      "runs": [
+        {
+          "spacing_m": 5e-09,
+          "geometry_factor_relative_error": 0.020256171850495257
+        },
+        {
+          "spacing_m": 2.5e-09,
+          "geometry_factor_relative_error": 0.0
+        }
+      ]
+    },
+    {
+      "radius_m": 2e-08,
+      "residue_width_m": 1e-08,
+      "fine_spacing_m": 2.5e-09,
+      "runs": [
+        {
+          "spacing_m": 5e-09,
+          "geometry_factor_relative_error": 0.325693828459079
+        },
+        {
+          "spacing_m": 2.5e-09,
+          "geometry_factor_relative_error": 0.0
+        }
+      ]
+    }
+  ],
+  "fine_grid_worst_case": {
+    "radius_m": 0.0,
+    "residue_width_m": 1e-08,
+    "effective_centerline_gap_m": 4.9999999999999985e-09,
+    "spacing_m": 2.5e-09,
+    "shape": [
+      121,
+      89
+    ],
+    "iterations": 335,
+    "relative_residual": 9.952790871209331e-10,
+    "elapsed_s": 0.20845749997533858,
+    "geometry_factor": 19.159493111077172,
+    "analytic_clean_rectangle_factor": 3.0000000000000004,
+    "geometry_factor_vs_clean_rectangle": 6.38649770369239,
+    "required_surface_sheet_resistance_ohm_sq": 19159493111.07717,
+    "qualified_pair_leakage_a": 1.915949311107717e-09,
+    "qualified_isolation_pass": false,
+    "cross_section_flux_relative_variation": 0.0,
+    "cuts": [
+      {
+        "requested_x_m": -1.2499999999999996e-09,
+        "sampled_x_m": 0.0,
+        "geometry_factor": 19.159493111077172
+      },
+      {
+        "requested_x_m": 0.0,
+        "sampled_x_m": 0.0,
+        "geometry_factor": 19.159493111077172
+      },
+      {
+        "requested_x_m": 1.2499999999999996e-09,
+        "sampled_x_m": 0.0,
+        "geometry_factor": 19.159493111077172
+      }
+    ]
+  },
+  "all_fine_cases_pass_qualification": false,
+  "grid_unresolved_residue_widths_m": [
+    2.5e-09,
+    1e-08
+  ],
+  "interpretation": {
+    "geometry_factor": "I * Rsheet / V from integrated KinoPulse flux",
+    "residue": "equipotential lateral extension; conservative for conductive sidewall residue",
+    "vertical_sidewall_resistance": "omitted, so predicted leakage is an upper bound",
+    "sheet_resistance": "must be measured after the complete surface process"
+  }
+}
