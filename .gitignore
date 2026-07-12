@@ -1,3 +1,4 @@
 src/results/
 .claude
 __pycache__
+.venv/

@@ -264,6 +264,19 @@ landing stage, closed-loop printing simulation) — is written up in
       a deposit (24.6 eV neutralization release beats its own landing
       site's sputter threshold) — probe species only.*
 
+## Hardware field refinement
+
+- [x] **T29. KinoPulse aperture-array electrostatics.** - **DONE 2026-07-11**
+      [t29_kinopulse_aperture_solver.md](t29_kinopulse_aperture_solver.md),
+      solver `src/iqs/actuators/electrostatic_solver.py`, CLI
+      `src/solve_aperture_field.py`, artifact
+      `results/t29_kinopulse_aperture_field.npz`. *A matrix-free 33x33x49
+      solve of a finite three-plate 3x3 aperture array converges in 68 CG
+      iterations at 9.73e-8 relative residual, preserves electrode voltages
+      exactly, and exports directly to the multislice field-map contract.
+      This is a voxelized structured-grid field, so peak corner fields remain
+      resolution-dependent; the next task is a two-resolution physical study.*
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).

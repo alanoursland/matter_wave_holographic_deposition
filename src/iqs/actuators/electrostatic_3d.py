@@ -20,6 +20,14 @@ from iqs.constants import e_C, hbar
 from iqs.numerics.propagation import AngularSpectrumPropagator
 
 
+def _trapezoid(values, coordinates, axis):
+    """Integrate across NumPy versions before and after ``trapz`` removal."""
+    integrate = getattr(np, "trapezoid", None)
+    if integrate is None:
+        integrate = np.trapz
+    return integrate(values, coordinates, axis=axis)
+
+
 @dataclass(frozen=True)
 class ElectrostaticFieldMap:
     """Uniform-z sampled scalar potential on a periodic transverse grid."""
@@ -98,7 +106,7 @@ class ElectrostaticFieldMap:
 
     def integrated_potential(self):
         """Return integral V dz [V m] at every transverse pixel."""
-        return np.trapz(self.potential_V, self.z_m, axis=0)
+        return _trapezoid(self.potential_V, self.z_m, axis=0)
 
     def integrated_phase(self, velocity_m_s, charge_C=e_C):
         """Return the eikonal phase ``-q integral(V dz)/(hbar v)``."""
@@ -286,9 +294,9 @@ class ElectrostaticMultislicePropagator:
     def kick_consistency(self, field_map: ElectrostaticFieldMap):
         """Compare integrated electric-force kick with ``grad(phi)/k``."""
         ex, ey, _ = field_map.electric_field()
-        impulse_x = self.charge_C / self.velocity * np.trapz(
+        impulse_x = self.charge_C / self.velocity * _trapezoid(
             ex, field_map.z_m, axis=0)
-        impulse_y = self.charge_C / self.velocity * np.trapz(
+        impulse_y = self.charge_C / self.velocity * _trapezoid(
             ey, field_map.z_m, axis=0)
         theta_field_x = impulse_x / (self.mass * self.velocity)
         theta_field_y = impulse_y / (self.mass * self.velocity)

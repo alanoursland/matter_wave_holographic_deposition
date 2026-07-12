@@ -27,6 +27,19 @@ from .fem_import import (
     load_fem_npz,
     save_fem_npz,
 )
+from .electrostatic_solver import (
+    AperturePlate,
+    ElectrodeRasterization,
+    ElectrostaticDiagnostics,
+    ElectrostaticDomain,
+    ElectrostaticModel,
+    ElectrostaticProblemBuild,
+    ElectrostaticSolveConfig,
+    ElectrostaticSolveResult,
+    save_electrostatic_npz,
+    solve_electrostatics,
+    three_plate_aperture_array,
+)
 
 __all__ = [
     "AchromaticPhaseResponse",
@@ -50,4 +63,15 @@ __all__ = [
     "load_fem_csv",
     "load_fem_npz",
     "save_fem_npz",
+    "AperturePlate",
+    "ElectrodeRasterization",
+    "ElectrostaticDiagnostics",
+    "ElectrostaticDomain",
+    "ElectrostaticModel",
+    "ElectrostaticProblemBuild",
+    "ElectrostaticSolveConfig",
+    "ElectrostaticSolveResult",
+    "save_electrostatic_npz",
+    "solve_electrostatics",
+    "three_plate_aperture_array",
 ]
