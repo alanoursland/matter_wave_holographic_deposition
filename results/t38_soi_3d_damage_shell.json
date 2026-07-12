@@ -1,0 +1,115 @@
+{
+  "study": "T38 3D SOI conformal damage-shell transport",
+  "kinopulse_version": "0.1.0.dev2026071200",
+  "equation": "3D div(sigma grad(V)) = 0",
+  "runs": [
+    {
+      "radius_m": 2e-08,
+      "damage_thickness_m": 5e-09,
+      "spacing_m": 5e-09,
+      "shape": [
+        61,
+        45,
+        61
+      ],
+      "coefficient_contrast": 100000000.0,
+      "stagnation_window": 50,
+      "iterations": 276,
+      "relative_residual": 9.361251846561975e-09,
+      "elapsed_s": 1.0649866999592632,
+      "damage_sheet_geometry_factor": 3.8743535814243706,
+      "total_sheet_geometry_factor": 3.874355099712176,
+      "cut_flux_relative_variation": 5.9432728432935916e-08,
+      "background_current_fraction": 3.918814269933924e-07,
+      "t37_conservative_sheet_factor": 5.265,
+      "factor_vs_t37": 0.7358699144752471,
+      "cuts": [
+        {
+          "requested_x_m": -6.25e-09,
+          "sampled_x_m": -7.499999999999994e-09,
+          "damage_current_per_unit_conductivity_V_m": 1.93717674437783e-08,
+          "background_current_per_unit_conductivity_V_m": 7.614616445973874e-15,
+          "total_current_per_unit_conductivity_V_m": 1.9371775058394747e-08,
+          "damage_sheet_geometry_factor": 3.87435348875566,
+          "total_sheet_geometry_factor": 3.8743550116789494
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": -2.5000000000000025e-09,
+          "damage_current_per_unit_conductivity_V_m": 1.937176768196352e-08,
+          "background_current_per_unit_conductivity_V_m": 7.545612149228361e-15,
+          "total_current_per_unit_conductivity_V_m": 1.9371775227575668e-08,
+          "damage_sheet_geometry_factor": 3.8743535363927037,
+          "total_sheet_geometry_factor": 3.8743550455151334
+        },
+        {
+          "requested_x_m": 6.25e-09,
+          "sampled_x_m": 7.499999999999994e-09,
+          "damage_current_per_unit_conductivity_V_m": 1.9371768595623737e-08,
+          "background_current_per_unit_conductivity_V_m": 7.61408848305866e-15,
+          "total_current_per_unit_conductivity_V_m": 1.937177620971222e-08,
+          "damage_sheet_geometry_factor": 3.8743537191247475,
+          "total_sheet_geometry_factor": 3.874355241942444
+        }
+      ]
+    },
+    {
+      "radius_m": 2e-08,
+      "damage_thickness_m": 5e-09,
+      "spacing_m": 2.5e-09,
+      "shape": [
+        121,
+        89,
+        121
+      ],
+      "coefficient_contrast": 100000000.0,
+      "stagnation_window": 50,
+      "iterations": 826,
+      "relative_residual": 9.927473868463983e-09,
+      "elapsed_s": 33.12424639996607,
+      "damage_sheet_geometry_factor": 4.267994447232571,
+      "total_sheet_geometry_factor": 4.267996010897264,
+      "cut_flux_relative_variation": 1.8868311212901755e-08,
+      "background_current_fraction": 3.6636976417915764e-07,
+      "t37_conservative_sheet_factor": 5.265,
+      "factor_vs_t37": 0.8106355196386066,
+      "cuts": [
+        {
+          "requested_x_m": -6.25e-09,
+          "sampled_x_m": -6.249999999999993e-09,
+          "damage_current_per_unit_conductivity_V_m": 2.133997239826591e-08,
+          "background_current_per_unit_conductivity_V_m": 7.839137556860995e-15,
+          "total_current_per_unit_conductivity_V_m": 2.1339980237403468e-08,
+          "damage_sheet_geometry_factor": 4.267994479653182,
+          "total_sheet_geometry_factor": 4.267996047480693
+        },
+        {
+          "requested_x_m": 0.0,
+          "sampled_x_m": -1.2500000000000013e-09,
+          "damage_current_per_unit_conductivity_V_m": 2.133997205806321e-08,
+          "background_current_per_unit_conductivity_V_m": 7.776690870079117e-15,
+          "total_current_per_unit_conductivity_V_m": 2.133997983475408e-08,
+          "damage_sheet_geometry_factor": 4.2679944116126425,
+          "total_sheet_geometry_factor": 4.267995966950816
+        },
+        {
+          "requested_x_m": 6.25e-09,
+          "sampled_x_m": 6.249999999999993e-09,
+          "damage_current_per_unit_conductivity_V_m": 2.1339972252159444e-08,
+          "background_current_per_unit_conductivity_V_m": 7.839141954153131e-15,
+          "total_current_per_unit_conductivity_V_m": 2.1339980091301398e-08,
+          "damage_sheet_geometry_factor": 4.267994450431889,
+          "total_sheet_geometry_factor": 4.26799601826028
+        }
+      ]
+    }
+  ],
+  "fine_grid_factor": 4.267996010897264,
+  "coarse_to_fine_relative_change": 0.09223085264841482,
+  "interpretation": {
+    "damage_model": "uniform-conductivity BOX-top film plus conformal mesa sidewalls",
+    "background": "weak numerical conductivity, extracted separately",
+    "normalization": "integrated 3D current divided by voltage and physical film thickness",
+    "t37_comparison": "T37 makes the lateral residue equipotential and is expected to upper-bound this resolved sidewall path"
+  }
+}

@@ -96,6 +96,11 @@ useful library feedback: high-contrast coefficients need a stronger
 preconditioner, domain elimination, or a mesh that contains only the conducting
 manifold.
 
+KinoPulse `0.1.0.dev2026071200` repaired false stagnation during improving PCG
+plateaus. T38 revisits the conformal shell with that release and obtains
+converged coarse and fine solutions. A 50-iteration plateau window is still
+needed by the 1.3-million-point fine case.
+
 ## Impact
 
 T35's `3.16e9 ohm/sq` requirement was optimistic. Geometry-resolved transport
