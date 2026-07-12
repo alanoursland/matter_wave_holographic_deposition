@@ -288,6 +288,17 @@ landing stage, closed-loop printing simulation) — is written up in
       field agrees with thin-screen propagation to 2.36e-9 intensity NRMSE.
       Next: segmented-electrode basis fields and crosstalk.*
 
+- [x] **T31. Segmented electrode basis and crosstalk.** - **DONE 2026-07-11**
+      [t31_segmented_electrode_basis.md](t31_segmented_electrode_basis.md),
+      study `src/t31_segmented_electrode_basis.py`, artifacts
+      `results/t31_segmented_basis.{json,npz,png}`. *Nine independently
+      biased aperture tiles give 5.64% mean nearest-neighbor phase crosstalk
+      and an observable influence-matrix condition number of 1.282. A direct
+      PDE solve reproduces a compensated 2 pi checkerboard to 3.47e-9 relative
+      error using 1.210 mV peak-to-peak drive. This establishes controllable,
+      not merely sufficient, electrostatic phase authority. The deposition
+      target is explicitly the advancing material surface, layer by layer.*
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).

@@ -37,6 +37,7 @@ from .electrostatic_solver import (
     ElectrostaticSolveConfig,
     ElectrostaticSolveResult,
     save_electrostatic_npz,
+    segmented_three_plate_aperture_array,
     solve_electrostatics,
     three_plate_aperture_array,
 )
@@ -72,6 +73,7 @@ __all__ = [
     "ElectrostaticSolveConfig",
     "ElectrostaticSolveResult",
     "save_electrostatic_npz",
+    "segmented_three_plate_aperture_array",
     "solve_electrostatics",
     "three_plate_aperture_array",
 ]

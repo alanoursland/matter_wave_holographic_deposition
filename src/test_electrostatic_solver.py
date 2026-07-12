@@ -18,6 +18,7 @@ from iqs.actuators import (
     ElectrostaticSolveConfig,
     load_fem_npz,
     save_electrostatic_npz,
+    segmented_three_plate_aperture_array,
     solve_electrostatics,
     three_plate_aperture_array,
 )
@@ -87,6 +88,38 @@ class TestGeometryLowering:
                 pitch_m=4 * UM,
                 array_shape=(1, 1),
             ).build_problem()
+
+    def test_segmented_center_tiles_are_disjoint_and_independent(self):
+        domain = ElectrostaticDomain(
+            extent=((-10 * UM, 10 * UM), (-10 * UM, 10 * UM),
+                    (-8 * UM, 8 * UM)),
+            shape=(21, 21, 17),
+            boundary_policy="grounded_box",
+        )
+        voltages = np.zeros((2, 2))
+        voltages[0, 1] = 1.0
+        model = segmented_three_plate_aperture_array(
+            domain,
+            plate_z_m=(-3 * UM, 0.0, 3 * UM),
+            plate_thickness_m=2 * UM,
+            center_voltages_V=voltages,
+            aperture_radius_m=1.5 * UM,
+            pitch_m=6 * UM,
+            array_shape=(2, 2),
+            segment_gap_m=2 * UM,
+            outer_plate_half_width_m=(8 * UM, 8 * UM),
+        )
+        build = model.build_problem()
+        segment_names = [name for name in build.electrode_masks
+                         if name.startswith("center_")]
+        assert len(segment_names) == 4
+        total = sum(build.electrode_masks[name].to(torch.int8)
+                    for name in segment_names)
+        assert int(total.max()) == 1
+        active = build.electrode_masks["center_0_1"]
+        assert torch.all(build.fixed_values[active] == 1.0)
+        for name in set(segment_names) - {"center_0_1"}:
+            assert torch.all(build.fixed_values[build.electrode_masks[name]] == 0)
 
 
 class TestSolveAndExport:

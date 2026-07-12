@@ -100,6 +100,7 @@ class AperturePlate:
     aperture_radius_m: float
     aperture_centers_m: tuple[tuple[float, float], ...] = ((0.0, 0.0),)
     half_width_m: tuple[float, float] | None = None
+    center_m: tuple[float, float] = (0.0, 0.0)
 
     def __post_init__(self):
         numeric = (
@@ -117,6 +118,8 @@ class AperturePlate:
         for center in self.aperture_centers_m:
             if len(center) != 2 or not np.all(np.isfinite(center)):
                 raise ValueError("aperture centers must be finite (x, y) pairs")
+        if len(self.center_m) != 2 or not np.all(np.isfinite(self.center_m)):
+            raise ValueError("plate center must be a finite (x, y) pair")
         if self.half_width_m is not None:
             if (len(self.half_width_m) != 2
                     or not np.all(np.isfinite(self.half_width_m))
@@ -135,6 +138,7 @@ class AperturePlate:
         pitch_m: float,
         array_shape: tuple[int, int],
         plate_half_width_m: tuple[float, float] | None = None,
+        plate_center_m: tuple[float, float] = (0.0, 0.0),
     ) -> "AperturePlate":
         if pitch_m <= 0 or not np.isfinite(pitch_m):
             raise ValueError("aperture pitch must be positive")
@@ -152,6 +156,7 @@ class AperturePlate:
             aperture_radius_m=aperture_radius_m,
             aperture_centers_m=centers,
             half_width_m=plate_half_width_m,
+            center_m=plate_center_m,
         )
 
 
@@ -245,8 +250,10 @@ class ElectrostaticModel:
             slab = z_mask_1d.reshape(1, 1, -1).expand(shape)
             if electrode.half_width_m is not None:
                 slab = slab & (
-                    (torch.abs(x) <= electrode.half_width_m[0])
-                    & (torch.abs(y) <= electrode.half_width_m[1])
+                    (torch.abs(x - electrode.center_m[0])
+                     <= electrode.half_width_m[0])
+                    & (torch.abs(y - electrode.center_m[1])
+                       <= electrode.half_width_m[1])
                 )
             aperture_xy = torch.zeros(shape[:2], dtype=torch.bool, device=device)
             for cx, cy in electrode.aperture_centers_m:
@@ -597,4 +604,80 @@ def three_plate_aperture_array(
         domain=domain,
         electrodes=plates,
         metadata={} if metadata is None else dict(metadata),
+    )
+
+
+def segmented_three_plate_aperture_array(
+    domain: ElectrostaticDomain,
+    *,
+    plate_z_m: tuple[float, float, float],
+    plate_thickness_m: float,
+    center_voltages_V,
+    aperture_radius_m: float,
+    pitch_m: float,
+    array_shape: tuple[int, int],
+    segment_gap_m: float,
+    outer_plate_half_width_m: tuple[float, float] | None = None,
+    metadata: dict[str, object] | None = None,
+) -> ElectrostaticModel:
+    """Build an aperture stack with one isolated center tile per aperture."""
+    voltages = np.asarray(center_voltages_V, dtype=float)
+    if voltages.shape != tuple(array_shape) or not np.all(np.isfinite(voltages)):
+        raise ValueError("center voltages must be a finite array_shape tensor")
+    if not np.isfinite(segment_gap_m) or segment_gap_m <= 0:
+        raise ValueError("segment gap must be positive")
+    segment_half_width = (pitch_m - segment_gap_m) / 2
+    if segment_half_width <= aperture_radius_m:
+        raise ValueError("segment footprint must extend beyond its aperture")
+
+    nx, ny = array_shape
+    x_centers = (np.arange(nx) - (nx - 1) / 2) * pitch_m
+    y_centers = (np.arange(ny) - (ny - 1) / 2) * pitch_m
+    centers = tuple(
+        (float(x_value), float(y_value))
+        for x_value in x_centers for y_value in y_centers
+    )
+    entrance = AperturePlate(
+        name="entrance",
+        z_m=plate_z_m[0],
+        thickness_m=plate_thickness_m,
+        voltage_V=0.0,
+        aperture_radius_m=aperture_radius_m,
+        aperture_centers_m=centers,
+        half_width_m=outer_plate_half_width_m,
+    )
+    exit_plate = AperturePlate(
+        name="exit",
+        z_m=plate_z_m[2],
+        thickness_m=plate_thickness_m,
+        voltage_V=0.0,
+        aperture_radius_m=aperture_radius_m,
+        aperture_centers_m=centers,
+        half_width_m=outer_plate_half_width_m,
+    )
+    segments = []
+    for ix, x_value in enumerate(x_centers):
+        for iy, y_value in enumerate(y_centers):
+            center = (float(x_value), float(y_value))
+            segments.append(AperturePlate(
+                name=f"center_{ix}_{iy}",
+                z_m=plate_z_m[1],
+                thickness_m=plate_thickness_m,
+                voltage_V=float(voltages[ix, iy]),
+                aperture_radius_m=aperture_radius_m,
+                aperture_centers_m=(center,),
+                half_width_m=(segment_half_width, segment_half_width),
+                center_m=center,
+            ))
+    model_metadata = {} if metadata is None else dict(metadata)
+    model_metadata.update({
+        "segmented_center_array": True,
+        "segment_gap_m": float(segment_gap_m),
+        "segment_names": [segment.name for segment in segments],
+        "aperture_centers_m": centers,
+    })
+    return ElectrostaticModel(
+        domain=domain,
+        electrodes=[entrance, *segments, exit_plate],
+        metadata=model_metadata,
     )
