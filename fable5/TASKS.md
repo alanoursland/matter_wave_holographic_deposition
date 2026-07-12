@@ -299,6 +299,17 @@ landing stage, closed-loop printing simulation) — is written up in
       not merely sufficient, electrostatic phase authority. The deposition
       target is explicitly the advancing material surface, layer by layer.*
 
+- [x] **T32. Physical segmented actuator in inverse holography.** - **DONE
+      2026-07-11** [t32_physical_actuator_hologram.md](t32_physical_actuator_hologram.md),
+      study `src/t32_physical_actuator_hologram.py`, artifacts
+      `results/t32_physical_hologram.{json,npz,png}`. *The measured T31
+      influence matrix now closes requested image-side phases to physical
+      electrode voltages. Full calibration reproduces the ideal propagated
+      intensity to 3.70e-16 relative error with 0.623 mV peak-to-peak drive;
+      diagonal-only calibration creates 6.99% phase error and a 3.87% image
+      departure. Electrostatic crosstalk is therefore calibratable rather
+      than a controllability limit in the 3x3 pilot.*
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).

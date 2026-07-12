@@ -42,6 +42,16 @@ class TestWavelengthSamples:
 
 class TestFixedDistancePropagation:
 
+    def test_odd_grid_padding_preserves_shape(self):
+        N = 65
+        field = torch.ones((N, N), dtype=torch.complex128)
+        prop = AngularSpectrumPropagator(
+            N=N, L=1e-6, k0=2 * np.pi / 100e-9, z=500e-9,
+            device=torch.device('cpu'), pad_factor=4)
+        output = prop.forward(field)
+        assert output.shape == field.shape
+        assert torch.all(torch.isfinite(output))
+
     def test_wavelength_changes_k0_not_apparatus_length(self):
         squid = SQUIDArray(N_loops=4, N_grid=16, L_grid=400e-9)
         solver = InverseHolographySolver(
@@ -126,6 +136,16 @@ class TestPolychromaticPropagation:
             manual += weight * torch.abs(prop.forward(field))**2
 
         assert torch.allclose(batched, manual, rtol=1e-12, atol=1e-12)
+
+    def test_odd_grid_padding_preserves_shape(self):
+        N = 33
+        field = self._field(N).to(torch.complex128)
+        prop = PolychromaticAngularSpectrumPropagator(
+            N=N, L=1e-6, wavelengths=[90e-9, 110e-9], z=500e-9,
+            device=torch.device('cpu'), pad_factor=4)
+        output = prop.forward_intensity(field)
+        assert output.shape == (N, N)
+        assert torch.all(torch.isfinite(output))
 
     def test_intensity_average_is_differentiable(self):
         N = 24

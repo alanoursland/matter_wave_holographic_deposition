@@ -1,0 +1,63 @@
+{
+  "wavelength_m": 1.44e-08,
+  "image_width_m": 4e-07,
+  "physical_plate_width_m": 3.2e-05,
+  "nominal_demagnification": 80.0,
+  "propagation_distance_m": 4.89e-07,
+  "control_shape": [
+    3,
+    3
+  ],
+  "target": "transport- and control-bandlimited single spot",
+  "optimizer_iterations": 1200,
+  "seed": 7,
+  "influence_condition_number": 1.282132970206742,
+  "phase_errors": {
+    "diagonal_relative": 0.06990106816479924,
+    "full_relative": 4.433820203271839e-16
+  },
+  "intensity_departure_from_ideal": {
+    "diagonal_relative": 0.03865113663798796,
+    "full_relative": 3.69926601215684e-16
+  },
+  "metrics": {
+    "ideal": {
+      "nrmse": 0.14329321438623838,
+      "ssim": 0.7383550498254825,
+      "contrast": 0.9888923853152328,
+      "efficiency": 0.9262715412245912
+    },
+    "diagonal": {
+      "nrmse": 0.13531096154482283,
+      "ssim": 0.7407716420168737,
+      "contrast": 0.9884412314852679,
+      "efficiency": 0.9265410670006704
+    },
+    "full": {
+      "nrmse": 0.14329321438623838,
+      "ssim": 0.7383550498254855,
+      "contrast": 0.9888923853152328,
+      "efficiency": 0.9262715412245912
+    }
+  },
+  "full_voltages_V": [
+    [
+      0.00029237092566119545,
+      -0.0002219211763424667,
+      0.0002923425149199372
+    ],
+    [
+      -0.00022120342913787398,
+      -0.00033082006376552114,
+      -0.00022315911929569115
+    ],
+    [
+      0.0002896485915418691,
+      -0.00022223324546127556,
+      0.00029212434256733783
+    ]
+  ],
+  "full_voltage_peak_to_peak_V": 0.0006231909894267166,
+  "full_voltage_max_abs_V": 0.00033082006376552114,
+  "diagonal_voltage_peak_to_peak_V": 0.0006349787974580044
+}

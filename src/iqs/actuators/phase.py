@@ -53,6 +53,67 @@ class ElectrostaticPhaseResponse:
 
 
 @dataclass(frozen=True)
+class ElectrostaticInfluenceMatrix:
+    """Measured linear map from segmented voltages to aperture phases."""
+
+    phase_rad_per_V: np.ndarray
+    array_shape: tuple[int, int]
+
+    def __post_init__(self):
+        matrix = np.asarray(self.phase_rad_per_V, dtype=float)
+        count = int(np.prod(self.array_shape))
+        if matrix.shape != (count, count):
+            raise ValueError("influence matrix shape must match array_shape")
+        if not np.all(np.isfinite(matrix)):
+            raise ValueError("influence matrix must be finite")
+        projected = self.projection @ matrix
+        singular_values = np.linalg.svd(projected, compute_uv=False)
+        observable = singular_values[singular_values > singular_values[0] * 1e-12]
+        if observable.size != count - 1:
+            raise ValueError("influence matrix must control every non-common mode")
+        object.__setattr__(self, "phase_rad_per_V", matrix)
+
+    @property
+    def count(self):
+        return int(np.prod(self.array_shape))
+
+    @property
+    def projection(self):
+        return np.eye(self.count) - np.ones((self.count, self.count)) / self.count
+
+    @property
+    def observable_matrix(self):
+        return self.projection @ self.phase_rad_per_V
+
+    @property
+    def observable_condition_number(self):
+        singular_values = np.linalg.svd(self.observable_matrix, compute_uv=False)
+        observable = singular_values[singular_values > singular_values[0] * 1e-12]
+        return float(observable[0] / observable[-1])
+
+    def phases_from_voltages(self, voltages_V):
+        voltages = np.asarray(voltages_V, dtype=float)
+        if voltages.size != self.count or not np.all(np.isfinite(voltages)):
+            raise ValueError("voltages must be a finite array_shape tensor")
+        phase = self.observable_matrix @ voltages.reshape(-1)
+        return phase.reshape(self.array_shape)
+
+    def voltages_for_phases(self, phases_rad, voltage_limit_V=None):
+        phases = np.asarray(phases_rad, dtype=float)
+        if phases.size != self.count or not np.all(np.isfinite(phases)):
+            raise ValueError("phases must be a finite array_shape tensor")
+        target = self.projection @ phases.reshape(-1)
+        voltages = np.linalg.pinv(self.observable_matrix, rcond=1e-12) @ target
+        if (voltage_limit_V is not None
+                and np.max(np.abs(voltages)) > voltage_limit_V):
+            raise PhaseAuthorityError(
+                f"required voltage {np.max(np.abs(voltages)):.3e} V exceeds "
+                f"limit {voltage_limit_V:.3e} V"
+            )
+        return voltages.reshape(self.array_shape)
+
+
+@dataclass(frozen=True)
 class ElectrostaticValidityReport:
     """Thin-screen validity and hardware requirements for one phase map."""
 

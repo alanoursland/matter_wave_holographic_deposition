@@ -14,6 +14,7 @@ from iqs.actuators import (
     CoplanarSquareLoopArray,
     ElectrostaticPlateGeometry,
     ElectrostaticPhaseResponse,
+    ElectrostaticInfluenceMatrix,
     IdealPhasePlate,
     PhaseAuthorityError,
     resolve_phase_response,
@@ -52,6 +53,25 @@ class TestSpectralResponse:
 
 
 class TestElectrostaticThinScreen:
+
+    def test_influence_matrix_roundtrips_observable_phase(self):
+        matrix = np.array([
+            [4.0, 0.2, 0.1],
+            [0.2, 4.0, 0.2],
+            [0.1, 0.2, 4.0],
+        ])
+        influence = ElectrostaticInfluenceMatrix(matrix, (1, 3))
+        target = np.array([[-1.0, 0.25, 0.75]])
+        voltages = influence.voltages_for_phases(target)
+        recovered = influence.phases_from_voltages(voltages)
+        assert np.allclose(recovered, target - target.mean(), atol=1e-12)
+        assert influence.observable_condition_number < 2
+
+    def test_influence_matrix_enforces_voltage_limit(self):
+        influence = ElectrostaticInfluenceMatrix(np.eye(4), (2, 2))
+        with pytest.raises(PhaseAuthorityError, match="exceeds limit"):
+            influence.voltages_for_phases(
+                [[-1.0, 1.0], [1.0, -1.0]], voltage_limit_V=0.1)
 
     def test_uniform_phase_requires_no_differential_voltage(self):
         geometry = ElectrostaticPlateGeometry(

@@ -87,7 +87,9 @@ class AngularSpectrumPropagator:
 
         self.pad_factor = max(int(pad_factor), 1)
         self.N_pad      = self.pad_factor * N
-        self._pad       = (self.N_pad - N) // 2
+        pad_total       = self.N_pad - N
+        self._pad       = pad_total // 2
+        self._pad_after = pad_total - self._pad
 
         self.evanescent_warn_frac = evanescent_warn_frac
         self.last_evanescent_frac = 0.0
@@ -155,8 +157,10 @@ class AngularSpectrumPropagator:
         """Zero-pad (N, N) -> (N_pad, N_pad), field centred."""
         if self.pad_factor == 1:
             return psi_t
-        p = self._pad
-        return F.pad(psi_t, (p, p, p, p))
+        return F.pad(
+            psi_t,
+            (self._pad, self._pad_after, self._pad, self._pad_after),
+        )
 
     def _crop(self, psi_t: torch.Tensor) -> torch.Tensor:
         """Crop (N_pad, N_pad) -> central (N, N)."""
@@ -268,7 +272,9 @@ class PolychromaticAngularSpectrumPropagator:
         self.device = device
         self.pad_factor = max(int(pad_factor), 1)
         self.N_pad = self.pad_factor * self.N
-        self._pad = (self.N_pad - self.N) // 2
+        pad_total = self.N_pad - self.N
+        self._pad = pad_total // 2
+        self._pad_after = pad_total - self._pad
         self.evanescent_warn_frac = float(evanescent_warn_frac)
         self.last_evanescent_frac = 0.0
         self._warned = False
@@ -295,8 +301,10 @@ class PolychromaticAngularSpectrumPropagator:
     def _embed(self, psi_t: torch.Tensor) -> torch.Tensor:
         if self.pad_factor == 1:
             return psi_t
-        p = self._pad
-        return F.pad(psi_t, (p, p, p, p))
+        return F.pad(
+            psi_t,
+            (self._pad, self._pad_after, self._pad, self._pad_after),
+        )
 
     def _crop_batch(self, psi_t: torch.Tensor) -> torch.Tensor:
         if self.pad_factor == 1:
