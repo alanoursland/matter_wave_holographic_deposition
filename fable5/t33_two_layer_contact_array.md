@@ -136,3 +136,7 @@ materials-facing work should replace assumed Si/Al sticking, diffusion, and
 interface barriers with measured or literature-supported values for one
 specific substrate preparation. Electrical extraction should then add contact
 resistance, continuity, and leakage criteria.
+
+T34 performs that replacement for a p+ Si(100) / Al-1.5%Si oxide-window
+coupon. Its sourced electrical extraction supersedes T33's materials claims;
+T33 remains an exploratory process-window study.

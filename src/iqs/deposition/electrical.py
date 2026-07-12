@@ -1,0 +1,128 @@
+"""Electrical extraction for patterned metal/semiconductor contacts."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+import numpy as np
+
+
+@dataclass(frozen=True)
+class ContactElectricalStack:
+    """Measured stack parameters used by the geometry extractor.
+
+    Resistivities use SI units. ``specific_contact_resistivity_ohm_m2`` is
+    the interface quantity conventionally reported in ohm cm^2.
+    """
+
+    specific_contact_resistivity_ohm_m2: float
+    semiconductor_resistivity_ohm_m: float
+    test_bias_v: float = 1.0
+
+    def __post_init__(self):
+        values = (
+            self.specific_contact_resistivity_ohm_m2,
+            self.semiconductor_resistivity_ohm_m,
+            self.test_bias_v,
+        )
+        if not np.all(np.isfinite(values)):
+            raise ValueError("electrical stack values must be finite")
+        if min(values) <= 0:
+            raise ValueError("electrical stack values must be positive")
+
+
+@dataclass(frozen=True)
+class ContactArrayElectricalResult:
+    effective_area_m2: np.ndarray
+    interface_resistance_ohm: np.ndarray
+    spreading_resistance_ohm: np.ndarray
+    pair_resistance_ohm: np.ndarray
+    pair_leakage_a: np.ndarray
+
+    @property
+    def worst_contact_resistance_ohm(self) -> float:
+        total = self.interface_resistance_ohm + self.spreading_resistance_ohm
+        return float(np.max(total))
+
+    @property
+    def worst_pair_leakage_a(self) -> float:
+        finite = self.pair_leakage_a[np.isfinite(self.pair_leakage_a)]
+        return float(np.max(finite)) if finite.size else 0.0
+
+
+def extract_contact_array_electrical(
+    metal_thickness_m,
+    contact_masks,
+    *,
+    pixel_pitch_m: float,
+    continuity_threshold_m: float,
+    stack: ContactElectricalStack,
+) -> ContactArrayElectricalResult:
+    """Extract contact resistance and pair leakage from realized morphology.
+
+    Each conducting pixel in a nominal contact contributes interface area.
+    A circular equal-area contact gives the classical half-space spreading
+    resistance. Pair leakage includes the first-order mutual spreading term
+    for two surface contacts on one continuous semiconductor half-space.
+
+    This is an ohmic DC extraction. It does not model Schottky barriers,
+    quantum confinement, grain-boundary resistance, or dielectric isolation.
+    """
+    thickness = np.asarray(metal_thickness_m, dtype=float)
+    masks = np.asarray(contact_masks, dtype=bool)
+    if thickness.ndim != 2 or masks.ndim != 3 or masks.shape[1:] != thickness.shape:
+        raise ValueError("contact masks must have shape (contacts, *metal.shape)")
+    if masks.shape[0] < 2:
+        raise ValueError("at least two contacts are required")
+    if not np.all(np.isfinite(thickness)) or np.any(thickness < 0):
+        raise ValueError("metal thickness must be finite and nonnegative")
+    if not np.isfinite(pixel_pitch_m) or pixel_pitch_m <= 0:
+        raise ValueError("pixel pitch must be positive")
+    if not np.isfinite(continuity_threshold_m) or continuity_threshold_m <= 0:
+        raise ValueError("continuity threshold must be positive")
+
+    conducting = thickness >= continuity_threshold_m
+    pixel_area = pixel_pitch_m ** 2
+    areas = np.array([
+        np.count_nonzero(conducting & mask) * pixel_area for mask in masks
+    ])
+    interface_r = np.full(masks.shape[0], np.inf)
+    spreading_r = np.full(masks.shape[0], np.inf)
+    present = areas > 0
+    interface_r[present] = stack.specific_contact_resistivity_ohm_m2 / areas[present]
+    radii = np.sqrt(areas[present] / np.pi)
+    spreading_r[present] = stack.semiconductor_resistivity_ohm_m / (4.0 * radii)
+
+    coordinates = np.indices(thickness.shape, dtype=float)
+    centers = np.empty((masks.shape[0], 2), dtype=float)
+    for index, mask in enumerate(masks):
+        if not np.any(mask):
+            raise ValueError("contact masks must not be empty")
+        centers[index] = [np.mean(axis[mask]) for axis in coordinates]
+    centers *= pixel_pitch_m
+
+    count = masks.shape[0]
+    pair_r = np.full((count, count), np.inf)
+    pair_i = np.zeros((count, count))
+    for left in range(count):
+        for right in range(left + 1, count):
+            if not (present[left] and present[right]):
+                continue
+            distance = float(np.linalg.norm(centers[left] - centers[right]))
+            mutual = stack.semiconductor_resistivity_ohm_m / (np.pi * distance)
+            substrate = max(
+                spreading_r[left] + spreading_r[right] - mutual,
+                0.0,
+            )
+            resistance = interface_r[left] + interface_r[right] + substrate
+            leakage = stack.test_bias_v / resistance
+            pair_r[left, right] = pair_r[right, left] = resistance
+            pair_i[left, right] = pair_i[right, left] = leakage
+
+    return ContactArrayElectricalResult(
+        effective_area_m2=areas,
+        interface_resistance_ohm=interface_r,
+        spreading_resistance_ohm=spreading_r,
+        pair_resistance_ohm=pair_r,
+        pair_leakage_a=pair_i,
+    )

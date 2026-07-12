@@ -1,0 +1,60 @@
+{
+  "study": "T34 sourced p+ Si(100) / Al-1.5%Si contact coupon",
+  "prepared_interface": {
+    "substrate": "boron-doped p+ Si(100)",
+    "boron_density_cm-3": 6.655e+19,
+    "silicon_resistivity_ohm_cm": 0.001707,
+    "surface": "200 nm dry thermal SiO2 with BHF-etched contact windows",
+    "metal": "vacuum-sputtered Al-1.5%Si",
+    "source_metal_thickness_m": 7.000000000000001e-07,
+    "post_metal_anneal": "450 C, 10% forming gas, 20 min"
+  },
+  "material_values": {
+    "specific_contact_resistivity_ohm_cm2": 2.5e-07,
+    "digitized_range_ohm_cm2": [
+      1.5e-07,
+      4e-07
+    ],
+    "si_adatom_binding_eV": 4.6,
+    "si_adatom_diffusion_barriers_eV": [
+      0.6,
+      1.0
+    ],
+    "al_adatom_binding_eV": 3.6,
+    "al_adatom_diffusion_barriers_eV": [
+      0.3,
+      0.1
+    ]
+  },
+  "geometry": {
+    "array": "3x3",
+    "pitch_m": 1.0000000000000001e-07,
+    "contact_width_m": 5.5e-08,
+    "projection_sigma_m": 4.670912951167729e-09,
+    "registration_sigma_m": 1e-09,
+    "continuity_threshold_m": 3.5000000000000004e-07
+  },
+  "electrical_test": {
+    "bias_v": 1.0,
+    "max_contact_resistance_ohm": 10000.0,
+    "max_pair_leakage_a": 1e-09,
+    "contact_yield": 1.0,
+    "isolation_yield": 0.0,
+    "median_effective_contact_area_m2": 3.0249023437500005e-15,
+    "median_contact_resistance_ohm": 8402.258146213855,
+    "worst_contact_resistance_ohm": 8601.97675381197,
+    "median_worst_pair_leakage_a": 5.9724820779349e-05,
+    "worst_pair_leakage_a": 6.111513061307354e-05
+  },
+  "scope_limits": [
+    "Contact resistivity is extrapolated from micrometre windows to 55 nm.",
+    "Single-adatom barriers are provenance, not a film diffusion model.",
+    "Pair leakage assumes a continuous uniform semiconductor half-space.",
+    "The source process uses Al-1.5%Si, requiring Si co-deposition or alloy feedstock."
+  ],
+  "sources": [
+    "doi:10.1109/16.2483",
+    "NBS Special Publication 400-64 (1981)",
+    "doi:10.1016/0039-6028(92)91362-F"
+  ]
+}
