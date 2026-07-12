@@ -322,6 +322,17 @@ landing stage, closed-loop printing simulation) — is written up in
       and registration, at a 1.8x dose cost. Diffusion near 10 nm remains fatal;
       5 nm registration is marginal for nine-device all-pass yield.*
 
+- [x] **T39. Complete printed SOI resistor coupon.** - **DONE 2026-07-12**
+      [t39_printed_soi_resistor.md](t39_printed_soi_resistor.md), study
+      `src/t39_printed_soi_resistor.py`, artifacts
+      `results/t39_printed_soi_resistor.{json,npz,png}`. *A prepared 220 nm
+      p+ SOI resistor mesa receives sequential source, drain, and isolation-
+      monitor Al-1.5%Si patterns. The nominal device is 17.55 kohm and carries
+      57.0 uA at 1 V while geometry-resolved monitor leakage is 0.550 nA.
+      A 100-replicate corner at 2 nm registration sigma, 2.5 nm edge
+      roughness, and 10% dose CV gives 95% functional yield; 3 nm registration
+      reduces yield to 84-86%, making alignment the first process limit.*
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).

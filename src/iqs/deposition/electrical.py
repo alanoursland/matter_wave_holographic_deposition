@@ -85,6 +85,96 @@ class SOIIsolationResult:
         return float(np.max(self.pair_leakage_a))
 
 
+@dataclass(frozen=True)
+class TwoTerminalSOIStack:
+    """Finite SOI channel and neighboring-mesa surface leakage parameters."""
+
+    semiconductor_resistivity_ohm_m: float
+    device_layer_thickness_m: float
+    channel_length_m: float
+    channel_width_m: float
+    surface_sheet_resistance_ohm_sq: float
+    monitor_geometry_factor: float
+    test_bias_v: float = 1.0
+
+    def __post_init__(self):
+        values = (
+            self.semiconductor_resistivity_ohm_m,
+            self.device_layer_thickness_m,
+            self.channel_length_m,
+            self.channel_width_m,
+            self.surface_sheet_resistance_ohm_sq,
+            self.monitor_geometry_factor,
+            self.test_bias_v,
+        )
+        if not np.all(np.isfinite(values)):
+            raise ValueError("two-terminal SOI stack values must be finite")
+        if min(values) <= 0:
+            raise ValueError("two-terminal SOI stack values must be positive")
+
+
+@dataclass(frozen=True)
+class TwoTerminalSOIResult:
+    contact_resistance_ohm: np.ndarray
+    channel_resistance_ohm: float
+    total_resistance_ohm: float
+    device_current_a: float
+    monitor_leakage_a: float
+    device_to_leakage_ratio: float
+    contact_voltage_drop_v: np.ndarray
+    channel_voltage_drop_v: float
+    contact_current_density_a_m2: np.ndarray
+    channel_current_density_a_m2: float
+    channel_power_w: float
+
+
+def extract_two_terminal_soi_device(
+    contact_resistance_ohm,
+    effective_contact_area_m2,
+    *,
+    stack: TwoTerminalSOIStack,
+) -> TwoTerminalSOIResult:
+    """Extract a two-contact resistor and worst-case grounded-monitor leakage."""
+    contact_r = np.asarray(contact_resistance_ohm, dtype=float)
+    areas = np.asarray(effective_contact_area_m2, dtype=float)
+    if contact_r.shape != (2,) or areas.shape != (2,):
+        raise ValueError("exactly two contact resistances and areas are required")
+    if (np.any(np.isnan(contact_r)) or np.any(contact_r <= 0)
+            or np.any(~np.isfinite(areas)) or np.any(areas < 0)):
+        raise ValueError("contact resistances and areas must be nonnegative and valid")
+
+    channel_r = (
+        stack.semiconductor_resistivity_ohm_m * stack.channel_length_m
+        / (stack.channel_width_m * stack.device_layer_thickness_m)
+    )
+    total_r = float(np.sum(contact_r) + channel_r)
+    current = float(stack.test_bias_v / total_r)
+    monitor_leakage = float(
+        stack.test_bias_v * stack.monitor_geometry_factor
+        / stack.surface_sheet_resistance_ohm_sq
+    )
+    current_density = np.zeros(2, dtype=float)
+    np.divide(current, areas, out=current_density, where=areas > 0)
+    contact_drop = np.full(2, np.nan, dtype=float)
+    np.multiply(current, contact_r, out=contact_drop, where=np.isfinite(contact_r))
+    ratio = current / monitor_leakage if monitor_leakage > 0 else float("inf")
+    return TwoTerminalSOIResult(
+        contact_resistance_ohm=contact_r.copy(),
+        channel_resistance_ohm=float(channel_r),
+        total_resistance_ohm=total_r,
+        device_current_a=current,
+        monitor_leakage_a=monitor_leakage,
+        device_to_leakage_ratio=float(ratio),
+        contact_voltage_drop_v=contact_drop,
+        channel_voltage_drop_v=float(current * channel_r),
+        contact_current_density_a_m2=current_density,
+        channel_current_density_a_m2=float(
+            current / (stack.channel_width_m * stack.device_layer_thickness_m)
+        ),
+        channel_power_w=float(current ** 2 * channel_r),
+    )
+
+
 def extract_contact_array_electrical(
     metal_thickness_m,
     contact_masks,

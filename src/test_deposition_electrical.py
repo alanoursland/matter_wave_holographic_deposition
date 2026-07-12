@@ -11,8 +11,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from iqs.deposition import (
     ContactElectricalStack,
     SOIIsolationStack,
+    TwoTerminalSOIStack,
     extract_contact_array_electrical,
     extract_soi_isolation,
+    extract_two_terminal_soi_device,
 )
 
 
@@ -93,3 +95,26 @@ def test_touching_soi_mesas_fail():
             pixel_pitch_m=1e-9,
             stack=SOIIsolationStack(1e15, 100e-9, 1e10),
         )
+
+
+def test_two_terminal_soi_device_combines_contacts_channel_and_leakage():
+    result = extract_two_terminal_soi_device(
+        [8e3, 9e3],
+        [2e-15, 2.5e-15],
+        stack=TwoTerminalSOIStack(
+            semiconductor_resistivity_ohm_m=2e-5,
+            device_layer_thickness_m=70e-9,
+            channel_length_m=75e-9,
+            channel_width_m=75e-9,
+            surface_sheet_resistance_ohm_sq=1e10,
+            monitor_geometry_factor=4.0,
+            test_bias_v=1.0,
+        ),
+    )
+    expected_channel = 2e-5 * 75e-9 / (75e-9 * 70e-9)
+    assert result.channel_resistance_ohm == pytest.approx(expected_channel)
+    assert result.total_resistance_ohm == pytest.approx(17e3 + expected_channel)
+    assert result.device_current_a == pytest.approx(1 / result.total_resistance_ohm)
+    assert result.monitor_leakage_a == pytest.approx(4e-10)
+    assert np.sum(result.contact_voltage_drop_v) + result.channel_voltage_drop_v == pytest.approx(1.0)
+    assert result.device_to_leakage_ratio > 1e5

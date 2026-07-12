@@ -5,8 +5,11 @@ from .electrical import (
     ContactElectricalStack,
     SOIIsolationResult,
     SOIIsolationStack,
+    TwoTerminalSOIResult,
+    TwoTerminalSOIStack,
     extract_contact_array_electrical,
     extract_soi_isolation,
+    extract_two_terminal_soi_device,
 )
 from .surface import (
     DepositionMaterial,
@@ -23,7 +26,10 @@ __all__ = [
     "SurfaceState",
     "SOIIsolationResult",
     "SOIIsolationStack",
+    "TwoTerminalSOIResult",
+    "TwoTerminalSOIStack",
     "deposit_layer",
     "extract_contact_array_electrical",
     "extract_soi_isolation",
+    "extract_two_terminal_soi_device",
 ]
