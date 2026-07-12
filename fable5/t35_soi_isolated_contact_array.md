@@ -110,3 +110,7 @@ damage and contamination: incomplete mesa etch, conductive sidewall residue,
 BOX pinholes, radiation damage, or field enhancement at etched corners. A
 rounded-mesa geometry and a field-resolved corner study are the next useful
 simulation refinement.
+
+T36 performs that study. A 20 nm radius modestly reduces the resolved
+mid-sidewall field, and all tested radii retain more than 10x sampled BOX
+breakdown margin.

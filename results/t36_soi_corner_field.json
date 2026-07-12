@@ -1,0 +1,417 @@
+{
+  "study": "T36 field-resolved SOI corner and sidewall experiment",
+  "kinopulse_version": "0.1.0.dev2026071116",
+  "geometry": {
+    "pitch_m": 1.0000000000000001e-07,
+    "mesa_width_m": 7.500000000000001e-08,
+    "device_layer_m": 7e-08,
+    "box_thickness_m": 1.4500000000000001e-07,
+    "voltage_V": 1.0,
+    "nominal_gap_field_V_m": 40000000.0,
+    "domain_extent_m": [
+      [
+        -1.5000000000000002e-07,
+        1.5000000000000002e-07
+      ],
+      [
+        -1.1e-07,
+        1.1e-07
+      ],
+      [
+        -1.4500000000000001e-07,
+        1.55e-07
+      ]
+    ]
+  },
+  "materials": {
+    "air_relative_permittivity": 1.0,
+    "sio2_relative_permittivity": 3.9,
+    "sio2_breakdown_field_V_m": 1000000000.0
+  },
+  "runs": [
+    {
+      "radius_m": 0.0,
+      "spacing_m": 5e-09,
+      "shape": [
+        61,
+        45,
+        61
+      ],
+      "elapsed_s": 0.8998892001109198,
+      "iterations": 352,
+      "relative_residual": 9.338506211130129e-09,
+      "nominal_gap_field_V_m": 40000000.0,
+      "mid_sidewall": {
+        "points": 890,
+        "max_V_m": 42145176.548977345,
+        "p99_V_m": 39017644.57094118,
+        "p95_V_m": 35626610.90049135,
+        "rms_V_m": 32149800.30757352,
+        "p99_enhancement": 0.9754411142735295,
+        "peak_enhancement": 1.0536294137244335
+      },
+      "box_interface": {
+        "points": 89,
+        "max_V_m": 56208094.3408155,
+        "p99_V_m": 56208094.34081548,
+        "p95_V_m": 52544829.44913485,
+        "rms_V_m": 32727713.7395787,
+        "p99_enhancement": 1.405202358520387,
+        "peak_enhancement": 1.4052023585203874
+      },
+      "near_device": {
+        "points": 13586,
+        "max_V_m": 56208094.3408155,
+        "p99_V_m": 36229566.68342016,
+        "p95_V_m": 32852190.635008298,
+        "rms_V_m": 13729316.186879184,
+        "p99_enhancement": 0.905739167085504,
+        "peak_enhancement": 1.4052023585203874
+      },
+      "box_breakdown_margin_at_peak": 17.791031909684406
+    },
+    {
+      "radius_m": 5e-09,
+      "spacing_m": 5e-09,
+      "shape": [
+        61,
+        45,
+        61
+      ],
+      "elapsed_s": 0.8578866999596357,
+      "iterations": 352,
+      "relative_residual": 9.338506211130129e-09,
+      "nominal_gap_field_V_m": 40000000.0,
+      "mid_sidewall": {
+        "points": 890,
+        "max_V_m": 42145176.548977345,
+        "p99_V_m": 39017644.57094118,
+        "p95_V_m": 35626610.90049135,
+        "rms_V_m": 32149800.30757352,
+        "p99_enhancement": 0.9754411142735295,
+        "peak_enhancement": 1.0536294137244335
+      },
+      "box_interface": {
+        "points": 89,
+        "max_V_m": 56208094.3408155,
+        "p99_V_m": 56208094.34081548,
+        "p95_V_m": 52544829.44913485,
+        "rms_V_m": 32727713.7395787,
+        "p99_enhancement": 1.405202358520387,
+        "peak_enhancement": 1.4052023585203874
+      },
+      "near_device": {
+        "points": 13586,
+        "max_V_m": 56208094.3408155,
+        "p99_V_m": 36229566.68342016,
+        "p95_V_m": 32852190.635008298,
+        "rms_V_m": 13729316.186879184,
+        "p99_enhancement": 0.905739167085504,
+        "peak_enhancement": 1.4052023585203874
+      },
+      "box_breakdown_margin_at_peak": 17.791031909684406
+    },
+    {
+      "radius_m": 1e-08,
+      "spacing_m": 5e-09,
+      "shape": [
+        61,
+        45,
+        61
+      ],
+      "elapsed_s": 0.802373299957253,
+      "iterations": 352,
+      "relative_residual": 9.542269318426184e-09,
+      "nominal_gap_field_V_m": 40000000.0,
+      "mid_sidewall": {
+        "points": 930,
+        "max_V_m": 40496115.886486,
+        "p99_V_m": 37930167.48158142,
+        "p95_V_m": 35436153.94444754,
+        "rms_V_m": 31008309.22039251,
+        "p99_enhancement": 0.9482541870395355,
+        "peak_enhancement": 1.01240289716215
+      },
+      "box_interface": {
+        "points": 93,
+        "max_V_m": 62831209.42911812,
+        "p99_V_m": 62831209.4291181,
+        "p95_V_m": 52384554.32007281,
+        "rms_V_m": 31709289.57330875,
+        "p99_enhancement": 1.5707802357279523,
+        "peak_enhancement": 1.570780235727953
+      },
+      "near_device": {
+        "points": 13706,
+        "max_V_m": 62831209.42911812,
+        "p99_V_m": 35964855.87081844,
+        "p95_V_m": 32561661.5195681,
+        "rms_V_m": 13543343.18320429,
+        "p99_enhancement": 0.8991213967704611,
+        "peak_enhancement": 1.570780235727953
+      },
+      "box_breakdown_margin_at_peak": 15.915657347454559
+    },
+    {
+      "radius_m": 2e-08,
+      "spacing_m": 5e-09,
+      "shape": [
+        61,
+        45,
+        61
+      ],
+      "elapsed_s": 0.9256858000298962,
+      "iterations": 352,
+      "relative_residual": 9.986688283987201e-09,
+      "nominal_gap_field_V_m": 40000000.0,
+      "mid_sidewall": {
+        "points": 970,
+        "max_V_m": 39950124.582579106,
+        "p99_V_m": 37316077.62219805,
+        "p95_V_m": 34987615.8205031,
+        "rms_V_m": 29361222.69279658,
+        "p99_enhancement": 0.9329019405549513,
+        "peak_enhancement": 0.9987531145644777
+      },
+      "box_interface": {
+        "points": 97,
+        "max_V_m": 60308579.97834438,
+        "p99_V_m": 60308579.97834435,
+        "p95_V_m": 52072460.54187751,
+        "rms_V_m": 29750988.416360997,
+        "p99_enhancement": 1.5077144994586087,
+        "peak_enhancement": 1.5077144994586096
+      },
+      "near_device": {
+        "points": 13946,
+        "max_V_m": 60308579.97834438,
+        "p99_V_m": 35480889.94554568,
+        "p95_V_m": 31708689.109970383,
+        "rms_V_m": 13229150.220931532,
+        "p99_enhancement": 0.887022248638642,
+        "peak_enhancement": 1.5077144994586096
+      },
+      "box_breakdown_margin_at_peak": 16.58138859112717
+    },
+    {
+      "radius_m": 0.0,
+      "spacing_m": 2.5e-09,
+      "shape": [
+        121,
+        89,
+        121
+      ],
+      "elapsed_s": 26.037699099979363,
+      "iterations": 686,
+      "relative_residual": 9.948009222697577e-09,
+      "nominal_gap_field_V_m": 40000000.0,
+      "mid_sidewall": {
+        "points": 8020,
+        "max_V_m": 53411735.449467406,
+        "p99_V_m": 41417140.71526615,
+        "p95_V_m": 36380444.614039786,
+        "rms_V_m": 32509352.961813644,
+        "p99_enhancement": 1.0354285178816538,
+        "peak_enhancement": 1.3352933862366851
+      },
+      "box_interface": {
+        "points": 926,
+        "max_V_m": 87116002.05412057,
+        "p99_V_m": 76994937.36483522,
+        "p95_V_m": 65612466.843741134,
+        "rms_V_m": 33123412.065037347,
+        "p99_enhancement": 1.9248734341208804,
+        "peak_enhancement": 2.1779000513530145
+      },
+      "near_device": {
+        "points": 104172,
+        "max_V_m": 87116002.05412057,
+        "p99_V_m": 39715930.3805106,
+        "p95_V_m": 33239621.54762135,
+        "rms_V_m": 15108134.23673304,
+        "p99_enhancement": 0.992898259512765,
+        "peak_enhancement": 2.1779000513530145
+      },
+      "box_breakdown_margin_at_peak": 11.478947339419374
+    },
+    {
+      "radius_m": 5e-09,
+      "spacing_m": 2.5e-09,
+      "shape": [
+        121,
+        89,
+        121
+      ],
+      "elapsed_s": 26.645494299940765,
+      "iterations": 687,
+      "relative_residual": 9.499101141356177e-09,
+      "nominal_gap_field_V_m": 40000000.0,
+      "mid_sidewall": {
+        "points": 8100,
+        "max_V_m": 50813641.65889868,
+        "p99_V_m": 42658567.56437339,
+        "p95_V_m": 36296956.971052095,
+        "rms_V_m": 32181893.05170672,
+        "p99_enhancement": 1.0664641891093347,
+        "peak_enhancement": 1.270341041472467
+      },
+      "box_interface": {
+        "points": 930,
+        "max_V_m": 98775209.87030691,
+        "p99_V_m": 76134064.69975135,
+        "p95_V_m": 64495373.48053537,
+        "rms_V_m": 32768093.41324715,
+        "p99_enhancement": 1.9033516174937837,
+        "peak_enhancement": 2.4693802467576726
+      },
+      "near_device": {
+        "points": 104636,
+        "max_V_m": 98775209.87030691,
+        "p99_V_m": 39324343.68503277,
+        "p95_V_m": 33201977.929316126,
+        "rms_V_m": 15021725.543136856,
+        "p99_enhancement": 0.9831085921258192,
+        "peak_enhancement": 2.4693802467576726
+      },
+      "box_breakdown_margin_at_peak": 10.123997724864493
+    },
+    {
+      "radius_m": 1e-08,
+      "spacing_m": 2.5e-09,
+      "shape": [
+        121,
+        89,
+        121
+      ],
+      "elapsed_s": 27.807183100027032,
+      "iterations": 687,
+      "relative_residual": 9.796517915158512e-09,
+      "nominal_gap_field_V_m": 40000000.0,
+      "mid_sidewall": {
+        "points": 8260,
+        "max_V_m": 49204029.93658612,
+        "p99_V_m": 41012655.606807046,
+        "p95_V_m": 36068111.06358611,
+        "rms_V_m": 31459865.58999889,
+        "p99_enhancement": 1.025316390170176,
+        "peak_enhancement": 1.230100748414653
+      },
+      "box_interface": {
+        "points": 938,
+        "max_V_m": 96071114.48130246,
+        "p99_V_m": 75260078.80703264,
+        "p95_V_m": 62908063.56020224,
+        "rms_V_m": 31900746.792655505,
+        "p99_enhancement": 1.8815019701758162,
+        "peak_enhancement": 2.4017778620325614
+      },
+      "near_device": {
+        "points": 105564,
+        "max_V_m": 96071114.48130246,
+        "p99_V_m": 38992869.08423939,
+        "p95_V_m": 33122969.52848212,
+        "rms_V_m": 14838146.715001512,
+        "p99_enhancement": 0.9748217271059848,
+        "peak_enhancement": 2.4017778620325614
+      },
+      "box_breakdown_margin_at_peak": 10.408955963497457
+    },
+    {
+      "radius_m": 2e-08,
+      "spacing_m": 2.5e-09,
+      "shape": [
+        121,
+        89,
+        121
+      ],
+      "elapsed_s": 27.35824629990384,
+      "iterations": 689,
+      "relative_residual": 9.650362244937793e-09,
+      "nominal_gap_field_V_m": 40000000.0,
+      "mid_sidewall": {
+        "points": 8660,
+        "max_V_m": 45894307.1514192,
+        "p99_V_m": 38303860.79312083,
+        "p95_V_m": 35460408.7543401,
+        "rms_V_m": 29592162.22385275,
+        "p99_enhancement": 0.9575965198280207,
+        "peak_enhancement": 1.14735767878548
+      },
+      "box_interface": {
+        "points": 958,
+        "max_V_m": 90230993.85152937,
+        "p99_V_m": 74680848.13073213,
+        "p95_V_m": 61793502.37469335,
+        "rms_V_m": 29886806.640581857,
+        "p99_enhancement": 1.8670212032683033,
+        "peak_enhancement": 2.2557748462882343
+      },
+      "near_device": {
+        "points": 108580,
+        "max_V_m": 90230993.85152937,
+        "p99_V_m": 38119354.74378844,
+        "p95_V_m": 32707789.72917064,
+        "rms_V_m": 14327874.589541849,
+        "p99_enhancement": 0.9529838685947111,
+        "peak_enhancement": 2.2557748462882343
+      },
+      "box_breakdown_margin_at_peak": 11.082666357919656
+    }
+  ],
+  "grid_convergence": [
+    {
+      "radius_m": 0.0,
+      "coarse_spacing_m": 5e-09,
+      "fine_spacing_m": 2.5e-09,
+      "mid_sidewall_p99_V_m_relative_change": 0.05793485747413101,
+      "mid_sidewall_max_V_m_relative_change": 0.2109378923129974,
+      "box_interface_p99_V_m_relative_change": 0.2699767508806808,
+      "box_interface_max_V_m_relative_change": 0.35479024501266276,
+      "near_device_p99_V_m_relative_change": 0.08778250096845945,
+      "near_device_max_V_m_relative_change": 0.35479024501266276
+    },
+    {
+      "radius_m": 5e-09,
+      "coarse_spacing_m": 5e-09,
+      "fine_spacing_m": 2.5e-09,
+      "mid_sidewall_p99_V_m_relative_change": 0.08535033409028371,
+      "mid_sidewall_max_V_m_relative_change": 0.1705932664324853,
+      "box_interface_p99_V_m_relative_change": 0.2617221402471757,
+      "box_interface_max_V_m_relative_change": 0.4309493807746151,
+      "near_device_p99_V_m_relative_change": 0.07869875785849449,
+      "near_device_max_V_m_relative_change": 0.4309493807746151
+    },
+    {
+      "radius_m": 1e-08,
+      "coarse_spacing_m": 5e-09,
+      "fine_spacing_m": 2.5e-09,
+      "mid_sidewall_p99_V_m_relative_change": 0.07515943748626734,
+      "mid_sidewall_max_V_m_relative_change": 0.17697562702329117,
+      "box_interface_p99_V_m_relative_change": 0.16514558016584402,
+      "box_interface_max_V_m_relative_change": 0.34599270791902337,
+      "near_device_p99_V_m_relative_change": 0.07765556330003039,
+      "near_device_max_V_m_relative_change": 0.34599270791902337
+    },
+    {
+      "radius_m": 2e-08,
+      "coarse_spacing_m": 5e-09,
+      "fine_spacing_m": 2.5e-09,
+      "mid_sidewall_p99_V_m_relative_change": 0.025788083771967424,
+      "mid_sidewall_max_V_m_relative_change": 0.1295189520832821,
+      "box_interface_p99_V_m_relative_change": 0.1924491822485531,
+      "box_interface_max_V_m_relative_change": 0.33162012958009573,
+      "near_device_p99_V_m_relative_change": 0.06921588300685234,
+      "near_device_max_V_m_relative_change": 0.33162012958009573
+    }
+  ],
+  "recommended_radius_m": 2e-08,
+  "recommendation_basis": "lowest fine-grid mid-sidewall p99 field",
+  "box_p99_radius_effect_fraction": 0.030055083013288665,
+  "box_p99_max_grid_change_fraction": 0.2699767508806808,
+  "box_radius_effect_resolved": false,
+  "interpretation_policy": {
+    "p99": "mesh-robust field-concentration metric",
+    "sampled_peak": "reported but not treated as converged at ideal edges",
+    "leakage": "T35 sheet resistance must be qualified on this biased geometry"
+  }
+}
