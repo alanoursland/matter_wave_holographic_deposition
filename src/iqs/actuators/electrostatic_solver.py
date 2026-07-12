@@ -295,7 +295,9 @@ class ElectrostaticModel:
             electrode_occupied[conductor] = True
             electrode_masks[electrode.name] = conductor
 
-            points_per_plane = aperture_points / z_planes
+            points_per_plane = (
+                aperture_points / z_planes / len(electrode.aperture_centers_m)
+            )
             effective_radius = float(np.sqrt(points_per_plane * cell_area / np.pi))
             effective_thickness = (z_planes - 1) * dz if z_planes > 1 else 0.0
             rasterization.append(ElectrodeRasterization(

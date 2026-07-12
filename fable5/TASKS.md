@@ -276,6 +276,17 @@ landing stage, closed-loop printing simulation) — is written up in
       exactly, and exports directly to the multislice field-map contract.
       This is a voxelized structured-grid field, so peak corner fields remain
       resolution-dependent; the next task is a two-resolution physical study.*
+- [x] **T30. Electrostatic grid convergence and operating point.** - **DONE
+      2026-07-11** [t30_electrostatic_resolution.md](t30_electrostatic_resolution.md),
+      study `src/t30_electrostatic_resolution.py`, artifacts
+      `results/t30_resolution.{json,png}` and
+      `results/t30_fine_aperture_field.npz`. *Bulk potential, smooth axial
+      field, and integrated phase converge consistently with second-order
+      behavior; medium-grid integrated modulation is within 0.62% of the fine
+      reference. Sharp-corner peak field does not converge (14.2 to 27.3
+      MV/m). At 30 keV He+, 0.793 mV gives a 2 pi phase span and the solved 3D
+      field agrees with thin-screen propagation to 2.36e-9 intensity NRMSE.
+      Next: segmented-electrode basis fields and crosstalk.*
 
 ## Dependency notes
 

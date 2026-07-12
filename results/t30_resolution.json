@@ -1,0 +1,151 @@
+{
+  "reference_shape": [
+    97,
+    97,
+    145
+  ],
+  "solver_tolerance": 1e-09,
+  "plate_z_m": [
+    -6.2499999999999995e-06,
+    0.0,
+    6.2499999999999995e-06
+  ],
+  "plate_thickness_m": 1.2499999999999999e-06,
+  "runs": [
+    {
+      "shape": [
+        33,
+        33,
+        49
+      ],
+      "spacing_m": [
+        1e-06,
+        1e-06,
+        6.249999999999999e-07
+      ],
+      "elapsed_s": 0.1473691000137478,
+      "iterations": 84,
+      "relative_residual": 9.024207294208514e-10,
+      "max_electrode_error_V": 0.0,
+      "x_symmetry_error": 0.0,
+      "y_symmetry_error": 7.945554550433045e-17,
+      "center_integrated_V_m": 0.00015693393934540912,
+      "max_field_V_m": 14233036.19694027,
+      "rasterization": {
+        "entrance": {
+          "conductor_points": 1956,
+          "aperture_points": 567,
+          "effective_aperture_radius_m": 2.5854414729132052e-06,
+          "effective_thickness_m": 1.2499999999999999e-06
+        },
+        "center": {
+          "conductor_points": 1956,
+          "aperture_points": 567,
+          "effective_aperture_radius_m": 2.5854414729132052e-06,
+          "effective_thickness_m": 1.2499999999999999e-06
+        },
+        "exit": {
+          "conductor_points": 1956,
+          "aperture_points": 567,
+          "effective_aperture_radius_m": 2.5854414729132052e-06,
+          "effective_thickness_m": 1.2499999999999999e-06
+        }
+      },
+      "on_axis_potential_relative_error": 0.033228673614513815,
+      "smooth_Ez_relative_error": 0.0735735901111607,
+      "integrated_potential_relative_error": 0.011841609717509324,
+      "integrated_modulation_relative_error": 0.027646488370157995,
+      "center_integrated_relative_error": 0.001255303816847691
+    },
+    {
+      "shape": [
+        65,
+        65,
+        97
+      ],
+      "spacing_m": [
+        5e-07,
+        5e-07,
+        3.1249999999999997e-07
+      ],
+      "elapsed_s": 0.8451132000191137,
+      "iterations": 163,
+      "relative_residual": 9.912433797820149e-10,
+      "max_electrode_error_V": 0.0,
+      "x_symmetry_error": 0.0,
+      "y_symmetry_error": 1.3053159929785387e-16,
+      "center_integrated_V_m": 0.00015676753273590892,
+      "max_field_V_m": 21582620.574598305,
+      "rasterization": {
+        "entrance": {
+          "conductor_points": 12720,
+          "aperture_points": 3525,
+          "effective_aperture_radius_m": 2.4967115581165093e-06,
+          "effective_thickness_m": 1.2499999999999999e-06
+        },
+        "center": {
+          "conductor_points": 12720,
+          "aperture_points": 3525,
+          "effective_aperture_radius_m": 2.4967115581165093e-06,
+          "effective_thickness_m": 1.2499999999999999e-06
+        },
+        "exit": {
+          "conductor_points": 12720,
+          "aperture_points": 3525,
+          "effective_aperture_radius_m": 2.4967115581165093e-06,
+          "effective_thickness_m": 1.2499999999999999e-06
+        }
+      },
+      "on_axis_potential_relative_error": 0.0069536151485060415,
+      "smooth_Ez_relative_error": 0.01563444611772908,
+      "integrated_potential_relative_error": 0.002566983373990504,
+      "integrated_modulation_relative_error": 0.006156538843418259,
+      "center_integrated_relative_error": 0.00019361186514347186
+    },
+    {
+      "shape": [
+        97,
+        97,
+        145
+      ],
+      "spacing_m": [
+        3.333333333333333e-07,
+        3.333333333333333e-07,
+        2.083333333333333e-07
+      ],
+      "elapsed_s": 11.346847399952821,
+      "iterations": 239,
+      "relative_residual": 9.95245386137725e-10,
+      "max_electrode_error_V": 0.0,
+      "x_symmetry_error": 0.0,
+      "y_symmetry_error": 1.4546009052469324e-16,
+      "center_integrated_V_m": 0.0001567371865568823,
+      "max_field_V_m": 27338809.770349763,
+      "rasterization": {
+        "entrance": {
+          "conductor_points": 39424,
+          "aperture_points": 11151,
+          "effective_aperture_radius_m": 2.5020180711340226e-06,
+          "effective_thickness_m": 1.2499999999999999e-06
+        },
+        "center": {
+          "conductor_points": 39424,
+          "aperture_points": 11151,
+          "effective_aperture_radius_m": 2.5020180711340226e-06,
+          "effective_thickness_m": 1.2499999999999999e-06
+        },
+        "exit": {
+          "conductor_points": 39424,
+          "aperture_points": 11151,
+          "effective_aperture_radius_m": 2.5020180711340226e-06,
+          "effective_thickness_m": 1.2499999999999999e-06
+        }
+      },
+      "on_axis_potential_relative_error": 0.0,
+      "smooth_Ez_relative_error": 0.0,
+      "integrated_potential_relative_error": 0.0,
+      "integrated_modulation_relative_error": 0.0,
+      "center_integrated_relative_error": 0.0
+    }
+  ]
+}
