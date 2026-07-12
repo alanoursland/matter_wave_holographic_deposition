@@ -310,6 +310,18 @@ landing stage, closed-loop printing simulation) — is written up in
       departure. Electrostatic crosstalk is therefore calibratable rather
       than a controllability limit in the 3x3 pilot.*
 
+- [x] **T33. Two-species, two-layer contact-array coupon.** - **DONE
+      2026-07-11** [t33_two_layer_contact_array.md](t33_two_layer_contact_array.md),
+      surface model `src/iqs/deposition/surface.py`, study
+      `src/t33_two_layer_contact_array.py`, artifacts
+      `results/t33_two_layer_device.{json,npz,png}`. *Si+ mesas followed by
+      Al+ contact caps establish the first evolving multi-material surface.
+      T20 impact and thermal-retention gates pass, but fixed-dose yield depends
+      sharply on sticking, diffusion, and registration. Measured-sticking dose
+      calibration restores 100% yield even at 50% sticking for 1 nm diffusion
+      and registration, at a 1.8x dose cost. Diffusion near 10 nm remains fatal;
+      5 nm registration is marginal for nine-device all-pass yield.*
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).
