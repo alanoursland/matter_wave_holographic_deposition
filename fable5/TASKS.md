@@ -333,6 +333,19 @@ landing stage, closed-loop printing simulation) — is written up in
       roughness, and 10% dose CV gives 95% functional yield; 3 nm registration
       reduces yield to 84-86%, making alignment the first process limit.*
 
+- [x] **T40. Holographic device-pattern resolution gate.** - **DONE
+      2026-07-12** [t40_holographic_device_resolution.md](t40_holographic_device_resolution.md),
+      study `src/t40_holographic_device_resolution.py`, artifacts
+      `results/t40_holographic_device_resolution.{json,npz,png}`. *The three
+      T39 contacts are optimized as separate matter-wave exposures and judged
+      by electrical function rather than image similarity. The calibrated
+      3x3 T31 array prints functional 55 nm contacts despite a 100 nm
+      demagnified electrode pitch: the 1.45-2.75 dose window gives 84.2%
+      minimum coverage, 9.80 kohm worst contact, 50.4 uA device current, no
+      bridge, and 1.611 mV maximum drive. Three optimizer seeds reproduce the
+      same result. This demonstrates a functional feature smaller than its
+      printer element, but not yet a recursively printed actuator array.*
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).

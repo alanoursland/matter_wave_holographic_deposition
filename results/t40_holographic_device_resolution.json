@@ -1,0 +1,449 @@
+{
+  "study": "T40 holographic device-pattern resolution gate",
+  "kinopulse_version": "0.1.0.dev2026071200",
+  "wave_model": {
+    "wavelength_m": 1.44e-08,
+    "image_width_m": 4.0000000000000003e-07,
+    "physical_plate_width_m": 3.2e-05,
+    "nominal_demagnification": 79.99999999999999,
+    "propagation_distance_m": 4.89e-07,
+    "hologram_grid": [
+      64,
+      64
+    ],
+    "phase_response": "electrostatic"
+  },
+  "device_gate": {
+    "contact_width_m": 5.5e-08,
+    "continuity_threshold_m": 3.5000000000000004e-07,
+    "max_contact_resistance_ohm": 10000.0,
+    "max_device_resistance_ohm": 25000.0,
+    "max_monitor_leakage_a": 1e-09,
+    "dose_calibration": "each exposure's target-window p95 equals nominal thickness at multiplier 1"
+  },
+  "runs": [
+    {
+      "control_count": 3,
+      "control_pitch_image_m": 1.3333333333333334e-07,
+      "electrode_pitch_physical_m": 8e-06,
+      "electrode_pitch_image_m": 1.0000000000000001e-07,
+      "contact_width_to_control_pitch": 0.41250000000000003,
+      "contact_width_to_electrode_pitch": 0.5499999999999999,
+      "hardware_status": "T31 field-calibrated",
+      "exposures": [
+        {
+          "contact": "source",
+          "raw_target_metrics": {
+            "nrmse": 0.6146034138724463,
+            "ssim": 0.5450627396294098,
+            "contrast": 0.9903479415391204,
+            "efficiency": 0.4207024570537885
+          },
+          "bandlimited_target_metrics": {
+            "nrmse": 1.7684562735855764,
+            "ssim": 0.2475363861230525,
+            "contrast": 0.9903479415391204,
+            "efficiency": 0.9196197981668888
+          },
+          "target_efficiency": 0.39570446340900933,
+          "phase_span_rad": 21.20369086815461,
+          "optimizer_final_loss": -0.879966316610332,
+          "calibrated_voltage_max_abs_v": 0.0016098834897607123,
+          "calibrated_phase_relative_error": 8.317827904879571e-16
+        },
+        {
+          "contact": "drain",
+          "raw_target_metrics": {
+            "nrmse": 0.6146537791422864,
+            "ssim": 0.544959457395859,
+            "contrast": 0.9903120361321193,
+            "efficiency": 0.4206355696024105
+          },
+          "bandlimited_target_metrics": {
+            "nrmse": 1.768180117483867,
+            "ssim": 0.24741009609806014,
+            "contrast": 0.9903120361321193,
+            "efficiency": 0.9194857358149434
+          },
+          "target_efficiency": 0.3956426779042475,
+          "phase_span_rad": 21.215901670025936,
+          "optimizer_final_loss": -0.8799639952576123,
+          "calibrated_voltage_max_abs_v": 0.001609395987293376,
+          "calibrated_phase_relative_error": 5.094662784431584e-16
+        },
+        {
+          "contact": "monitor",
+          "raw_target_metrics": {
+            "nrmse": 0.6085895562144545,
+            "ssim": 0.5337807531217261,
+            "contrast": 0.986422404920633,
+            "efficiency": 0.4251354224665892
+          },
+          "bandlimited_target_metrics": {
+            "nrmse": 1.6711857187248815,
+            "ssim": 0.23240389141908013,
+            "contrast": 0.986422404920633,
+            "efficiency": 0.9377539348694675
+          },
+          "target_efficiency": 0.3848501884443781,
+          "phase_span_rad": 14.731424183517841,
+          "optimizer_final_loss": -0.8886186125527396,
+          "calibrated_voltage_max_abs_v": 0.0012406601448352167,
+          "calibrated_phase_relative_error": 6.859235987121043e-16
+        }
+      ],
+      "dose_window": [
+        1.45,
+        2.75
+      ],
+      "dose_window_upper_truncated": false,
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283,
+        "dose_multiplier": 1.45
+      },
+      "deposition_functional": true,
+      "hardware_authority_pass": true,
+      "functional": true,
+      "maximum_calibrated_voltage_abs_v": 0.0016098834897607123
+    },
+    {
+      "control_count": 5,
+      "control_pitch_image_m": 8e-08,
+      "electrode_pitch_physical_m": 6.4e-06,
+      "electrode_pitch_image_m": 8.000000000000001e-08,
+      "contact_width_to_control_pitch": 0.6875,
+      "contact_width_to_electrode_pitch": 0.6874999999999999,
+      "hardware_status": "ideal control-grid scaling; no FEM influence basis",
+      "exposures": [
+        {
+          "contact": "source",
+          "raw_target_metrics": {
+            "nrmse": 0.5920898643779632,
+            "ssim": 0.47826427760329576,
+            "contrast": 0.9822535964938788,
+            "efficiency": 0.43738777626451386
+          },
+          "bandlimited_target_metrics": {
+            "nrmse": 1.0417742825721656,
+            "ssim": 0.37033762481951155,
+            "contrast": 0.9822535964938788,
+            "efficiency": 0.7277590346306523
+          },
+          "target_efficiency": 0.4104858181294431,
+          "phase_span_rad": 19.160888178809117,
+          "optimizer_final_loss": -0.9048780968096897
+        },
+        {
+          "contact": "drain",
+          "raw_target_metrics": {
+            "nrmse": 0.5927138430534193,
+            "ssim": 0.4750597111861687,
+            "contrast": 0.9827169918662472,
+            "efficiency": 0.4365654700077726
+          },
+          "bandlimited_target_metrics": {
+            "nrmse": 1.0399735665562386,
+            "ssim": 0.3696181403355409,
+            "contrast": 0.9827169918662472,
+            "efficiency": 0.7262733144595076
+          },
+          "target_efficiency": 0.4097150448667745,
+          "phase_span_rad": 19.003966143245258,
+          "optimizer_final_loss": -0.9049489215075139
+        },
+        {
+          "contact": "monitor",
+          "raw_target_metrics": {
+            "nrmse": 0.6010837103999901,
+            "ssim": 0.40975078917757757,
+            "contrast": 0.9655803539816967,
+            "efficiency": 0.4194862879942852
+          },
+          "bandlimited_target_metrics": {
+            "nrmse": 0.9782584234898374,
+            "ssim": 0.36901108372857605,
+            "contrast": 0.9655803539816967,
+            "efficiency": 0.6682563753923256
+          },
+          "target_efficiency": 0.38151994667552935,
+          "phase_span_rad": 19.777764543949374,
+          "optimizer_final_loss": -0.9149488033631857
+        }
+      ],
+      "dose_window": [
+        1.2499999999999998,
+        4.75
+      ],
+      "dose_window_upper_truncated": false,
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8325396825396826,
+          0.8325396825396826,
+          0.8032407407407407
+        ],
+        "minimum_contact_coverage": 0.8032407407407407,
+        "contact_resistance_ohm": [
+          9911.143197763628,
+          9911.143197763628,
+          9986.734110066744
+        ],
+        "total_device_resistance_ohm": 20066.143538384396,
+        "device_current_a": 4.983518622236039e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.013203395158755108,
+        "dose_multiplier": 1.2499999999999998
+      },
+      "deposition_functional": true,
+      "hardware_authority_pass": true,
+      "functional": true
+    },
+    {
+      "control_count": 7,
+      "control_pitch_image_m": 5.714285714285715e-08,
+      "electrode_pitch_physical_m": 4.571428571428571e-06,
+      "electrode_pitch_image_m": 5.714285714285715e-08,
+      "contact_width_to_control_pitch": 0.9624999999999999,
+      "contact_width_to_electrode_pitch": 0.9624999999999999,
+      "hardware_status": "ideal control-grid scaling; no FEM influence basis",
+      "exposures": [
+        {
+          "contact": "source",
+          "raw_target_metrics": {
+            "nrmse": 0.5632951278171792,
+            "ssim": 0.45564081849400057,
+            "contrast": 0.9738729355931934,
+            "efficiency": 0.4650899774153054
+          },
+          "bandlimited_target_metrics": {
+            "nrmse": 0.7161570028554598,
+            "ssim": 0.5483338647926587,
+            "contrast": 0.9738729355931934,
+            "efficiency": 0.6339803163929842
+          },
+          "target_efficiency": 0.4360337810725041,
+          "phase_span_rad": 37.97939114791504,
+          "optimizer_final_loss": -0.9204715022289166
+        },
+        {
+          "contact": "drain",
+          "raw_target_metrics": {
+            "nrmse": 0.5510957657269944,
+            "ssim": 0.4510829718183984,
+            "contrast": 0.9843307679342452,
+            "efficiency": 0.4765009151261235
+          },
+          "bandlimited_target_metrics": {
+            "nrmse": 0.696817808128124,
+            "ssim": 0.5292433112753261,
+            "contrast": 0.9843307679342452,
+            "efficiency": 0.6589277655480238
+          },
+          "target_efficiency": 0.444183181794188,
+          "phase_span_rad": 29.945066483021883,
+          "optimizer_final_loss": -0.9309917212527741
+        },
+        {
+          "contact": "monitor",
+          "raw_target_metrics": {
+            "nrmse": 0.5897099963422695,
+            "ssim": 0.38242463234058766,
+            "contrast": 0.9426708318401643,
+            "efficiency": 0.42920176515759023
+          },
+          "bandlimited_target_metrics": {
+            "nrmse": 0.6518304226840099,
+            "ssim": 0.5082425842836967,
+            "contrast": 0.9426708318401643,
+            "efficiency": 0.5821237443561381
+          },
+          "target_efficiency": 0.3902525477547585,
+          "phase_span_rad": 22.468306443535035,
+          "optimizer_final_loss": -0.9235792824736568
+        }
+      ],
+      "dose_window": [
+        1.2499999999999998,
+        4.5
+      ],
+      "dose_window_upper_truncated": false,
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8722222222222222,
+          0.9357142857142857,
+          0.816358024691358
+        ],
+        "minimum_contact_coverage": 0.816358024691358,
+        "contact_resistance_ohm": [
+          9463.58721937554,
+          8826.311102826794,
+          9827.467270609128
+        ],
+        "total_device_resistance_ohm": 18533.755465059476,
+        "device_current_a": 5.395560559138903e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.04192992533026996,
+        "dose_multiplier": 1.2499999999999998
+      },
+      "deposition_functional": true,
+      "hardware_authority_pass": true,
+      "functional": true
+    },
+    {
+      "control_count": 9,
+      "control_pitch_image_m": 4.444444444444445e-08,
+      "electrode_pitch_physical_m": 3.5555555555555555e-06,
+      "electrode_pitch_image_m": 4.4444444444444454e-08,
+      "contact_width_to_control_pitch": 1.2375,
+      "contact_width_to_electrode_pitch": 1.2374999999999998,
+      "hardware_status": "ideal control-grid scaling; no FEM influence basis",
+      "exposures": [
+        {
+          "contact": "source",
+          "raw_target_metrics": {
+            "nrmse": 0.5038017551374167,
+            "ssim": 0.44273294606784175,
+            "contrast": 0.9730152841264573,
+            "efficiency": 0.5132742698973811
+          },
+          "bandlimited_target_metrics": {
+            "nrmse": 0.5055260958800684,
+            "ssim": 0.5663049622945625,
+            "contrast": 0.9730152841264573,
+            "efficiency": 0.610408745055405
+          },
+          "target_efficiency": 0.47786143508711015,
+          "phase_span_rad": 26.021945376529352,
+          "optimizer_final_loss": -0.9619389924078803
+        },
+        {
+          "contact": "drain",
+          "raw_target_metrics": {
+            "nrmse": 0.5017513092201074,
+            "ssim": 0.453957962708083,
+            "contrast": 0.9752982137146571,
+            "efficiency": 0.5170660503691529
+          },
+          "bandlimited_target_metrics": {
+            "nrmse": 0.5078636778712312,
+            "ssim": 0.5718803736048869,
+            "contrast": 0.9752982137146571,
+            "efficiency": 0.612950442815028
+          },
+          "target_efficiency": 0.4807183426896514,
+          "phase_span_rad": 23.70693452934053,
+          "optimizer_final_loss": -0.9607874822300853
+        },
+        {
+          "contact": "monitor",
+          "raw_target_metrics": {
+            "nrmse": 0.4712406603573484,
+            "ssim": 0.45351378783770696,
+            "contrast": 0.9664121872674691,
+            "efficiency": 0.5410782569611924
+          },
+          "bandlimited_target_metrics": {
+            "nrmse": 0.5101213368240664,
+            "ssim": 0.5854287700562527,
+            "contrast": 0.9664121872674691,
+            "efficiency": 0.6163769370906327
+          },
+          "target_efficiency": 0.487131389181801,
+          "phase_span_rad": 24.355745953426982,
+          "optimizer_final_loss": -0.9728103717717529
+        }
+      ],
+      "dose_window": [
+        0.8499999999999999,
+        5.0
+      ],
+      "dose_window_upper_truncated": true,
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8261904761904761,
+          0.8301587301587302,
+          0.8225308641975309
+        ],
+        "minimum_contact_coverage": 0.8225308641975309,
+        "contact_resistance_ohm": [
+          9986.734110066744,
+          9939.354546669372,
+          9754.27257457783
+        ],
+        "total_device_resistance_ohm": 20169.945799593257,
+        "device_current_a": 4.957871527945136e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.0,
+        "dose_multiplier": 0.8499999999999999
+      },
+      "deposition_functional": true,
+      "hardware_authority_pass": true,
+      "functional": true
+    }
+  ],
+  "minimum_passing_control_count": 3,
+  "calibrated_3x3_optimizer_repeatability": [
+    {
+      "seed": 40,
+      "functional": true,
+      "dose_window": [
+        1.45,
+        2.75
+      ],
+      "maximum_calibrated_voltage_abs_v": 0.0016098834897607123,
+      "minimum_contact_coverage": 0.8420634920634921,
+      "worst_contact_resistance_ohm": 9799.890157181017
+    },
+    {
+      "seed": 41,
+      "functional": true,
+      "dose_window": [
+        1.45,
+        2.75
+      ],
+      "maximum_calibrated_voltage_abs_v": 0.0016108113207426774,
+      "minimum_contact_coverage": 0.8420634920634921,
+      "worst_contact_resistance_ohm": 9799.890157181017
+    },
+    {
+      "seed": 42,
+      "functional": true,
+      "dose_window": [
+        1.45,
+        2.75
+      ],
+      "maximum_calibrated_voltage_abs_v": 0.0016096821120575784,
+      "minimum_contact_coverage": 0.8420634920634921,
+      "worst_contact_resistance_ohm": 9799.890157181017
+    }
+  ],
+  "calibrated_3x3_repeatability_pass": true,
+  "existing_3x3_hardware_passes": true,
+  "scope_limits": [
+    "Only the 3x3 control grid has a field-resolved electrode influence matrix.",
+    "Larger control grids are ideal phase-coordinate scaling studies, not completed hardware designs.",
+    "The calculation uses expected deposited thickness and omits T39 stochastic process variation.",
+    "A functional dose window is required; image similarity alone is not accepted."
+  ]
+}
