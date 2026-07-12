@@ -50,6 +50,41 @@ class ContactArrayElectricalResult:
         return float(np.max(finite)) if finite.size else 0.0
 
 
+@dataclass(frozen=True)
+class SOIIsolationStack:
+    """Buried-oxide and exposed-surface isolation for etched SOI mesas."""
+
+    box_resistivity_ohm_m: float
+    box_thickness_m: float
+    surface_sheet_resistance_ohm_sq: float
+    test_bias_v: float = 1.0
+
+    def __post_init__(self):
+        values = (
+            self.box_resistivity_ohm_m,
+            self.box_thickness_m,
+            self.surface_sheet_resistance_ohm_sq,
+            self.test_bias_v,
+        )
+        if not np.all(np.isfinite(values)):
+            raise ValueError("SOI isolation values must be finite")
+        if min(values) <= 0:
+            raise ValueError("SOI isolation values must be positive")
+
+
+@dataclass(frozen=True)
+class SOIIsolationResult:
+    mesa_area_m2: np.ndarray
+    pair_gap_m: np.ndarray
+    box_pair_resistance_ohm: np.ndarray
+    surface_pair_resistance_ohm: np.ndarray
+    pair_leakage_a: np.ndarray
+
+    @property
+    def worst_pair_leakage_a(self) -> float:
+        return float(np.max(self.pair_leakage_a))
+
+
 def extract_contact_array_electrical(
     metal_thickness_m,
     contact_masks,
@@ -125,4 +160,70 @@ def extract_contact_array_electrical(
         spreading_resistance_ohm=spreading_r,
         pair_resistance_ohm=pair_r,
         pair_leakage_a=pair_i,
+    )
+
+
+def extract_soi_isolation(
+    mesa_masks,
+    *,
+    pixel_pitch_m: float,
+    stack: SOIIsolationStack,
+) -> SOIIsolationResult:
+    """Extract BOX and exposed-surface leakage between isolated SOI mesas.
+
+    The BOX branch sends current vertically through each mesa footprint to an
+    ideally conducting handle wafer, which is a conservative upper-current
+    bound because handle spreading resistance is omitted. The surface branch
+    is a sheet-resistance path across the edge-to-edge trench gap.
+    """
+    masks = np.asarray(mesa_masks, dtype=bool)
+    if masks.ndim != 3 or masks.shape[0] < 2:
+        raise ValueError("mesa masks must have shape (mesas, rows, columns)")
+    if not np.isfinite(pixel_pitch_m) or pixel_pitch_m <= 0:
+        raise ValueError("pixel pitch must be positive")
+    if np.any(np.sum(masks, axis=(1, 2)) == 0):
+        raise ValueError("mesa masks must not be empty")
+
+    pixel_area = pixel_pitch_m ** 2
+    areas = np.sum(masks, axis=(1, 2), dtype=float) * pixel_area
+    widths = np.sqrt(areas)
+    coordinates = np.indices(masks.shape[1:], dtype=float)
+    centers = np.array([
+        [np.mean(axis[mask]) for axis in coordinates] for mask in masks
+    ]) * pixel_pitch_m
+
+    count = masks.shape[0]
+    gaps = np.full((count, count), np.inf)
+    box_r = np.full((count, count), np.inf)
+    surface_r = np.full((count, count), np.inf)
+    leakage = np.zeros((count, count))
+    vertical_r = stack.box_resistivity_ohm_m * stack.box_thickness_m / areas
+    for left in range(count):
+        for right in range(left + 1, count):
+            distance = float(np.linalg.norm(centers[left] - centers[right]))
+            gap = distance - 0.5 * (widths[left] + widths[right])
+            if gap <= 0:
+                raise ValueError("mesa masks overlap or touch")
+            facing_width = min(widths[left], widths[right])
+            pair_box = vertical_r[left] + vertical_r[right]
+            pair_surface = (
+                stack.surface_sheet_resistance_ohm_sq * gap / facing_width
+            )
+            current = stack.test_bias_v * (
+                1.0 / pair_box + 1.0 / pair_surface
+            )
+            for matrix, value in (
+                (gaps, gap),
+                (box_r, pair_box),
+                (surface_r, pair_surface),
+                (leakage, current),
+            ):
+                matrix[left, right] = matrix[right, left] = value
+
+    return SOIIsolationResult(
+        mesa_area_m2=areas,
+        pair_gap_m=gaps,
+        box_pair_resistance_ohm=box_r,
+        surface_pair_resistance_ohm=surface_r,
+        pair_leakage_a=leakage,
     )

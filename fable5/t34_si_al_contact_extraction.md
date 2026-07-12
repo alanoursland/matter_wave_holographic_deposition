@@ -122,3 +122,6 @@ The next experiment should keep this Al-1.5%Si contact stack and move the p+
 regions onto a specified SOI device layer with etched isolation to the buried
 oxide. The same extractor can then compare contact resistance against BOX,
 sidewall, and surface leakage instead of the unavoidable shared-bulk path.
+
+T35 performs that substrate change and converts trench-surface cleanliness
+into a quantitative sheet-resistance qualification.

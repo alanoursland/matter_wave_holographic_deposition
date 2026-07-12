@@ -1,0 +1,46 @@
+{
+  "study": "T35 etched p+ SOI / Al-1.5%Si isolated contact array",
+  "substrate": {
+    "orientation": "Si(100)",
+    "device_layer_thickness_m": 7e-08,
+    "device_layer": "boron-doped p+ Si, etched into isolated mesas",
+    "mesa_width_m": 7.500000000000001e-08,
+    "mesa_pitch_m": 1.0000000000000001e-07,
+    "buried_oxide_thickness_m": 1.4500000000000001e-07,
+    "thermal_oxide_resistivity_ohm_cm": 1e+17
+  },
+  "electrical_test": {
+    "bias_v": 1.0,
+    "max_contact_resistance_ohm": 10000.0,
+    "max_pair_leakage_a": 1e-09,
+    "contact_yield": 1.0,
+    "median_contact_resistance_ohm": 8395.537575445473,
+    "worst_contact_resistance_ohm": 8623.183920717891,
+    "box_only_worst_pair_leakage_a": 1.9396554724137935e-23,
+    "required_surface_sheet_resistance_ohm_sq": 3162277660.1683793,
+    "qualification_surface_sheet_resistance_ohm_sq": 10000000000.0,
+    "qualified_worst_pair_leakage_a": 3.000000000000196e-10,
+    "qualified_isolation_pass": true
+  },
+  "box_measurement_cross_check": {
+    "published_test_field_v_cm": 2000000.0,
+    "published_leakage_ceiling_a_cm2": 2e-09,
+    "ceiling_current_per_nanoscale_mesa_a": 1.1250000000000003e-19,
+    "published_defect_density_ceiling_cm-2": 0.2,
+    "expected_box_defects_per_400_nm_field": 3.200000000000001e-10,
+    "note": "Area-scaled ceiling only; it is not extrapolated in field."
+  },
+  "scope_limits": [
+    "The p+ dopant profile must be fabricated in the SOI device layer.",
+    "The 70 nm layer is treated as locally bulk-like for contact spreading.",
+    "Thin thermal-oxide resistivity is used as an order-of-magnitude BOX bulk value.",
+    "Trench surface leakage is a qualification variable, not a literature constant.",
+    "The leakage model omits pinholes, radiation damage, and edge-field enhancement."
+  ],
+  "sources": [
+    "doi:10.1016/j.microrel.2010.01.015 (70 nm Si / 145 nm BOX geometry)",
+    "Dumin, Fossum, Todorov: Comparison of Electrical Properties of Thermal and Ion Beam Oxides",
+    "doi:10.1109/S3S.2015.7333496 (BOX leakage and defect ceilings)",
+    "T34 sources for p+ Si / Al-1.5%Si contact stack"
+  ]
+}

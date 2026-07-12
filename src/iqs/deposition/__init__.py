@@ -3,7 +3,10 @@
 from .electrical import (
     ContactArrayElectricalResult,
     ContactElectricalStack,
+    SOIIsolationResult,
+    SOIIsolationStack,
     extract_contact_array_electrical,
+    extract_soi_isolation,
 )
 from .surface import (
     DepositionMaterial,
@@ -18,6 +21,9 @@ __all__ = [
     "DepositionMaterial",
     "DepositionResult",
     "SurfaceState",
+    "SOIIsolationResult",
+    "SOIIsolationStack",
     "deposit_layer",
     "extract_contact_array_electrical",
+    "extract_soi_isolation",
 ]
