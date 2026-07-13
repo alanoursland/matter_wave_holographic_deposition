@@ -346,6 +346,18 @@ landing stage, closed-loop printing simulation) — is written up in
       same result. This demonstrates a functional feature smaller than its
       printer element, but not yet a recursively printed actuator array.*
 
+- [x] **T41. Multi-device correlated holographic field.** - **DONE
+      2026-07-12** [t41_multidevice_correlated_field.md](t41_multidevice_correlated_field.md),
+      study `src/t41_multidevice_correlated_field.py`, artifacts
+      `results/t41_multidevice_correlated_field.{json,npz,png}`. *Four T39
+      devices receive twelve translated T40 exposures with 70% common-mode
+      process variance. Dose 2.05 and 250 nm pitch produce 150/150 all-four
+      passing arrays (95% lower confidence bound 97.57%), 55.9 uA median
+      device current, 9.33 kohm p95 contact resistance, and no bridge.
+      Neighbor sidelobes contribute 0.637% of contact dose and slightly improve
+      yield. However, 21.4% of conducting pixels are disconnected halo outside
+      nominal windows, making interlayer residue the next risk.*
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).
