@@ -1,0 +1,1829 @@
+{
+  "study": "T50 coupled 30 keV actuator and column-aberrated T40 device gate",
+  "kinopulse_version": "0.1.0.dev2026071623",
+  "transport_energy_eV": 30000.0,
+  "nominal_demagnification": 79.99999999999999,
+  "spherical_coefficient_m": 1.0,
+  "energy_samples": 41,
+  "validation": {
+    "t18_chromatic_scaling_pass": true,
+    "reconstructed_t48_coherent_exposure_relative_error": 6.305800472732557e-16,
+    "maximum_30keV_control_voltage_abs_v": 0.0016098834897607123
+  },
+  "coherent_control": {
+    "selected_dose": 1.45,
+    "dose_window": [
+      1.45,
+      2.75
+    ],
+    "selected": {
+      "functional": true,
+      "metal_short": false,
+      "contact_coverage": [
+        0.8420634920634921,
+        0.8428571428571429,
+        0.8796296296296297
+      ],
+      "minimum_contact_coverage": 0.8420634920634921,
+      "contact_resistance_ohm": [
+        9799.890157181017,
+        9790.732342894973,
+        9125.831993265634
+      ],
+      "total_device_resistance_ohm": 19834.47964293313,
+      "device_current_a": 5.041725409500684e-05,
+      "monitor_leakage_a": 5.502461120731003e-10,
+      "outside_conducting_fraction": 0.03146334223805283,
+      "dose_multiplier": 1.45
+    }
+  },
+  "nominal_corner": {
+    "landing_energy_eV": 10.0,
+    "chromatic_coefficient_m": 0.001,
+    "energy_spread_fwhm_eV": 0.5,
+    "decision": "not_falsified",
+    "result": {
+      "landing_energy_eV": 10.0,
+      "chromatic_coefficient_m": 0.001,
+      "energy_spread_fwhm_eV": 0.5,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.7
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8412698412698413,
+          0.8420634920634921,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8412698412698413,
+        "contact_resistance_ohm": [
+          9809.065217325775,
+          9799.890157181017,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19852.81251736393,
+        "device_current_a": 5.037069680305331e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.031482031482031485,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8412698412698413,
+          0.8420634920634921,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8412698412698413,
+        "contact_resistance_ohm": [
+          9809.065217325775,
+          9799.890157181017,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19852.81251736393,
+        "device_current_a": 5.037069680305331e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.031482031482031485
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999923036353382,
+          "relative_intensity_departure": 0.001894320433785344,
+          "target_p95_retention": 0.9990234670420781,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999922836514631,
+          "relative_intensity_departure": 0.0018965854795925158,
+          "target_p95_retention": 0.9990163701079642,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999946459934027,
+          "relative_intensity_departure": 0.001224641454584884,
+          "target_p95_retention": 0.9996899021273113,
+          "power_ratio": 1.0000000000000002
+        }
+      ],
+      "minimum_target_p95_retention": 0.9990163701079642,
+      "minimum_coherent_intensity_ssim": 0.9999922836514631
+    }
+  },
+  "sweep": [
+    {
+      "landing_energy_eV": 1.0,
+      "chromatic_coefficient_m": 0.0001,
+      "energy_spread_fwhm_eV": 0.001,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.7
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8436507936507937,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9781.591725842878,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19825.339025881036,
+        "device_current_a": 5.044049933746644e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.0314540059347181,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8436507936507937,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9781.591725842878,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19825.339025881036,
+        "device_current_a": 5.044049933746644e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.0314540059347181
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.999999870484168,
+          "relative_intensity_departure": 0.0002441698859985978,
+          "target_p95_retention": 0.9998679289770208,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999998701428883,
+          "relative_intensity_departure": 0.00024437733077457233,
+          "target_p95_retention": 0.9998682065864987,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999260834355,
+          "relative_intensity_departure": 0.00015832753135284775,
+          "target_p95_retention": 0.9998771914225814,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.9998679289770208,
+      "minimum_coherent_intensity_ssim": 0.9999998701428883
+    },
+    {
+      "landing_energy_eV": 1.0,
+      "chromatic_coefficient_m": 0.0001,
+      "energy_spread_fwhm_eV": 0.01,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.7
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8436507936507937,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9781.591725842878,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19825.339025881036,
+        "device_current_a": 5.044049933746644e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.0314540059347181,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8436507936507937,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9781.591725842878,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19825.339025881036,
+        "device_current_a": 5.044049933746644e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.0314540059347181
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999998673495887,
+          "relative_intensity_departure": 0.00024604655622412664,
+          "target_p95_retention": 0.9998637956791718,
+          "power_ratio": 1.0000000000000004
+        },
+        {
+          "coherent_intensity_ssim": 0.9999998669870265,
+          "relative_intensity_departure": 0.00024626763625029024,
+          "target_p95_retention": 0.999864069311291,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999255867605,
+          "relative_intensity_departure": 0.00015839444389738523,
+          "target_p95_retention": 0.9998758453980723,
+          "power_ratio": 1.0000000000000002
+        }
+      ],
+      "minimum_target_p95_retention": 0.9998637956791718,
+      "minimum_coherent_intensity_ssim": 0.9999998669870265
+    },
+    {
+      "landing_energy_eV": 1.0,
+      "chromatic_coefficient_m": 0.0001,
+      "energy_spread_fwhm_eV": 0.1,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.7
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8420634920634921,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9799.890157181017,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19843.637457219174,
+        "device_current_a": 5.0393986594236886e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03147268408551069,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8420634920634921,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9799.890157181017,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19843.637457219174,
+        "device_current_a": 5.0393986594236886e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03147268408551069
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999978198090204,
+          "relative_intensity_departure": 0.0009561038403666959,
+          "target_p95_retention": 0.9994380359403143,
+          "power_ratio": 1.0
+        },
+        {
+          "coherent_intensity_ssim": 0.9999978125875564,
+          "relative_intensity_departure": 0.0009576516211901185,
+          "target_p95_retention": 0.9994379433907625,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999988323306065,
+          "relative_intensity_departure": 0.0005706984421218825,
+          "target_p95_retention": 0.9997440821175331,
+          "power_ratio": 1.0000000000000002
+        }
+      ],
+      "minimum_target_p95_retention": 0.9994379433907625,
+      "minimum_coherent_intensity_ssim": 0.9999978125875564
+    },
+    {
+      "landing_energy_eV": 1.0,
+      "chromatic_coefficient_m": 0.0001,
+      "energy_spread_fwhm_eV": 0.5,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.7
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8412698412698413,
+          0.8412698412698413,
+          0.8811728395061729
+        ],
+        "minimum_contact_coverage": 0.8412698412698413,
+        "contact_resistance_ohm": [
+          9809.065217325775,
+          9809.065217325775,
+          9109.975293648593
+        ],
+        "total_device_resistance_ohm": 19861.98757750869,
+        "device_current_a": 5.0347428528873896e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03433984606275903,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8412698412698413,
+          0.8412698412698413,
+          0.8811728395061729
+        ],
+        "minimum_contact_coverage": 0.8412698412698413,
+        "contact_resistance_ohm": [
+          9809.065217325775,
+          9809.065217325775,
+          9109.975293648593
+        ],
+        "total_device_resistance_ohm": 19861.98757750869,
+        "device_current_a": 5.0347428528873896e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03433984606275903
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9997587679088404,
+          "relative_intensity_departure": 0.012505078334090688,
+          "target_p95_retention": 0.9965328401293428,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9997586401244455,
+          "relative_intensity_departure": 0.012504309632063355,
+          "target_p95_retention": 0.9965021847862823,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9997503120534545,
+          "relative_intensity_departure": 0.00889239213394876,
+          "target_p95_retention": 0.9967587508841673,
+          "power_ratio": 1.0000000000000002
+        }
+      ],
+      "minimum_target_p95_retention": 0.9965021847862823,
+      "minimum_coherent_intensity_ssim": 0.9997503120534545
+    },
+    {
+      "landing_energy_eV": 1.0,
+      "chromatic_coefficient_m": 0.001,
+      "energy_spread_fwhm_eV": 0.001,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.7
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8436507936507937,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9781.591725842878,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19825.339025881036,
+        "device_current_a": 5.044049933746644e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.0314540059347181,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8436507936507937,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9781.591725842878,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19825.339025881036,
+        "device_current_a": 5.044049933746644e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.0314540059347181
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999998673495946,
+          "relative_intensity_departure": 0.00024604655622425067,
+          "target_p95_retention": 0.9998637956791714,
+          "power_ratio": 1.0
+        },
+        {
+          "coherent_intensity_ssim": 0.9999998669870285,
+          "relative_intensity_departure": 0.0002462676362504091,
+          "target_p95_retention": 0.9998640693112908,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999255867625,
+          "relative_intensity_departure": 0.00015839444389751596,
+          "target_p95_retention": 0.9998758453980717,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.9998637956791714,
+      "minimum_coherent_intensity_ssim": 0.9999998669870285
+    },
+    {
+      "landing_energy_eV": 1.0,
+      "chromatic_coefficient_m": 0.001,
+      "energy_spread_fwhm_eV": 0.01,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.7
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8420634920634921,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9799.890157181017,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19843.637457219174,
+        "device_current_a": 5.0393986594236886e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03147268408551069,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8420634920634921,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9799.890157181017,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19843.637457219174,
+        "device_current_a": 5.0393986594236886e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03147268408551069
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999978198090204,
+          "relative_intensity_departure": 0.0009561038403666137,
+          "target_p95_retention": 0.9994380359403148,
+          "power_ratio": 1.0000000000000004
+        },
+        {
+          "coherent_intensity_ssim": 0.9999978125875548,
+          "relative_intensity_departure": 0.0009576516211900229,
+          "target_p95_retention": 0.9994379433907632,
+          "power_ratio": 1.0000000000000004
+        },
+        {
+          "coherent_intensity_ssim": 0.9999988323306076,
+          "relative_intensity_departure": 0.0005706984421217932,
+          "target_p95_retention": 0.9997440821175335,
+          "power_ratio": 1.0000000000000002
+        }
+      ],
+      "minimum_target_p95_retention": 0.9994379433907632,
+      "minimum_coherent_intensity_ssim": 0.9999978125875548
+    },
+    {
+      "landing_energy_eV": 1.0,
+      "chromatic_coefficient_m": 0.001,
+      "energy_spread_fwhm_eV": 0.1,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.6
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8365079365079365,
+          0.8365079365079365,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8365079365079365,
+        "contact_resistance_ohm": [
+          9864.480487451565,
+          9864.480487451565,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19972.81811776027,
+        "device_current_a": 5.006804718813205e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.036773428232502965,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8365079365079365,
+          0.8365079365079365,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8365079365079365,
+        "contact_resistance_ohm": [
+          9864.480487451565,
+          9864.480487451565,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19972.81811776027,
+        "device_current_a": 5.006804718813205e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.036773428232502965
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9982889569104844,
+          "relative_intensity_departure": 0.04225151278333748,
+          "target_p95_retention": 0.9733236251596167,
+          "power_ratio": 1.0
+        },
+        {
+          "coherent_intensity_ssim": 0.9982878142420373,
+          "relative_intensity_departure": 0.04224583631459131,
+          "target_p95_retention": 0.9733087240716076,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9986696433321901,
+          "relative_intensity_departure": 0.026356471263708072,
+          "target_p95_retention": 0.982773063397717,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.9733087240716076,
+      "minimum_coherent_intensity_ssim": 0.9982878142420373
+    },
+    {
+      "landing_energy_eV": 1.0,
+      "chromatic_coefficient_m": 0.001,
+      "energy_spread_fwhm_eV": 0.5,
+      "status": "recalibration_required",
+      "dose_window": [
+        1.7499999999999998,
+        2.3
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8261904761904761,
+          0.8269841269841269,
+          0.9467592592592593
+        ],
+        "minimum_contact_coverage": 0.8261904761904761,
+        "contact_resistance_ohm": [
+          9986.734110066744,
+          9977.22189048411,
+          8483.757672598262
+        ],
+        "total_device_resistance_ohm": 20207.813143407995,
+        "device_current_a": 4.948580991438011e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.22645477915400794,
+        "dose_multiplier": 1.7499999999999998
+      },
+      "fixed_coherent_dose": {
+        "functional": false,
+        "metal_short": false,
+        "contact_coverage": [
+          0.6841269841269841,
+          0.6841269841269841,
+          0.8441358024691358
+        ],
+        "minimum_contact_coverage": 0.6841269841269841,
+        "contact_resistance_ohm": [
+          12044.23294046484,
+          12044.23294046484,
+          9506.505368759797
+        ],
+        "total_device_resistance_ohm": 24332.323023786823,
+        "device_current_a": 4.1097596765521266e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.1618084473527662
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.8552408841613063,
+          "relative_intensity_departure": 0.4121535756660195,
+          "target_p95_retention": 0.6556393886959676,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.8551604153943083,
+          "relative_intensity_departure": 0.4120907618807792,
+          "target_p95_retention": 0.6556458695203908,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9417383876082477,
+          "relative_intensity_departure": 0.28319397202586094,
+          "target_p95_retention": 0.8025148682310052,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.6556393886959676,
+      "minimum_coherent_intensity_ssim": 0.8551604153943083
+    },
+    {
+      "landing_energy_eV": 1.0,
+      "chromatic_coefficient_m": 0.01,
+      "energy_spread_fwhm_eV": 0.001,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.7
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8420634920634921,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9799.890157181017,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19843.637457219174,
+        "device_current_a": 5.0393986594236886e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03147268408551069,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8420634920634921,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9799.890157181017,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19843.637457219174,
+        "device_current_a": 5.0393986594236886e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03147268408551069
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.999997819809017,
+          "relative_intensity_departure": 0.0009561038403667075,
+          "target_p95_retention": 0.9994380359403143,
+          "power_ratio": 1.0
+        },
+        {
+          "coherent_intensity_ssim": 0.9999978125875567,
+          "relative_intensity_departure": 0.0009576516211901303,
+          "target_p95_retention": 0.9994379433907625,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999988323306082,
+          "relative_intensity_departure": 0.0005706984421218928,
+          "target_p95_retention": 0.999744082117533,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.9994379433907625,
+      "minimum_coherent_intensity_ssim": 0.9999978125875567
+    },
+    {
+      "landing_energy_eV": 1.0,
+      "chromatic_coefficient_m": 0.01,
+      "energy_spread_fwhm_eV": 0.01,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.6
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8365079365079365,
+          0.8365079365079365,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8365079365079365,
+        "contact_resistance_ohm": [
+          9864.480487451565,
+          9864.480487451565,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19972.81811776027,
+        "device_current_a": 5.006804718813205e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.036773428232502965,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8365079365079365,
+          0.8365079365079365,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8365079365079365,
+        "contact_resistance_ohm": [
+          9864.480487451565,
+          9864.480487451565,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19972.81811776027,
+        "device_current_a": 5.006804718813205e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.036773428232502965
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9982889569104806,
+          "relative_intensity_departure": 0.04225151278333737,
+          "target_p95_retention": 0.9733236251596172,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9982878142420345,
+          "relative_intensity_departure": 0.042245836314591174,
+          "target_p95_retention": 0.9733087240716078,
+          "power_ratio": 1.0000000000000004
+        },
+        {
+          "coherent_intensity_ssim": 0.9986696433321918,
+          "relative_intensity_departure": 0.02635647126370801,
+          "target_p95_retention": 0.9827730633977173,
+          "power_ratio": 1.0000000000000002
+        }
+      ],
+      "minimum_target_p95_retention": 0.9733087240716078,
+      "minimum_coherent_intensity_ssim": 0.9982878142420345
+    },
+    {
+      "landing_energy_eV": 1.0,
+      "chromatic_coefficient_m": 0.01,
+      "energy_spread_fwhm_eV": 0.1,
+      "status": "recalibration_required",
+      "dose_window": [
+        2.35,
+        2.7
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8325396825396826,
+          0.8333333333333334,
+          0.9753086419753086
+        ],
+        "minimum_contact_coverage": 0.8325396825396826,
+        "contact_resistance_ohm": [
+          9911.143197763628,
+          9901.775170815967,
+          8237.427503388979
+        ],
+        "total_device_resistance_ohm": 20056.775511436736,
+        "device_current_a": 4.985846301314894e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.404251550044287,
+        "dose_multiplier": 2.35
+      },
+      "fixed_coherent_dose": {
+        "functional": false,
+        "metal_short": false,
+        "contact_coverage": [
+          0.4,
+          0.4,
+          0.6234567901234568
+        ],
+        "minimum_contact_coverage": 0.4,
+        "contact_resistance_ohm": [
+          20533.09229803239,
+          20533.09229803239,
+          12843.570507631855
+        ],
+        "total_device_resistance_ohm": 41310.04173892192,
+        "device_current_a": 2.420718929116476e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.2867242733699921
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.572196232900004,
+          "relative_intensity_departure": 0.6188518725242435,
+          "target_p95_retention": 0.4553355872958271,
+          "power_ratio": 1.0
+        },
+        {
+          "coherent_intensity_ssim": 0.5720314530194549,
+          "relative_intensity_departure": 0.6187836185748905,
+          "target_p95_retention": 0.45530958419316087,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.7715083827311424,
+          "relative_intensity_departure": 0.5004088681909759,
+          "target_p95_retention": 0.6311590876813292,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.45530958419316087,
+      "minimum_coherent_intensity_ssim": 0.5720314530194549
+    },
+    {
+      "landing_energy_eV": 1.0,
+      "chromatic_coefficient_m": 0.01,
+      "energy_spread_fwhm_eV": 0.5,
+      "status": "recalibration_required",
+      "dose_window": [
+        5.0,
+        5.6
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8325396825396826,
+          0.8325396825396826,
+          1.0
+        ],
+        "minimum_contact_coverage": 0.8325396825396826,
+        "contact_resistance_ohm": [
+          9911.143197763628,
+          9911.143197763628,
+          8035.704733389933
+        ],
+        "total_device_resistance_ohm": 20066.143538384396,
+        "device_current_a": 4.983518622236039e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.6481807815901316,
+        "dose_multiplier": 5.0
+      },
+      "fixed_coherent_dose": {
+        "functional": false,
+        "metal_short": false,
+        "contact_coverage": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minimum_contact_coverage": 0.0,
+        "contact_resistance_ohm": [
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        "total_device_resistance_ohm": Infinity,
+        "device_current_a": 0.0,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.0
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.1479945068944925,
+          "relative_intensity_departure": 0.8621551518839063,
+          "target_p95_retention": 0.13395222942302598,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.14797064060745282,
+          "relative_intensity_departure": 0.8621311901643197,
+          "target_p95_retention": 0.1339569407572315,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.21011836738502354,
+          "relative_intensity_departure": 0.804025288466585,
+          "target_p95_retention": 0.20313343425886654,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.13395222942302598,
+      "minimum_coherent_intensity_ssim": 0.14797064060745282
+    },
+    {
+      "landing_energy_eV": 10.0,
+      "chromatic_coefficient_m": 0.0001,
+      "energy_spread_fwhm_eV": 0.001,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.75
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999999998774755,
+          "relative_intensity_departure": 7.5936062036109684e-06,
+          "target_p95_retention": 0.9999957984131509,
+          "power_ratio": 1.0
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999998771876,
+          "relative_intensity_departure": 7.599144196901871e-06,
+          "target_p95_retention": 0.9999958072983214,
+          "power_ratio": 1.0
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999999264607,
+          "relative_intensity_departure": 5.011279117041698e-06,
+          "target_p95_retention": 0.9999957124089986,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.9999957124089986,
+      "minimum_coherent_intensity_ssim": 0.9999999998771876
+    },
+    {
+      "landing_energy_eV": 10.0,
+      "chromatic_coefficient_m": 0.0001,
+      "energy_spread_fwhm_eV": 0.01,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.75
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999999998773849,
+          "relative_intensity_departure": 7.595029925861916e-06,
+          "target_p95_retention": 0.9999957941274806,
+          "power_ratio": 1.0000000000000004
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999998771028,
+          "relative_intensity_departure": 7.600581410870296e-06,
+          "target_p95_retention": 0.9999958030087233,
+          "power_ratio": 1.0000000000000004
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999999264577,
+          "relative_intensity_departure": 5.011067063439238e-06,
+          "target_p95_retention": 0.9999957111829979,
+          "power_ratio": 1.0000000000000002
+        }
+      ],
+      "minimum_target_p95_retention": 0.9999957111829979,
+      "minimum_coherent_intensity_ssim": 0.9999999998771028
+    },
+    {
+      "landing_energy_eV": 10.0,
+      "chromatic_coefficient_m": 0.0001,
+      "energy_spread_fwhm_eV": 0.1,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.75
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999999998661404,
+          "relative_intensity_departure": 7.81054002754228e-06,
+          "target_p95_retention": 0.9999953655509334,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999998657746,
+          "relative_intensity_departure": 7.817614725899014e-06,
+          "target_p95_retention": 0.9999953740394145,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999999245809,
+          "relative_intensity_departure": 5.027623622358767e-06,
+          "target_p95_retention": 0.9999955885821498,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.9999953655509334,
+      "minimum_coherent_intensity_ssim": 0.9999999998657746
+    },
+    {
+      "landing_energy_eV": 10.0,
+      "chromatic_coefficient_m": 0.0001,
+      "energy_spread_fwhm_eV": 0.5,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.75
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999999977970732,
+          "relative_intensity_departure": 2.8910666580478924e-05,
+          "target_p95_retention": 0.9999849701038497,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.999999997788648,
+          "relative_intensity_departure": 2.8966140158461514e-05,
+          "target_p95_retention": 0.9999849690977937,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999990604422,
+          "relative_intensity_departure": 1.603451535345038e-05,
+          "target_p95_retention": 0.999992616053849,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.9999849690977937,
+      "minimum_coherent_intensity_ssim": 0.999999997788648
+    },
+    {
+      "landing_energy_eV": 10.0,
+      "chromatic_coefficient_m": 0.001,
+      "energy_spread_fwhm_eV": 0.001,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.75
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999999998773911,
+          "relative_intensity_departure": 7.595029925991578e-06,
+          "target_p95_retention": 0.9999957941274804,
+          "power_ratio": 1.0
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999998771046,
+          "relative_intensity_departure": 7.600581410986291e-06,
+          "target_p95_retention": 0.9999958030087229,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999999264566,
+          "relative_intensity_departure": 5.011067063566297e-06,
+          "target_p95_retention": 0.9999957111829975,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.9999957111829975,
+      "minimum_coherent_intensity_ssim": 0.9999999998771046
+    },
+    {
+      "landing_energy_eV": 10.0,
+      "chromatic_coefficient_m": 0.001,
+      "energy_spread_fwhm_eV": 0.01,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.75
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999999998661396,
+          "relative_intensity_departure": 7.810540027412834e-06,
+          "target_p95_retention": 0.9999953655509339,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999998657793,
+          "relative_intensity_departure": 7.817614725786018e-06,
+          "target_p95_retention": 0.9999953740394145,
+          "power_ratio": 1.0000000000000004
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999999245792,
+          "relative_intensity_departure": 5.0276236222659254e-06,
+          "target_p95_retention": 0.9999955885821501,
+          "power_ratio": 1.0000000000000002
+        }
+      ],
+      "minimum_target_p95_retention": 0.9999953655509339,
+      "minimum_coherent_intensity_ssim": 0.9999999998657793
+    },
+    {
+      "landing_energy_eV": 10.0,
+      "chromatic_coefficient_m": 0.001,
+      "energy_spread_fwhm_eV": 0.1,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.75
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.999999970213449,
+          "relative_intensity_departure": 0.00010731246199986571,
+          "target_p95_retention": 0.9999524158647995,
+          "power_ratio": 1.0
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999701081465,
+          "relative_intensity_departure": 0.00010750746128519639,
+          "target_p95_retention": 0.9999523855109548,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999865418565,
+          "relative_intensity_departure": 6.100727542468879e-05,
+          "target_p95_retention": 0.9999833227018422,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.9999523855109548,
+      "minimum_coherent_intensity_ssim": 0.9999999701081465
+    },
+    {
+      "landing_energy_eV": 10.0,
+      "chromatic_coefficient_m": 0.001,
+      "energy_spread_fwhm_eV": 0.5,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.7
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8412698412698413,
+          0.8420634920634921,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8412698412698413,
+        "contact_resistance_ohm": [
+          9809.065217325775,
+          9799.890157181017,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19852.81251736393,
+        "device_current_a": 5.037069680305331e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.031482031482031485,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8412698412698413,
+          0.8420634920634921,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8412698412698413,
+        "contact_resistance_ohm": [
+          9809.065217325775,
+          9799.890157181017,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19852.81251736393,
+        "device_current_a": 5.037069680305331e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.031482031482031485
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999923036353382,
+          "relative_intensity_departure": 0.001894320433785344,
+          "target_p95_retention": 0.9990234670420781,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999922836514631,
+          "relative_intensity_departure": 0.0018965854795925158,
+          "target_p95_retention": 0.9990163701079642,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999946459934027,
+          "relative_intensity_departure": 0.001224641454584884,
+          "target_p95_retention": 0.9996899021273113,
+          "power_ratio": 1.0000000000000002
+        }
+      ],
+      "minimum_target_p95_retention": 0.9990163701079642,
+      "minimum_coherent_intensity_ssim": 0.9999922836514631
+    },
+    {
+      "landing_energy_eV": 10.0,
+      "chromatic_coefficient_m": 0.01,
+      "energy_spread_fwhm_eV": 0.001,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.75
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999999998661442,
+          "relative_intensity_departure": 7.810540027552576e-06,
+          "target_p95_retention": 0.9999953655509333,
+          "power_ratio": 0.9999999999999999
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999998657749,
+          "relative_intensity_departure": 7.817614725913671e-06,
+          "target_p95_retention": 0.9999953740394144,
+          "power_ratio": 1.0
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999999245798,
+          "relative_intensity_departure": 5.027623622377661e-06,
+          "target_p95_retention": 0.9999955885821498,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.9999953655509333,
+      "minimum_coherent_intensity_ssim": 0.9999999998657749
+    },
+    {
+      "landing_energy_eV": 10.0,
+      "chromatic_coefficient_m": 0.01,
+      "energy_spread_fwhm_eV": 0.01,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.75
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8796296296296297
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9125.831993265634
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03146334223805283
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999999702134662,
+          "relative_intensity_departure": 0.00010731246199981767,
+          "target_p95_retention": 0.9999524158648001,
+          "power_ratio": 1.0000000000000004
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999701081502,
+          "relative_intensity_departure": 0.000107507461285136,
+          "target_p95_retention": 0.9999523855109551,
+          "power_ratio": 1.0000000000000004
+        },
+        {
+          "coherent_intensity_ssim": 0.9999999865418632,
+          "relative_intensity_departure": 6.10072754246503e-05,
+          "target_p95_retention": 0.9999833227018426,
+          "power_ratio": 1.0000000000000002
+        }
+      ],
+      "minimum_target_p95_retention": 0.9999523855109551,
+      "minimum_coherent_intensity_ssim": 0.9999999701081502
+    },
+    {
+      "landing_energy_eV": 10.0,
+      "chromatic_coefficient_m": 0.01,
+      "energy_spread_fwhm_eV": 0.1,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.7
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8804012345679012
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9117.89670861975
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03260225251926497,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.8420634920634921,
+          0.8428571428571429,
+          0.8804012345679012
+        ],
+        "minimum_contact_coverage": 0.8420634920634921,
+        "contact_resistance_ohm": [
+          9799.890157181017,
+          9790.732342894973,
+          9117.89670861975
+        ],
+        "total_device_resistance_ohm": 19834.47964293313,
+        "device_current_a": 5.041725409500684e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.03260225251926497
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9999403117390843,
+          "relative_intensity_departure": 0.00564980442695054,
+          "target_p95_retention": 0.9979312954547687,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999402528999052,
+          "relative_intensity_departure": 0.005651176139520642,
+          "target_p95_retention": 0.9979217725606373,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9999409453315965,
+          "relative_intensity_departure": 0.00407144743507441,
+          "target_p95_retention": 0.9987637952783613,
+          "power_ratio": 1.0
+        }
+      ],
+      "minimum_target_p95_retention": 0.9979217725606373,
+      "minimum_coherent_intensity_ssim": 0.9999402528999052
+    },
+    {
+      "landing_energy_eV": 10.0,
+      "chromatic_coefficient_m": 0.01,
+      "energy_spread_fwhm_eV": 0.5,
+      "status": "fixed_dose_pass",
+      "dose_window": [
+        1.45,
+        2.5
+      ],
+      "selected": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.834920634920635,
+          0.8357142857142857,
+          0.8811728395061729
+        ],
+        "minimum_contact_coverage": 0.834920634920635,
+        "contact_resistance_ohm": [
+          9883.092445344837,
+          9873.777645629098,
+          9109.975293648593
+        ],
+        "total_device_resistance_ohm": 20000.727233831076,
+        "device_current_a": 4.999818198152854e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.045280799764775066,
+        "dose_multiplier": 1.45
+      },
+      "fixed_coherent_dose": {
+        "functional": true,
+        "metal_short": false,
+        "contact_coverage": [
+          0.834920634920635,
+          0.8357142857142857,
+          0.8811728395061729
+        ],
+        "minimum_contact_coverage": 0.834920634920635,
+        "contact_resistance_ohm": [
+          9883.092445344837,
+          9873.777645629098,
+          9109.975293648593
+        ],
+        "total_device_resistance_ohm": 20000.727233831076,
+        "device_current_a": 4.999818198152854e-05,
+        "monitor_leakage_a": 5.502461120731003e-10,
+        "outside_conducting_fraction": 0.045280799764775066
+      },
+      "exposure_metrics": [
+        {
+          "coherent_intensity_ssim": 0.9934966339635475,
+          "relative_intensity_departure": 0.092889988106198,
+          "target_p95_retention": 0.9326558425055714,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9934925171395308,
+          "relative_intensity_departure": 0.09287638104566706,
+          "target_p95_retention": 0.932638905830393,
+          "power_ratio": 1.0000000000000002
+        },
+        {
+          "coherent_intensity_ssim": 0.9966806847251753,
+          "relative_intensity_departure": 0.05430037531054929,
+          "target_p95_retention": 0.9622122955243145,
+          "power_ratio": 1.0000000000000002
+        }
+      ],
+      "minimum_target_p95_retention": 0.932638905830393,
+      "minimum_coherent_intensity_ssim": 0.9934925171395308
+    }
+  ],
+  "scope_limits": [
+    "The T31 30 keV phase controls are mapped through an ideal 80x demagnification before the validated T18 axial-aberration operator.",
+    "The study is a coupled parameterized transfer, not a solved electrostatic lens-column design.",
+    "Coma, field curvature, distortion, vibration, charging, and measured source tails are omitted.",
+    "The electrical gate uses expected thickness; T49 correlated process yield is not included in this sweep."
+  ]
+}

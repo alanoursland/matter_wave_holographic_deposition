@@ -425,6 +425,60 @@ landing stage, closed-loop printing simulation) — is written up in
       allocation is therefore a subsystem specification, not a demonstrated
       functional kill threshold for this device coupon.
 
+- [x] **T49. Dephased correlated process-yield gate.** - **DONE 2026-07-16**
+      Applies the T48 ensemble-mean contact kernels to T41's correlated
+      four-device process model. In 384 common-random-number pairs at dose
+      2.05, coherent and nominal-dephased printing both pass 376 arrays
+      (97.92%, 95% CI 95.94%-99.10%), with zero dephasing-only losses and a
+      0.956% upper loss bound. Nominal noise is `not_falsified`. After dose
+      re-optimization, 16x noise still passes 128/128 arrays, while 32x falls
+      to 40.62% yield through intra-device bridging. The stochastic functional
+      failure is therefore bracketed between 16x and 32x nominal noise.
+
+- [x] **T50. Column-aberrated electrical device gate.** - **DONE 2026-07-16**
+      Couples the T31 30 keV voltage-calibrated phase controls, ideal 80x
+      demagnification, T18 axial column aberrations, and T40's electrical gate.
+      The nominal 10 eV landing, 1 mm C_c, 0.5 eV-spread corner is
+      `not_falsified`: the fixed 1.45 dose passes and the functional window is
+      1.45-2.70. All tested 10 eV corners retain fixed-dose operation. At 1 eV,
+      a 1 mm C_c with 0.5 eV spread requires dose recalibration to 1.75-2.30;
+      worse 10 mm corners require up to 5.00-5.60. No tested mean device loses
+      every dose window. The remaining column uncertainty is a solved lens
+      geometry, not the parameterized axial transfer.
+
+- [x] **T51. Column-aberrated correlated process-yield gate.** - **DONE 2026-07-17**
+      Injects T50's fixed-calibration column kernels into T49's four-device
+      correlated process model. At the nominal 10 eV, 1 mm C_c, 0.5 eV-spread
+      corner, coherent and column cases both pass 497/512 paired arrays
+      (97.07%, 95% CI 95.21%-98.35%), with zero column-only losses and a 0.718%
+      upper loss bound: `not_falsified`. Process variation overturns the mean-
+      device recovery at 1 eV: the 1 mm corner falls to 40.62% yield and the
+      10 mm corner has zero yield at every tested dose. Raw-spread cold-column
+      operation is therefore functionally falsified under the T41 process
+      distribution.
+
+- [x] **T52. Joint noise/column/process gate.** - **DONE 2026-07-17**
+      Exactly averages complex T40 fields over both the T46 nine-electrode
+      phase ensemble and T50's 10 eV chromatic column before applying T41
+      correlated process variation. The non-additive interaction is only
+      1.05e-5 of the coherent exposure norm. At the established dose 2.05,
+      coherent and joint models both pass 743/768 arrays (96.74%, 95% CI
+      95.23%-97.88%), with zero joint-only losses and a 0.479% upper loss
+      bound: `not_falsified`. Even 16x phase noise plus the nominal column
+      passes 377/384 arrays, although conductive residue and ensemble error
+      rise. The current simulator has no remaining identified nominal
+      phase/column/process interaction capable of reversing the verdict.
+
+- [x] **T53. Explicit electrostatic column-family gate.** - **DONE 2026-07-17**
+      Replaces the ideal 80x mapping with a five-plate KinoPulse Laplace solve
+      and direct charged-particle transfer. Even after optimizing the object
+      distance separately at every focus voltage, none of 23 swept members
+      places an 80x image after the landing stack at 10+/-1 eV within 10 mm.
+      Fine-grid images occur inside the stack at 240-365 eV and require
+      22.6-58.7 mm. The bounded single-focus/deceleration family is falsified;
+      a separated multistage demagnifier, decelerator, and final low-energy
+      lens is now required before T50's 1 mm C_c assumption can be defended.
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).

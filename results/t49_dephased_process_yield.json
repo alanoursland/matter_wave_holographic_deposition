@@ -1,0 +1,1895 @@
+{
+  "study": "T49 T41 correlated process yield under T47 quantum dephasing",
+  "source_artifact": "results/t48_dephased_device_function.npz",
+  "device_pitch_m": 2.5000000000000004e-07,
+  "noise_scales": [
+    0.0,
+    1.0,
+    8.0,
+    16.0,
+    32.0,
+    64.0
+  ],
+  "dose_setpoints": [
+    0.75,
+    0.95,
+    1.15,
+    1.45,
+    1.75,
+    2.05,
+    2.35,
+    2.65
+  ],
+  "sweep_replicates": 16,
+  "qualification_replicates": 128,
+  "nominal_paired_replicates": 384,
+  "gate": {
+    "array_yield_requirement": 0.95,
+    "maximum_dephasing_loss_probability": 0.05,
+    "confidence_level": 0.95,
+    "decision": "not_falsified"
+  },
+  "dose_sweeps": [
+    {
+      "noise_scale": 0.0,
+      "records": [
+        {
+          "dose_setpoint": 0.75,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006265941362566996,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007408763970599928,
+          "median_device_current_a": 2.338330542281674e-05,
+          "p95_finite_contact_resistance_ohm": 28308.18016591716,
+          "mean_outside_conducting_fraction": 0.00022434812002449645
+        },
+        {
+          "dose_setpoint": 0.95,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006359184283355697,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007678516144810149,
+          "median_device_current_a": 3.439142392560141e-05,
+          "p95_finite_contact_resistance_ohm": 18824.59959457848,
+          "mean_outside_conducting_fraction": 0.007435058397383906
+        },
+        {
+          "dose_setpoint": 1.15,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006260114781331327,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007309926542107134,
+          "median_device_current_a": 4.1379240084179884e-05,
+          "p95_finite_contact_resistance_ohm": 13796.579892630205,
+          "mean_outside_conducting_fraction": 0.018550341953981163
+        },
+        {
+          "dose_setpoint": 1.45,
+          "replicates": 16,
+          "full_field_device_yield": 0.265625,
+          "full_field_device_yield_95ci": [
+            0.1629760514685109,
+            0.3908761291534109
+          ],
+          "full_field_array_yield": 0.125,
+          "full_field_array_yield_95ci": [
+            0.01551360381541388,
+            0.3834762368492636
+          ],
+          "independent_array_yield_from_device_rate": 0.0049782395362854,
+          "isolated_device_yield": 0.21875,
+          "isolated_array_yield": 0.125,
+          "isolated_array_yield_95ci": [
+            0.01551360381541388,
+            0.3834762368492636
+          ],
+          "isolated_independent_array_yield": 0.0022897720336914062,
+          "sidelobe_device_yield_change": 0.046875,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": 0.6606037570810183,
+          "isolated_mean_failure_pair_correlation": 0.7024685504908019,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006331972592538667,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007631779509967058,
+          "median_device_current_a": 4.911727085670308e-05,
+          "p95_finite_contact_resistance_ohm": 11005.016346758104,
+          "mean_outside_conducting_fraction": 0.07245439017812103
+        },
+        {
+          "dose_setpoint": 1.75,
+          "replicates": 16,
+          "full_field_device_yield": 0.890625,
+          "full_field_device_yield_95ci": [
+            0.7875427740445976,
+            0.9548789798128852
+          ],
+          "full_field_array_yield": 0.6875,
+          "full_field_array_yield_95ci": [
+            0.4133793635486413,
+            0.8898300452828823
+          ],
+          "independent_array_yield_from_device_rate": 0.6291866898536682,
+          "isolated_device_yield": 0.875,
+          "isolated_array_yield": 0.6875,
+          "isolated_array_yield_95ci": [
+            0.4133793635486413,
+            0.8898300452828823
+          ],
+          "isolated_independent_array_yield": 0.586181640625,
+          "sidelobe_device_yield_change": 0.015625,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": 0.0757027000625649,
+          "isolated_mean_failure_pair_correlation": 0.2642323805778916,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006244124440754744,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.00731449580064981,
+          "median_device_current_a": 5.4014338808762867e-05,
+          "p95_finite_contact_resistance_ohm": 9891.499671806845,
+          "mean_outside_conducting_fraction": 0.1541895394018366
+        },
+        {
+          "dose_setpoint": 2.05,
+          "replicates": 16,
+          "full_field_device_yield": 0.984375,
+          "full_field_device_yield_95ci": [
+            0.9159896735656463,
+            0.9996044874859493
+          ],
+          "full_field_array_yield": 0.9375,
+          "full_field_array_yield_95ci": [
+            0.697679261565468,
+            0.9984188882772341
+          ],
+          "independent_array_yield_from_device_rate": 0.9389496445655823,
+          "isolated_device_yield": 0.984375,
+          "isolated_array_yield": 0.9375,
+          "isolated_array_yield_95ci": [
+            0.697679261565468,
+            0.9984188882772341
+          ],
+          "isolated_independent_array_yield": 0.9389496445655823,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.0063762969347443115,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007593989810995382,
+          "median_device_current_a": 5.614771216219296e-05,
+          "p95_finite_contact_resistance_ohm": 9262.078629651342,
+          "mean_outside_conducting_fraction": 0.22094461407688393
+        },
+        {
+          "dose_setpoint": 2.35,
+          "replicates": 16,
+          "full_field_device_yield": 0.96875,
+          "full_field_device_yield_95ci": [
+            0.8916294777754828,
+            0.9961928186181276
+          ],
+          "full_field_array_yield": 0.9375,
+          "full_field_array_yield_95ci": [
+            0.697679261565468,
+            0.9984188882772341
+          ],
+          "independent_array_yield_from_device_rate": 0.8807382583618164,
+          "isolated_device_yield": 0.96875,
+          "isolated_array_yield": 0.9375,
+          "isolated_array_yield_95ci": [
+            0.697679261565468,
+            0.9984188882772341
+          ],
+          "isolated_independent_array_yield": 0.8807382583618164,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0625,
+          "mean_failure_pair_correlation": 1.0,
+          "isolated_mean_failure_pair_correlation": 1.0,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006299379346695657,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.0073053008664225585,
+          "median_device_current_a": 5.758343434679088e-05,
+          "p95_finite_contact_resistance_ohm": 8852.009067228188,
+          "mean_outside_conducting_fraction": 0.2935279207688848
+        },
+        {
+          "dose_setpoint": 2.65,
+          "replicates": 16,
+          "full_field_device_yield": 0.578125,
+          "full_field_device_yield_95ci": [
+            0.44815862493697933,
+            0.7006191938565354
+          ],
+          "full_field_array_yield": 0.4375,
+          "full_field_array_yield_95ci": [
+            0.1975341405326679,
+            0.7012231009168222
+          ],
+          "independent_array_yield_from_device_rate": 0.11170870065689087,
+          "isolated_device_yield": 0.578125,
+          "isolated_array_yield": 0.4375,
+          "isolated_array_yield_95ci": [
+            0.1975341405326679,
+            0.7012231009168222
+          ],
+          "isolated_independent_array_yield": 0.11170870065689087,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.5625,
+          "mean_failure_pair_correlation": 0.6716501804098104,
+          "isolated_mean_failure_pair_correlation": 0.6716501804098104,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006453263403377812,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007676197869525525,
+          "median_device_current_a": 5.816980721133207e-05,
+          "p95_finite_contact_resistance_ohm": 8728.692707414328,
+          "mean_outside_conducting_fraction": 0.3979159298221117
+        }
+      ]
+    },
+    {
+      "noise_scale": 1.0,
+      "records": [
+        {
+          "dose_setpoint": 0.75,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006401241730041825,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007545950127643997,
+          "median_device_current_a": 2.168234104972919e-05,
+          "p95_finite_contact_resistance_ohm": 32306.503695134572,
+          "mean_outside_conducting_fraction": 7.610493666015473e-05
+        },
+        {
+          "dose_setpoint": 0.95,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006404736242635704,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007761491704858143,
+          "median_device_current_a": 3.205866451761862e-05,
+          "p95_finite_contact_resistance_ohm": 19015.28139110125,
+          "mean_outside_conducting_fraction": 0.005201919042965938
+        },
+        {
+          "dose_setpoint": 1.15,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006384881519114703,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007446448444332431,
+          "median_device_current_a": 4.061618501816589e-05,
+          "p95_finite_contact_resistance_ohm": 14462.352018185047,
+          "mean_outside_conducting_fraction": 0.022057333076989302
+        },
+        {
+          "dose_setpoint": 1.45,
+          "replicates": 16,
+          "full_field_device_yield": 0.1875,
+          "full_field_device_yield_95ci": [
+            0.10081515935377754,
+            0.3046228736951483
+          ],
+          "full_field_array_yield": 0.0625,
+          "full_field_array_yield_95ci": [
+            0.0015811117227658871,
+            0.30232073843453194
+          ],
+          "independent_array_yield_from_device_rate": 0.0012359619140625,
+          "isolated_device_yield": 0.15625,
+          "isolated_array_yield": 0.0625,
+          "isolated_array_yield_95ci": [
+            0.0015811117227658871,
+            0.30232073843453194
+          ],
+          "isolated_independent_array_yield": 0.0005960464477539062,
+          "sidelobe_device_yield_change": 0.03125,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": 0.39525711690194276,
+          "isolated_mean_failure_pair_correlation": 0.4418182194236531,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006350948360079731,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007723108707803509,
+          "median_device_current_a": 4.897440978729539e-05,
+          "p95_finite_contact_resistance_ohm": 11313.247957234484,
+          "mean_outside_conducting_fraction": 0.08145075628002854
+        },
+        {
+          "dose_setpoint": 1.75,
+          "replicates": 16,
+          "full_field_device_yield": 0.90625,
+          "full_field_device_yield_95ci": [
+            0.8070308955516561,
+            0.9648126671291817
+          ],
+          "full_field_array_yield": 0.8125,
+          "full_field_array_yield_95ci": [
+            0.5435434537683882,
+            0.9595262660940541
+          ],
+          "independent_array_yield_from_device_rate": 0.6745157241821289,
+          "isolated_device_yield": 0.875,
+          "isolated_array_yield": 0.6875,
+          "isolated_array_yield_95ci": [
+            0.4133793635486413,
+            0.8898300452828823
+          ],
+          "isolated_independent_array_yield": 0.586181640625,
+          "sidelobe_device_yield_change": 0.03125,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": 0.6691365644733288,
+          "isolated_mean_failure_pair_correlation": 0.4229655794303413,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.00628080536032659,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007161558324889006,
+          "median_device_current_a": 5.3088931807213716e-05,
+          "p95_finite_contact_resistance_ohm": 9843.241605208754,
+          "mean_outside_conducting_fraction": 0.1627776752660741
+        },
+        {
+          "dose_setpoint": 2.05,
+          "replicates": 16,
+          "full_field_device_yield": 1.0,
+          "full_field_device_yield_95ci": [
+            0.9439909106133634,
+            1.0
+          ],
+          "full_field_array_yield": 1.0,
+          "full_field_array_yield_95ci": [
+            0.7940927857921772,
+            1.0
+          ],
+          "independent_array_yield_from_device_rate": 1.0,
+          "isolated_device_yield": 1.0,
+          "isolated_array_yield": 1.0,
+          "isolated_array_yield_95ci": [
+            0.7940927857921772,
+            1.0
+          ],
+          "isolated_independent_array_yield": 1.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006389387056077096,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007317509930235979,
+          "median_device_current_a": 5.578548218531341e-05,
+          "p95_finite_contact_resistance_ohm": 9269.470512993921,
+          "mean_outside_conducting_fraction": 0.2191339305110156
+        },
+        {
+          "dose_setpoint": 2.35,
+          "replicates": 16,
+          "full_field_device_yield": 0.890625,
+          "full_field_device_yield_95ci": [
+            0.7875427740445976,
+            0.9548789798128852
+          ],
+          "full_field_array_yield": 0.875,
+          "full_field_array_yield_95ci": [
+            0.6165237631507365,
+            0.9844863961845861
+          ],
+          "independent_array_yield_from_device_rate": 0.6291866898536682,
+          "isolated_device_yield": 0.890625,
+          "isolated_array_yield": 0.875,
+          "isolated_array_yield_95ci": [
+            0.6165237631507365,
+            0.9844863961845861
+          ],
+          "isolated_independent_array_yield": 0.6291866898536682,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.125,
+          "mean_failure_pair_correlation": 0.8415650255319868,
+          "isolated_mean_failure_pair_correlation": 0.8415650255319868,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006421785377840267,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007461360912472542,
+          "median_device_current_a": 5.778228023894979e-05,
+          "p95_finite_contact_resistance_ohm": 8938.385570941617,
+          "mean_outside_conducting_fraction": 0.30910238719869376
+        },
+        {
+          "dose_setpoint": 2.65,
+          "replicates": 16,
+          "full_field_device_yield": 0.484375,
+          "full_field_device_yield_95ci": [
+            0.35750199671976257,
+            0.6127411917795764
+          ],
+          "full_field_array_yield": 0.3125,
+          "full_field_array_yield_95ci": [
+            0.1101699547171176,
+            0.5866206364513586
+          ],
+          "independent_array_yield_from_device_rate": 0.055046141147613525,
+          "isolated_device_yield": 0.484375,
+          "isolated_array_yield": 0.3125,
+          "isolated_array_yield_95ci": [
+            0.1101699547171176,
+            0.5866206364513586
+          ],
+          "isolated_independent_array_yield": 0.055046141147613525,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.6875,
+          "mean_failure_pair_correlation": 0.5799981052419896,
+          "isolated_mean_failure_pair_correlation": 0.5799981052419896,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.00649303739437176,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007663126203678978,
+          "median_device_current_a": 5.8458349485602576e-05,
+          "p95_finite_contact_resistance_ohm": 8673.078828570504,
+          "mean_outside_conducting_fraction": 0.41968958128329825
+        }
+      ]
+    },
+    {
+      "noise_scale": 8.0,
+      "records": [
+        {
+          "dose_setpoint": 0.75,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006922680006179564,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.008269761771919843,
+          "median_device_current_a": 2.3735671634062712e-05,
+          "p95_finite_contact_resistance_ohm": 31810.128826173113,
+          "mean_outside_conducting_fraction": 0.00043063913116089537
+        },
+        {
+          "dose_setpoint": 0.95,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.00684079477682683,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.008036402676062513,
+          "median_device_current_a": 3.408211780792099e-05,
+          "p95_finite_contact_resistance_ohm": 17731.597549912975,
+          "mean_outside_conducting_fraction": 0.005340238031288583
+        },
+        {
+          "dose_setpoint": 1.15,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006820191613666687,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007986251569550485,
+          "median_device_current_a": 4.1907097289220656e-05,
+          "p95_finite_contact_resistance_ohm": 14291.253194884086,
+          "mean_outside_conducting_fraction": 0.02752280371222819
+        },
+        {
+          "dose_setpoint": 1.45,
+          "replicates": 16,
+          "full_field_device_yield": 0.421875,
+          "full_field_device_yield_95ci": [
+            0.29938080614346446,
+            0.5518413750630206
+          ],
+          "full_field_array_yield": 0.125,
+          "full_field_array_yield_95ci": [
+            0.01551360381541388,
+            0.3834762368492636
+          ],
+          "independent_array_yield_from_device_rate": 0.03167635202407837,
+          "isolated_device_yield": 0.359375,
+          "isolated_array_yield": 0.125,
+          "isolated_array_yield_95ci": [
+            0.01551360381541388,
+            0.3834762368492636
+          ],
+          "isolated_independent_array_yield": 0.016679823398590088,
+          "sidelobe_device_yield_change": 0.0625,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": 0.25145341310368224,
+          "isolated_mean_failure_pair_correlation": 0.27662172275500013,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006834774256374241,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.008280914286847206,
+          "median_device_current_a": 5.015351124989778e-05,
+          "p95_finite_contact_resistance_ohm": 10761.147822904426,
+          "mean_outside_conducting_fraction": 0.09886440642155303
+        },
+        {
+          "dose_setpoint": 1.75,
+          "replicates": 16,
+          "full_field_device_yield": 0.90625,
+          "full_field_device_yield_95ci": [
+            0.8070308955516561,
+            0.9648126671291817
+          ],
+          "full_field_array_yield": 0.8125,
+          "full_field_array_yield_95ci": [
+            0.5435434537683882,
+            0.9595262660940541
+          ],
+          "independent_array_yield_from_device_rate": 0.6745157241821289,
+          "isolated_device_yield": 0.875,
+          "isolated_array_yield": 0.8125,
+          "isolated_array_yield_95ci": [
+            0.5435434537683882,
+            0.9595262660940541
+          ],
+          "isolated_independent_array_yield": 0.586181640625,
+          "sidelobe_device_yield_change": 0.03125,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": 0.693515272137887,
+          "isolated_mean_failure_pair_correlation": 0.6509844942541386,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006914107182742811,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007934124660457894,
+          "median_device_current_a": 5.447605856043238e-05,
+          "p95_finite_contact_resistance_ohm": 9734.354886876541,
+          "mean_outside_conducting_fraction": 0.1773294495988516
+        },
+        {
+          "dose_setpoint": 2.05,
+          "replicates": 16,
+          "full_field_device_yield": 1.0,
+          "full_field_device_yield_95ci": [
+            0.9439909106133634,
+            1.0
+          ],
+          "full_field_array_yield": 1.0,
+          "full_field_array_yield_95ci": [
+            0.7940927857921772,
+            1.0
+          ],
+          "independent_array_yield_from_device_rate": 1.0,
+          "isolated_device_yield": 1.0,
+          "isolated_array_yield": 1.0,
+          "isolated_array_yield_95ci": [
+            0.7940927857921772,
+            1.0
+          ],
+          "isolated_independent_array_yield": 1.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006962462457402957,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.008152996798126876,
+          "median_device_current_a": 5.689792592356846e-05,
+          "p95_finite_contact_resistance_ohm": 9081.967439473317,
+          "mean_outside_conducting_fraction": 0.2612198735764972
+        },
+        {
+          "dose_setpoint": 2.35,
+          "replicates": 16,
+          "full_field_device_yield": 0.828125,
+          "full_field_device_yield_95ci": [
+            0.7132463421265286,
+            0.9109510036708971
+          ],
+          "full_field_array_yield": 0.6875,
+          "full_field_array_yield_95ci": [
+            0.4133793635486413,
+            0.8898300452828823
+          ],
+          "independent_array_yield_from_device_rate": 0.470309317111969,
+          "isolated_device_yield": 0.828125,
+          "isolated_array_yield": 0.6875,
+          "isolated_array_yield_95ci": [
+            0.4133793635486413,
+            0.8898300452828823
+          ],
+          "isolated_independent_array_yield": 0.470309317111969,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.3125,
+          "mean_failure_pair_correlation": 0.5391966183746076,
+          "isolated_mean_failure_pair_correlation": 0.5391966183746076,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006879012786859946,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.008131187501506619,
+          "median_device_current_a": 5.853851939399853e-05,
+          "p95_finite_contact_resistance_ohm": 8647.003099784593,
+          "mean_outside_conducting_fraction": 0.39472796805546595
+        },
+        {
+          "dose_setpoint": 2.65,
+          "replicates": 16,
+          "full_field_device_yield": 0.09375,
+          "full_field_device_yield_95ci": [
+            0.03518733287081831,
+            0.1929691044483439
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 7.724761962890625e-05,
+          "isolated_device_yield": 0.09375,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 7.724761962890625e-05,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": 0.6109755895982044,
+          "isolated_mean_failure_pair_correlation": 0.6109755895982044,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006871108674146585,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.00808918466146445,
+          "median_device_current_a": 5.916323064315505e-05,
+          "p95_finite_contact_resistance_ohm": 8486.8462449877,
+          "mean_outside_conducting_fraction": 0.5004872936376636
+        }
+      ]
+    },
+    {
+      "noise_scale": 16.0,
+      "records": [
+        {
+          "dose_setpoint": 0.75,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.008886417360580344,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.010288173560173345,
+          "median_device_current_a": 2.5247530579563416e-05,
+          "p95_finite_contact_resistance_ohm": 28684.5907094817,
+          "mean_outside_conducting_fraction": 0.0014685406165923964
+        },
+        {
+          "dose_setpoint": 0.95,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.008925042978491556,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.010467392877053743,
+          "median_device_current_a": 4.0982568700684304e-05,
+          "p95_finite_contact_resistance_ohm": 15313.395577922098,
+          "mean_outside_conducting_fraction": 0.0262756493911804
+        },
+        {
+          "dose_setpoint": 1.15,
+          "replicates": 16,
+          "full_field_device_yield": 0.171875,
+          "full_field_device_yield_95ci": [
+            0.08904899632910289,
+            0.28675365787347135
+          ],
+          "full_field_array_yield": 0.0625,
+          "full_field_array_yield_95ci": [
+            0.0015811117227658871,
+            0.30232073843453194
+          ],
+          "independent_array_yield_from_device_rate": 0.0008726716041564941,
+          "isolated_device_yield": 0.140625,
+          "isolated_array_yield": 0.0625,
+          "isolated_array_yield_95ci": [
+            0.0015811117227658871,
+            0.30232073843453194
+          ],
+          "isolated_independent_array_yield": 0.0003910660743713379,
+          "sidelobe_device_yield_change": 0.03125,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": 0.5366996528021962,
+          "isolated_mean_failure_pair_correlation": 0.5191527811905504,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.008926862731914998,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.010292297418382034,
+          "median_device_current_a": 4.9438955841124936e-05,
+          "p95_finite_contact_resistance_ohm": 11512.481586176345,
+          "mean_outside_conducting_fraction": 0.08820458279627798
+        },
+        {
+          "dose_setpoint": 1.45,
+          "replicates": 16,
+          "full_field_device_yield": 0.875,
+          "full_field_device_yield_95ci": [
+            0.768473694033996,
+            0.944457208820398
+          ],
+          "full_field_array_yield": 0.875,
+          "full_field_array_yield_95ci": [
+            0.6165237631507365,
+            0.9844863961845861
+          ],
+          "independent_array_yield_from_device_rate": 0.586181640625,
+          "isolated_device_yield": 0.875,
+          "isolated_array_yield": 0.875,
+          "isolated_array_yield_95ci": [
+            0.6165237631507365,
+            0.9844863961845861
+          ],
+          "isolated_independent_array_yield": 0.586181640625,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": 1.0,
+          "isolated_mean_failure_pair_correlation": 1.0,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.009008553014294957,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.010363413333253498,
+          "median_device_current_a": 5.563355161196672e-05,
+          "p95_finite_contact_resistance_ohm": 9770.485536995066,
+          "mean_outside_conducting_fraction": 0.21647097600503418
+        },
+        {
+          "dose_setpoint": 1.75,
+          "replicates": 16,
+          "full_field_device_yield": 1.0,
+          "full_field_device_yield_95ci": [
+            0.9439909106133634,
+            1.0
+          ],
+          "full_field_array_yield": 1.0,
+          "full_field_array_yield_95ci": [
+            0.7940927857921772,
+            1.0
+          ],
+          "independent_array_yield_from_device_rate": 1.0,
+          "isolated_device_yield": 1.0,
+          "isolated_array_yield": 1.0,
+          "isolated_array_yield_95ci": [
+            0.7940927857921772,
+            1.0
+          ],
+          "isolated_independent_array_yield": 1.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.00876331916681389,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.010204935594440953,
+          "median_device_current_a": 5.8601226579066094e-05,
+          "p95_finite_contact_resistance_ohm": 8722.838776090952,
+          "mean_outside_conducting_fraction": 0.3717409998432627
+        },
+        {
+          "dose_setpoint": 2.05,
+          "replicates": 16,
+          "full_field_device_yield": 0.828125,
+          "full_field_device_yield_95ci": [
+            0.7132463421265286,
+            0.9109510036708971
+          ],
+          "full_field_array_yield": 0.6875,
+          "full_field_array_yield_95ci": [
+            0.4133793635486413,
+            0.8898300452828823
+          ],
+          "independent_array_yield_from_device_rate": 0.470309317111969,
+          "isolated_device_yield": 0.828125,
+          "isolated_array_yield": 0.6875,
+          "isolated_array_yield_95ci": [
+            0.4133793635486413,
+            0.8898300452828823
+          ],
+          "isolated_independent_array_yield": 0.470309317111969,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.3125,
+          "mean_failure_pair_correlation": 0.5482564153853754,
+          "isolated_mean_failure_pair_correlation": 0.5482564153853754,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.008874285082784731,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.010155467690186416,
+          "median_device_current_a": 5.9279486951289797e-05,
+          "p95_finite_contact_resistance_ohm": 8562.332986133406,
+          "mean_outside_conducting_fraction": 0.46410108655947585
+        },
+        {
+          "dose_setpoint": 2.35,
+          "replicates": 16,
+          "full_field_device_yield": 0.015625,
+          "full_field_device_yield_95ci": [
+            0.00039551251405066395,
+            0.08401032643435369
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 5.960464477539063e-08,
+          "isolated_device_yield": 0.015625,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 5.960464477539063e-08,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.125,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.008819622552935426,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.010087540081131954,
+          "median_device_current_a": 5.9605092649229464e-05,
+          "p95_finite_contact_resistance_ohm": 8328.922062873442,
+          "mean_outside_conducting_fraction": 0.6099541520130313
+        },
+        {
+          "dose_setpoint": 2.65,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.6875,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.008775046793193714,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.009800506498165074,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8269.87102683145,
+          "mean_outside_conducting_fraction": 0.6709877671788628
+        }
+      ]
+    },
+    {
+      "noise_scale": 32.0,
+      "records": [
+        {
+          "dose_setpoint": 0.75,
+          "replicates": 16,
+          "full_field_device_yield": 0.328125,
+          "full_field_device_yield_95ci": [
+            0.2158719988937247,
+            0.45687678677855953
+          ],
+          "full_field_array_yield": 0.125,
+          "full_field_array_yield_95ci": [
+            0.01551360381541388,
+            0.3834762368492636
+          ],
+          "independent_array_yield_from_device_rate": 0.011591970920562744,
+          "isolated_device_yield": 0.234375,
+          "isolated_array_yield": 0.0625,
+          "isolated_array_yield_95ci": [
+            0.0015811117227658871,
+            0.30232073843453194
+          ],
+          "isolated_independent_array_yield": 0.0030174851417541504,
+          "sidelobe_device_yield_change": 0.09375,
+          "interdevice_bridge_rate": 0.0,
+          "intradevice_bridge_rate": 0.0,
+          "mean_failure_pair_correlation": 0.39721510648362335,
+          "isolated_mean_failure_pair_correlation": 0.42263199924528827,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.019946021906713362,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.022596221152712842,
+          "median_device_current_a": 5.0672502776325265e-05,
+          "p95_finite_contact_resistance_ohm": 12054.098213449126,
+          "mean_outside_conducting_fraction": 0.18705370088971424
+        },
+        {
+          "dose_setpoint": 0.95,
+          "replicates": 16,
+          "full_field_device_yield": 0.59375,
+          "full_field_device_yield_95ci": [
+            0.46367687770771565,
+            0.7148529871891394
+          ],
+          "full_field_array_yield": 0.4375,
+          "full_field_array_yield_95ci": [
+            0.1975341405326679,
+            0.7012231009168222
+          ],
+          "independent_array_yield_from_device_rate": 0.1242837905883789,
+          "isolated_device_yield": 0.625,
+          "isolated_array_yield": 0.4375,
+          "isolated_array_yield_95ci": [
+            0.1975341405326679,
+            0.7012231009168222
+          ],
+          "isolated_independent_array_yield": 0.152587890625,
+          "sidelobe_device_yield_change": -0.03125,
+          "interdevice_bridge_rate": 0.1875,
+          "intradevice_bridge_rate": 0.5,
+          "mean_failure_pair_correlation": 0.5999369679541097,
+          "isolated_mean_failure_pair_correlation": 0.5746225980613017,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.020340481433867717,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.022971843498223468,
+          "median_device_current_a": 5.9210781400777224e-05,
+          "p95_finite_contact_resistance_ohm": 8723.558063435832,
+          "mean_outside_conducting_fraction": 0.48373994871513465
+        },
+        {
+          "dose_setpoint": 1.15,
+          "replicates": 16,
+          "full_field_device_yield": 0.015625,
+          "full_field_device_yield_95ci": [
+            0.00039551251405066395,
+            0.08401032643435369
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 5.960464477539063e-08,
+          "isolated_device_yield": 0.015625,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 5.960464477539063e-08,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 0.875,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.020246606412504503,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.023084998715258806,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8305.529947777852,
+          "mean_outside_conducting_fraction": 0.644077746504532
+        },
+        {
+          "dose_setpoint": 1.45,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 1.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.020049778471872746,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.022393237059150698,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8263.361765980311,
+          "mean_outside_conducting_fraction": 0.7352128282999114
+        },
+        {
+          "dose_setpoint": 1.75,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 1.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.019970597759935066,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.02266185031518584,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8263.361765980311,
+          "mean_outside_conducting_fraction": 0.7809878055347877
+        },
+        {
+          "dose_setpoint": 2.05,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 1.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.019975314321821785,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.0226066674558214,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8263.361765980311,
+          "mean_outside_conducting_fraction": 0.8081651035864147
+        },
+        {
+          "dose_setpoint": 2.35,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 1.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.019974728051519067,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.022740051297278196,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8263.361765980311,
+          "mean_outside_conducting_fraction": 0.8213220065714075
+        },
+        {
+          "dose_setpoint": 2.65,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 1.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.02024007534603999,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.022248858482598378,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8263.361765980311,
+          "mean_outside_conducting_fraction": 0.8304789763526736
+        }
+      ]
+    },
+    {
+      "noise_scale": 64.0,
+      "records": [
+        {
+          "dose_setpoint": 0.75,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 1.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.07350285023724643,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.08336629209223563,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8263.361765980311,
+          "mean_outside_conducting_fraction": 0.8307769635043173
+        },
+        {
+          "dose_setpoint": 0.95,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 1.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.07344421082029651,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.08658335286602896,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8263.361765980311,
+          "mean_outside_conducting_fraction": 0.8480150090909939
+        },
+        {
+          "dose_setpoint": 1.15,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 1.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.0733041021522833,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.08529781718406358,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8263.361765980311,
+          "mean_outside_conducting_fraction": 0.8618605945746278
+        },
+        {
+          "dose_setpoint": 1.45,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 1.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.07310139230149018,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.08371898951534365,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8263.361765980311,
+          "mean_outside_conducting_fraction": 0.8729719657253828
+        },
+        {
+          "dose_setpoint": 1.75,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 1.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.07390554399870658,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.08668688498684733,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8263.361765980311,
+          "mean_outside_conducting_fraction": 0.8810347182921296
+        },
+        {
+          "dose_setpoint": 2.05,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 1.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.07270497841131017,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.08420841969091149,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8263.361765980311,
+          "mean_outside_conducting_fraction": 0.8873787151112131
+        },
+        {
+          "dose_setpoint": 2.35,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 1.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.07284672354604084,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.08401390715651742,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8263.361765980311,
+          "mean_outside_conducting_fraction": 0.8915120052942023
+        },
+        {
+          "dose_setpoint": 2.65,
+          "replicates": 16,
+          "full_field_device_yield": 0.0,
+          "full_field_device_yield_95ci": [
+            0.0,
+            0.05600908938663656
+          ],
+          "full_field_array_yield": 0.0,
+          "full_field_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "independent_array_yield_from_device_rate": 0.0,
+          "isolated_device_yield": 0.0,
+          "isolated_array_yield": 0.0,
+          "isolated_array_yield_95ci": [
+            0.0,
+            0.20590721420782268
+          ],
+          "isolated_independent_array_yield": 0.0,
+          "sidelobe_device_yield_change": 0.0,
+          "interdevice_bridge_rate": 1.0,
+          "intradevice_bridge_rate": 1.0,
+          "mean_failure_pair_correlation": null,
+          "isolated_mean_failure_pair_correlation": null,
+          "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.07278973344456424,
+          "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.08579125907954277,
+          "median_device_current_a": 5.962822751281189e-05,
+          "p95_finite_contact_resistance_ohm": 8263.361765980311,
+          "mean_outside_conducting_fraction": 0.8946033175201166
+        }
+      ]
+    }
+  ],
+  "qualifications": [
+    {
+      "noise_scale": 0.0,
+      "dose_setpoint": 2.05,
+      "replicates": 384,
+      "full_field_device_yield": 0.9921875,
+      "full_field_device_yield_95ci": [
+        0.9863929398061024,
+        0.9959568409427993
+      ],
+      "full_field_array_yield": 0.9791666666666666,
+      "full_field_array_yield_95ci": [
+        0.959364163019878,
+        0.9909637582079363
+      ],
+      "independent_array_yield_from_device_rate": 0.9691143073141575,
+      "isolated_device_yield": 0.9908854166666666,
+      "isolated_array_yield": 0.9765625,
+      "isolated_array_yield_95ci": [
+        0.955975936326266,
+        0.9892281542461999
+      ],
+      "isolated_independent_array_yield": 0.964037098545282,
+      "sidelobe_device_yield_change": 0.0013020833333333703,
+      "interdevice_bridge_rate": 0.0,
+      "intradevice_bridge_rate": 0.0,
+      "mean_failure_pair_correlation": 0.27325577348756863,
+      "isolated_mean_failure_pair_correlation": 0.26929490870304634,
+      "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006373318521301773,
+      "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.0075412157469936306,
+      "median_device_current_a": 5.599354597576038e-05,
+      "p95_finite_contact_resistance_ohm": 9312.257160804975,
+      "mean_outside_conducting_fraction": 0.21662048603088757,
+      "selected_dose_setpoint": 2.05
+    },
+    {
+      "noise_scale": 1.0,
+      "dose_setpoint": 2.05,
+      "replicates": 384,
+      "full_field_device_yield": 0.9921875,
+      "full_field_device_yield_95ci": [
+        0.9863929398061024,
+        0.9959568409427993
+      ],
+      "full_field_array_yield": 0.9791666666666666,
+      "full_field_array_yield_95ci": [
+        0.959364163019878,
+        0.9909637582079363
+      ],
+      "independent_array_yield_from_device_rate": 0.9691143073141575,
+      "isolated_device_yield": 0.9915364583333334,
+      "isolated_array_yield": 0.9791666666666666,
+      "isolated_array_yield_95ci": [
+        0.959364163019878,
+        0.9909637582079363
+      ],
+      "isolated_independent_array_yield": 0.9665732026636605,
+      "sidelobe_device_yield_change": 0.0006510416666666297,
+      "interdevice_bridge_rate": 0.0,
+      "intradevice_bridge_rate": 0.0,
+      "mean_failure_pair_correlation": 0.27325577348756863,
+      "isolated_mean_failure_pair_correlation": 0.2917665061591514,
+      "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006380978803533779,
+      "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007550710581445593,
+      "median_device_current_a": 5.6014548536098884e-05,
+      "p95_finite_contact_resistance_ohm": 9309.364541933332,
+      "mean_outside_conducting_fraction": 0.21727721472616124,
+      "selected_dose_setpoint": 2.05
+    },
+    {
+      "noise_scale": 8.0,
+      "dose_setpoint": 2.05,
+      "replicates": 128,
+      "full_field_device_yield": 0.998046875,
+      "full_field_device_yield_95ci": [
+        0.9891663430552455,
+        0.9999505523788546
+      ],
+      "full_field_array_yield": 0.9921875,
+      "full_field_array_yield_95ci": [
+        0.9572409680857796,
+        0.9998022241853383
+      ],
+      "independent_array_yield_from_device_rate": 0.9922103583958233,
+      "isolated_device_yield": 0.99609375,
+      "isolated_array_yield": 0.984375,
+      "isolated_array_yield_95ci": [
+        0.9446974099775511,
+        0.9981021068782607
+      ],
+      "isolated_independent_array_yield": 0.9844663145486265,
+      "sidelobe_device_yield_change": 0.001953125,
+      "interdevice_bridge_rate": 0.0,
+      "intradevice_bridge_rate": 0.0078125,
+      "mean_failure_pair_correlation": null,
+      "isolated_mean_failure_pair_correlation": -0.007874015748031494,
+      "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006892002415619335,
+      "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.008233357088881009,
+      "median_device_current_a": 5.7154986200318405e-05,
+      "p95_finite_contact_resistance_ohm": 9039.300735352703,
+      "mean_outside_conducting_fraction": 0.26559440518857125,
+      "selected_dose_setpoint": 2.05
+    },
+    {
+      "noise_scale": 16.0,
+      "dose_setpoint": 1.75,
+      "replicates": 128,
+      "full_field_device_yield": 1.0,
+      "full_field_device_yield_95ci": [
+        0.9928210499737405,
+        1.0
+      ],
+      "full_field_array_yield": 1.0,
+      "full_field_array_yield_95ci": [
+        0.9715919465564561,
+        1.0
+      ],
+      "independent_array_yield_from_device_rate": 1.0,
+      "isolated_device_yield": 1.0,
+      "isolated_array_yield": 1.0,
+      "isolated_array_yield_95ci": [
+        0.9715919465564561,
+        1.0
+      ],
+      "isolated_independent_array_yield": 1.0,
+      "sidelobe_device_yield_change": 0.0,
+      "interdevice_bridge_rate": 0.0,
+      "intradevice_bridge_rate": 0.0,
+      "mean_failure_pair_correlation": null,
+      "isolated_mean_failure_pair_correlation": null,
+      "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.008917736366750518,
+      "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.010459385215404198,
+      "median_device_current_a": 5.826262868247338e-05,
+      "p95_finite_contact_resistance_ohm": 8796.705427377763,
+      "mean_outside_conducting_fraction": 0.343489271401156,
+      "selected_dose_setpoint": 1.75
+    },
+    {
+      "noise_scale": 32.0,
+      "dose_setpoint": 0.95,
+      "replicates": 128,
+      "full_field_device_yield": 0.66796875,
+      "full_field_device_yield_95ci": [
+        0.625318399781208,
+        0.7086661007788371
+      ],
+      "full_field_array_yield": 0.40625,
+      "full_field_array_yield_95ci": [
+        0.3203522677290259,
+        0.4965873952091142
+      ],
+      "independent_array_yield_from_device_rate": 0.1990786010865122,
+      "isolated_device_yield": 0.671875,
+      "isolated_array_yield": 0.3984375,
+      "isolated_array_yield_95ci": [
+        0.31298943397935797,
+        0.4886960196106001
+      ],
+      "isolated_independent_array_yield": 0.20377641916275024,
+      "sidelobe_device_yield_change": -0.00390625,
+      "interdevice_bridge_rate": 0.078125,
+      "intradevice_bridge_rate": 0.5546875,
+      "mean_failure_pair_correlation": 0.3859611328569313,
+      "isolated_mean_failure_pair_correlation": 0.3450793469071498,
+      "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.020048978846684364,
+      "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.022858178134115253,
+      "median_device_current_a": 5.895649242415753e-05,
+      "p95_finite_contact_resistance_ohm": 8781.977390002881,
+      "mean_outside_conducting_fraction": 0.47833430092091744,
+      "selected_dose_setpoint": 0.95
+    },
+    {
+      "noise_scale": 64.0,
+      "dose_setpoint": 0.75,
+      "replicates": 128,
+      "full_field_device_yield": 0.0,
+      "full_field_device_yield_95ci": [
+        0.0,
+        0.007178950026259454
+      ],
+      "full_field_array_yield": 0.0,
+      "full_field_array_yield_95ci": [
+        0.0,
+        0.02840805344354391
+      ],
+      "independent_array_yield_from_device_rate": 0.0,
+      "isolated_device_yield": 0.0,
+      "isolated_array_yield": 0.0,
+      "isolated_array_yield_95ci": [
+        0.0,
+        0.02840805344354391
+      ],
+      "isolated_independent_array_yield": 0.0,
+      "sidelobe_device_yield_change": 0.0,
+      "interdevice_bridge_rate": 1.0,
+      "intradevice_bridge_rate": 1.0,
+      "mean_failure_pair_correlation": null,
+      "isolated_mean_failure_pair_correlation": null,
+      "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.07327259580835821,
+      "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.08439589892264847,
+      "median_device_current_a": 5.962822751281189e-05,
+      "p95_finite_contact_resistance_ohm": 8263.361765980311,
+      "mean_outside_conducting_fraction": 0.8303042243515568,
+      "selected_dose_setpoint": 0.75
+    }
+  ],
+  "nominal_paired_comparison": {
+    "dose_setpoint": 2.05,
+    "coherent": {
+      "dose_setpoint": 2.05,
+      "replicates": 384,
+      "full_field_device_yield": 0.9921875,
+      "full_field_device_yield_95ci": [
+        0.9863929398061024,
+        0.9959568409427993
+      ],
+      "full_field_array_yield": 0.9791666666666666,
+      "full_field_array_yield_95ci": [
+        0.959364163019878,
+        0.9909637582079363
+      ],
+      "independent_array_yield_from_device_rate": 0.9691143073141575,
+      "isolated_device_yield": 0.9908854166666666,
+      "isolated_array_yield": 0.9765625,
+      "isolated_array_yield_95ci": [
+        0.955975936326266,
+        0.9892281542461999
+      ],
+      "isolated_independent_array_yield": 0.964037098545282,
+      "sidelobe_device_yield_change": 0.0013020833333333703,
+      "interdevice_bridge_rate": 0.0,
+      "intradevice_bridge_rate": 0.0,
+      "mean_failure_pair_correlation": 0.27325577348756863,
+      "isolated_mean_failure_pair_correlation": 0.26929490870304634,
+      "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006373318521301773,
+      "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.0075412157469936306,
+      "median_device_current_a": 5.599354597576038e-05,
+      "p95_finite_contact_resistance_ohm": 9312.257160804975,
+      "mean_outside_conducting_fraction": 0.21662048603088757
+    },
+    "dephased": {
+      "dose_setpoint": 2.05,
+      "replicates": 384,
+      "full_field_device_yield": 0.9921875,
+      "full_field_device_yield_95ci": [
+        0.9863929398061024,
+        0.9959568409427993
+      ],
+      "full_field_array_yield": 0.9791666666666666,
+      "full_field_array_yield_95ci": [
+        0.959364163019878,
+        0.9909637582079363
+      ],
+      "independent_array_yield_from_device_rate": 0.9691143073141575,
+      "isolated_device_yield": 0.9915364583333334,
+      "isolated_array_yield": 0.9791666666666666,
+      "isolated_array_yield_95ci": [
+        0.959364163019878,
+        0.9909637582079363
+      ],
+      "isolated_independent_array_yield": 0.9665732026636605,
+      "sidelobe_device_yield_change": 0.0006510416666666297,
+      "interdevice_bridge_rate": 0.0,
+      "intradevice_bridge_rate": 0.0,
+      "mean_failure_pair_correlation": 0.27325577348756863,
+      "isolated_mean_failure_pair_correlation": 0.2917665061591514,
+      "mean_neighbor_sidelobe_fraction_in_contact_windows": 0.006380978803533779,
+      "p95_neighbor_sidelobe_fraction_in_contact_windows": 0.007550710581445593,
+      "median_device_current_a": 5.6014548536098884e-05,
+      "p95_finite_contact_resistance_ohm": 9309.364541933332,
+      "mean_outside_conducting_fraction": 0.21727721472616124
+    },
+    "outcomes": {
+      "replicates": 384,
+      "both_pass": 376,
+      "coherent_only_pass": 0,
+      "dephased_only_pass": 0,
+      "both_fail": 8,
+      "dephasing_loss_probability": 0.0,
+      "dephasing_loss_probability_95ci": [
+        0.0,
+        0.0095604623041242
+      ]
+    }
+  },
+  "adverse_scale_result": {
+    "first_scale_with_95ci_entirely_below_yield_requirement": 32.0,
+    "interpretation": "adverse scales re-optimize dose before qualification"
+  },
+  "scope_limits": [
+    "Dephasing uses T48 ensemble-mean intensity, appropriate when many particles sample the stationary bath during an exposure.",
+    "Process variation is the T41 correlated dose, registration, and first-order edge-roughness model.",
+    "The study does not add atom-counting shot noise, chemistry, or a measured wafer process distribution.",
+    "Yield is simulated rather than experimentally measured."
+  ]
+}

@@ -396,6 +396,7 @@ class ElectrostaticSolveConfig:
     preconditioner: Literal["jacobi", "none"] = "jacobi"
     compute_field: bool = True
     track_residual_history: bool = False
+    stagnation_window: int = 25
     raise_on_nonconvergence: bool = True
     allow_nonconverged_export: bool = False
     dtype: torch.dtype = torch.float64
@@ -408,6 +409,7 @@ class ElectrostaticSolveConfig:
             max_iterations=self.max_iterations,
             preconditioner=self.preconditioner,
             track_residual_history=self.track_residual_history,
+            stagnation_window=self.stagnation_window,
             raise_on_nonconvergence=self.raise_on_nonconvergence,
         )
 

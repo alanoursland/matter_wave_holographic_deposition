@@ -68,9 +68,9 @@ a functional falsifier for the demonstrated resistor coupon. Rejecting a
 modeled operating point that still passes the actual electrical task.
 
 This does not qualify the physical architecture: T48 inherits T40's effective
-14.4 nm image-side wave model and expected-thickness treatment. A complete
-30 keV column transfer and T41 stochastic process ensemble remain separate
-requirements.
+14.4 nm image-side wave model and expected-thickness treatment. T49 now applies
+the T41 stochastic process ensemble and confirms nominal array yield, but a
+complete 30 keV column transfer remains a separate requirement.
 
 Artifacts are `results/t48_dephased_device_function.{json,npz,png}`. The
 study is `src/t48_dephased_device_function_gate.py`.

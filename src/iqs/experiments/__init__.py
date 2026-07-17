@@ -5,6 +5,19 @@ from .decoherence_sweep import decoherence_sweep
 from .disorder_robustness import disorder_robustness
 from .dose_fidelity import dose_fidelity_curve, dose_to_ssim
 from .multi_species import multi_species_deposition
+from .column_aberration import (
+    aberrated_intensity,
+    transverse_k_squared,
+    wavelength_from_energy,
+)
+from .electrostatic_column import (
+    ElectrostaticRayTracer,
+    ImagePlane,
+    RayTrace,
+    TransferMatrixTrace,
+    aperture_clearances,
+    image_planes,
+)
 from .quantum_dephasing import (
     array_factor_intensity,
     coherence_matrix_from_pairwise_phase_rms,
@@ -41,6 +54,15 @@ __all__ = [
     "dose_fidelity_curve",
     "dose_to_ssim",
     "multi_species_deposition",
+    "aberrated_intensity",
+    "transverse_k_squared",
+    "wavelength_from_energy",
+    "ElectrostaticRayTracer",
+    "ImagePlane",
+    "RayTrace",
+    "TransferMatrixTrace",
+    "aperture_clearances",
+    "image_planes",
     "array_factor_intensity",
     "coherence_matrix_from_pairwise_phase_rms",
     "dephasing_metrics",

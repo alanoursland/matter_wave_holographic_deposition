@@ -48,6 +48,11 @@ from iqs.holography import SQUIDArray, InverseHolographySolver, \
 from iqs.constants import e_C, hbar, k_B, m_He
 from iqs.numerics.metrics import ssim_score
 from iqs.numerics.device import get_device
+from iqs.experiments.column_aberration import (
+    aberrated_intensity as _column_aberrated_intensity,
+    transverse_k_squared,
+    wavelength_from_energy,
+)
 
 _device = get_device()
 os.makedirs('results', exist_ok=True)
@@ -60,7 +65,7 @@ H_PLANCK = 6.62607015e-34
 
 
 def lam_of_E(E_eV, m=m_He):
-    return H_PLANCK / np.sqrt(2 * m * E_eV * e_C)
+    return wavelength_from_energy(E_eV, m)
 
 
 # ---------------------------------------------------------------------------
@@ -91,9 +96,7 @@ def ideal_image_field(seed=0):
 # ---------------------------------------------------------------------------
 
 def _k_grids(N, L):
-    k = 2 * np.pi * np.fft.fftfreq(N, d=L / N)
-    KX, KY = np.meshgrid(k, k, indexing='ij')
-    return KX**2 + KY**2
+    return transverse_k_squared(N, L)
 
 
 def aberrated_intensity(psi, E_land_eV, C_c, dE_fwhm_eV, C_s=0.0,
@@ -104,29 +107,16 @@ def aberrated_intensity(psi, E_land_eV, C_c, dE_fwhm_eV, C_s=0.0,
     energy distribution (FWHM dE_fwhm_eV), each energy seeing a defocus
     C_c·δE/E_land.
     """
-    N = psi.shape[0]
-    K2 = _k_grids(N, L)
-    k_land = 2 * np.pi / lam_of_E(E_land_eV)
-    PSI = np.fft.fft2(psi)
-
-    # static terms
-    W_static = C_s * K2**2 / (4 * k_land**3) + defocus * K2 / (2 * k_land)
-
-    if dE_fwhm_eV > 0:
-        sig = dE_fwhm_eV / 2.355
-        dEs = np.linspace(-3 * sig, 3 * sig, n_energy)
-        w = np.exp(-dEs**2 / (2 * sig**2))
-        w /= w.sum()
-    else:
-        dEs, w = np.array([0.0]), np.array([1.0])
-
-    I = np.zeros((N, N))
-    for dE, wj in zip(dEs, w):
-        df = C_c * dE / E_land_eV
-        W = W_static + df * K2 / (2 * k_land)
-        img = np.fft.ifft2(PSI * np.exp(1j * W))
-        I += wj * np.abs(img)**2
-    return I
+    return _column_aberrated_intensity(
+        psi,
+        E_land_eV,
+        C_c,
+        dE_fwhm_eV,
+        spherical_coefficient_m=C_s,
+        defocus_m=defocus,
+        energy_samples=n_energy,
+        field_width_m=L,
+    )
 
 
 # ---------------------------------------------------------------------------

@@ -431,6 +431,52 @@ conditioning, and the crosstalk-honest current model.
   nominal phase RMS, while every tested dose window disappears between 32x
   and 64x. The 0.05 rad allocation should therefore remain a design target,
   not be cited as an architecture-level functional boundary.
+  **Correlated-yield gate added 2026-07-16 (T49)** - nominal dephasing also
+  survives T41's correlated four-device process model. A paired 384-realization
+  test gives identical coherent and dephased array yield of 97.92% (95% lower
+  bound 95.94%) and zero dephasing-only failures (95% upper bound 0.956%).
+  Re-optimized yield remains 100% at 16x noise but falls to 40.62% at 32x as
+  blurred residue bridges contacts. Thus the functional failure bracket is
+  16x-32x even after process recalibration; the unresolved architecture-level
+  simulation is now the complete column-to-image transfer, not nominal
+  thermal dephasing.
+  **Column-to-device gate added 2026-07-16 (T50)** - T31's 30 keV calibrated
+  electrode controls now feed an ideal 80x image mapping, the validated T18
+  axial-aberration operator, and the unchanged T40 electrical gate. The
+  nominal 10 eV landing, 1 mm C_c, 0.5 eV-spread corner retains the fixed 1.45
+  dose and a 1.45-2.70 functional window. Every tested 10 eV corner passes the
+  fixed dose; cold 1 eV corners with large chromatic burden require dose
+  recalibration but retain a mean-device window. This closes the parameterized
+  axial transfer objection. A lens-electrode solve that predicts 80x
+  demagnification and C_c, plus T49 yield on the aberrated kernels, remains.
+  **Column/process yield gate added 2026-07-17 (T51)** - the nominal 10 eV,
+  1 mm C_c column and coherent control produce identical 497/512 paired-array
+  passes (97.07%, 95% lower bound 95.21%), with zero column-only losses and a
+  0.718% upper loss bound. The raw-spread 1 eV alternatives do not survive
+  correlated variation: yield falls to 40.62% at 1 mm C_c and zero at 10 mm,
+  despite T50's recalibratable mean-device windows. The simulation-level
+  operating choice is therefore sharpened to 10 eV landing; the remaining
+  physical uncertainty is a lens-electrode design that derives the assumed
+  demagnification and C_c.
+  **Joint interaction gate added 2026-07-17 (T52)** - exact complex-field
+  averaging over both the T46 electrode phase ensemble and T50 chromatic
+  column produces only a 1.05e-5 non-additive exposure correction. At the
+  established dose 2.05, coherent and joint models pass the identical 743/768
+  process realizations (96.74%, 95% lower bound 95.23%), with zero joint-only
+  losses and a 0.479% upper bound. A 16x phase-noise stress plus the nominal
+  column also retains 98.18% yield. No identified interaction in the current
+  simulator reverses the nominal verdict; further decisive evidence now
+  requires measured noise/process data or a physical lens design.
+  **Explicit lens-family gate added 2026-07-17 (T53)** - a five-plate
+  KinoPulse electrostatic solve now derives first-order ray transfer instead
+  of assuming 80x demagnification. A -15 to +29 kV focus sweep is allowed to
+  move the object plane to the exact 80x location, yet no member also images
+  beyond the landing stack at 10+/-1 eV within 10 mm. Fine-grid 80x images
+  remain inside the stack at 240-365 eV and require 22.6-58.7 mm. This
+  falsifies the bounded single-focus/deceleration family, not electrostatic
+  columns in general. The architecture now requires a genuinely multistage
+  high-energy demagnifier, controlled decelerator, and low-energy final lens;
+  T50's parameterized 1 mm C_c is not physically validated.
 - **T20. Landing stage.** Neutralization energy release, sticking,
   thermal hopping vs substrate T, template site quantization; replaces
   the diamond-caging stage in the chip-printing configuration (T15
@@ -458,15 +504,13 @@ conditioning, and the crosstalk-honest current model.
   richer actuator (T18/stage re-match), not more measurement. Naive
   deficit-chasing without a predictive gate is counterproductive.
 
-**All of Phase 5 is complete (T18–T22).** The simulation-level case for
-this architecture is closed: every subsystem — stage geometry (T22),
-noise (T19), aberrations (T18), landing (T20), dose/feedback (T21) —
-has a demonstrated operating corner, and exactly one first-rank
-engineering constraint remains: the T19 electrostatic phase-drift spec
-(microcolumn geometry + fast exposure/recalibration). Next steps live
-outside the simulator: the §7 literature-validation pass (real
-citations for the claimed subsystem capabilities) and an actual
-column/lens design to confirm T18's C_c assumptions.
+**Phase 5's component simulations are complete (T18–T22), but T53 reopens
+the integrated column contract.** Stage geometry, noise, landing, and
+dose/feedback have modeled operating corners; the first explicit
+single-focus/deceleration lens family does not. Two first-rank engineering
+constraints therefore remain: T19/T42 electrostatic phase drift and a
+multistage physical column that demonstrates 80x imaging at 10 eV rather than
+assuming T18's C_c.
 
 ## 9. What would falsify this note
 
