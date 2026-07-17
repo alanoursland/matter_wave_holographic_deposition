@@ -21,6 +21,11 @@ from .thermal_phase_noise import (
 )
 from .pressure_sweep import pressure_sweep
 from .sideband_selectivity import sideband_selectivity_sweep
+from .spectral_phase_noise import (
+    SpectralPhaseNoiseConfig,
+    SpectralPhaseNoiseResult,
+    analyze_spectral_phase_noise,
+)
 
 __all__ = [
     "ablation_study",
@@ -41,4 +46,7 @@ __all__ = [
     "weighted_integrated_voltage_variance",
     "pressure_sweep",
     "sideband_selectivity_sweep",
+    "SpectralPhaseNoiseConfig",
+    "SpectralPhaseNoiseResult",
+    "analyze_spectral_phase_noise",
 ]

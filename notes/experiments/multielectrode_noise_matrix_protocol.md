@@ -41,3 +41,18 @@ For the equal-RC baseline, immediate pass targets are no more than 2.026 ohm
 effective resistance per independent channel, or at least 0.91846 common
 correlation at 50 ohm. These are model-derived screening values, not a
 substitute for the measured spectral-matrix contraction.
+
+## Executable input
+
+T45 implements the contraction and decision rule. Supply an NPZ containing
+`frequency_Hz` and complex
+`measured_voltage_csd_V2_per_Hz` arrays, with an
+`instrument_voltage_csd_V2_per_Hz` array from the matched reference run. The
+CSD arrays have shape `(frequency, 9, 9)` and use one-sided V^2/Hz units.
+The instrument subtraction assumes the matched reference noise is additive
+and independent of the device noise; correlated pickup must instead be
+included in a joint measurement model.
+
+Run `scripts/run_spectral_noise_measurement_gate.py --input-npz DATA.npz`.
+A resolved failure exits nonzero with `--strict-exit`; an unresolved record
+has its own inconclusive exit code.

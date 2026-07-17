@@ -388,6 +388,15 @@ landing stage, closed-loop printing simulation) — is written up in
       equicorrelation. Perfect common mode leaves 7.74 mrad, so correlation is
       a modeled escape that must now be tested with a measured cross-spectrum.
 
+- [x] **T45. Measured cross-spectral phase-noise gate.** — **DONE 2026-07-16**
+      Converts a complex one-sided nine-electrode voltage CSD into all 36
+      aperture-pair phase variances with explicit bandwidth and instrument-
+      floor requirements. Synthetic 1 ohm and 50 ohm controls return
+      `not_falsified` at 0.03542 rad and `falsified` at 0.17521 rad. A quiet
+      record without a resolved matched instrument spectrum is inconclusive.
+      The gate is now waiting on measured cold multiport data, not another
+      free noise parameter.
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).

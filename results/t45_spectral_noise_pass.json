@@ -1,0 +1,70 @@
+{
+  "study": "T45 measured multi-electrode spectral-noise gate",
+  "source": {
+    "type": "synthetic",
+    "mode": "pass",
+    "physical_resistance_ohm": 1.0,
+    "instrument_equivalent_resistance_ohm": 0.01,
+    "temperature_K": 4.0,
+    "capacitance_F": 1e-13,
+    "electrode_correlation": 0.0
+  },
+  "response_source": "results/t44_multielectrode_noise.npz",
+  "config": {
+    "energy_eV": 30000.0,
+    "phase_budget_rad": 0.05,
+    "mass_kg": 6.6464731e-27,
+    "charge_e": 1.0,
+    "minimum_bandwidth_factor": 10.0,
+    "maximum_gap_factor": 0.2,
+    "maximum_instrument_fraction": 0.2
+  },
+  "result": {
+    "decision": "not_falsified",
+    "reasons": [
+      "resolved total spectrum remains within the phase budget"
+    ],
+    "velocity_m_s": 1202638.7591611103,
+    "interaction_time_s": 2.49451464718518e-11,
+    "frequency_count": 1201,
+    "maximum_frequency_Hz": 481055503664.44415,
+    "required_maximum_frequency_Hz": 400879586387.0368,
+    "maximum_frequency_gap_Hz": 400879586.38708496,
+    "allowed_maximum_frequency_gap_Hz": 8017591727.740736,
+    "coverage_sufficient": true,
+    "instrument_resolved": true,
+    "total_worst_pair": [
+      2,
+      6
+    ],
+    "total_worst_pair_rms_rad": 0.03541495828469742,
+    "lower_bound_worst_pair": [
+      2,
+      6
+    ],
+    "lower_bound_worst_pair_rms_rad": 0.035238993438847205,
+    "instrument_worst_pair_rms_rad": 0.0035259908853742077,
+    "phase_budget_rad": 0.05
+  },
+  "npz_input_format": {
+    "required": [
+      "frequency_Hz",
+      "measured_voltage_csd_V2_per_Hz"
+    ],
+    "recommended": [
+      "instrument_voltage_csd_V2_per_Hz"
+    ],
+    "csd_shape": "(frequency, electrode, electrode), complex, one-sided"
+  },
+  "interpretation": {
+    "falsified": "instrument-subtracted measured spectral power exceeds the phase allocation",
+    "not_falsified": "resolved measured band remains inside the allocation; this is not proof of the architecture",
+    "inconclusive": "bandwidth or instrument floor cannot support either decision"
+  },
+  "scope_limits": [
+    "The voltage noise is treated as wide-sense stationary over the acquisition.",
+    "The instrument reference is assumed additive and independent of the device noise.",
+    "A partial measured band can establish failure but never a pass.",
+    "Qualification still requires the cold biased device rather than a synthetic or dummy network."
+  ]
+}

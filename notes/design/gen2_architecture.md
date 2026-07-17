@@ -406,6 +406,11 @@ conditioning, and the crosstalk-honest current model.
   correlation to 0.91846. The next decisive input is a measured complex
   nine-channel cross-spectrum; see
   [the matrix protocol](../experiments/multielectrode_noise_matrix_protocol.md).
+  **Measured-spectrum gate added 2026-07-16 (T45)** — the complex nine-port
+  voltage CSD can now be contracted directly with the T44 field tensor. The
+  gate has explicit instrument-floor and transit-band coverage checks and
+  returns `falsified`, `not_falsified`, or `inconclusive`. Synthetic 1 ohm
+  and 50 ohm controls land on the expected sides of the 0.05 rad boundary.
 - **T20. Landing stage.** Neutralization energy release, sticking,
   thermal hopping vs substrate T, template site quantization; replaces
   the diamond-caging stage in the chip-printing configuration (T15
