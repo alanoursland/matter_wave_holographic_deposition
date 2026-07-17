@@ -405,6 +405,26 @@ landing stage, closed-loop printing simulation) — is written up in
       circuit under the conservative quantum model; the 4 K low-resistance
       ceiling tightens to 1.954 ohm or 0.91950 common correlation.
 
+- [x] **T47. Influence-functional visibility gate.** — **DONE 2026-07-16**
+      Converts the full T46 pair-variance matrix into the Gaussian quantum
+      dephasing channel `exp[-Var(delta phi)/2]`. The fixed 50 ohm circuit
+      still fails the strict 0.998751 visibility allocation at 4 K and zero
+      temperature. However, antithetic ensemble propagation through the exact
+      T32 screen and detector model retains about 0.999996 SSIM with only
+      5.9e-4 relative intensity departure. The circuit fails its subsystem
+      allocation, but functional hologram failure is not established. Next:
+      inject this ensemble into T40's electrical device gate.
+
+- [x] **T48. Dephased electrical device-function gate.** — **DONE 2026-07-16**
+      Propagates nested Sobol Gaussian phase ensembles through all three T40
+      contact holograms and applies the unchanged T39/T40 electrical gates.
+      Nominal 0.176 rad worst-pair noise is `not_falsified`: the fixed 1.45
+      dose passes and the functional window changes only from 1.45–2.75 to
+      1.45–2.70. Fixed-dose failure first appears between 16x and 32x noise;
+      all tested dose windows disappear between 32x and 64x. The 0.05 rad
+      allocation is therefore a subsystem specification, not a demonstrated
+      functional kill threshold for this device coupon.
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).

@@ -301,7 +301,9 @@ def main(argv=None):
     classical_pair, classical_rms, _ = _pair_metrics(
         frequency, kernel, classical_density
     )
-    zero_pair, zero_rms, _ = _pair_metrics(frequency, kernel, zero_density)
+    zero_pair, zero_rms, zero_pair_matrix = _pair_metrics(
+        frequency, kernel, zero_density
+    )
     decision = "falsified" if quantum_rms > args.phase_budget_rad else "not_falsified"
     resistance_ceiling = _first_resistance_crossing(
         frequency,
@@ -382,6 +384,7 @@ def main(argv=None):
         "maximum_frequency_times_transit": args.maximum_frequency_factor,
         "result": result,
         "pairwise_quantum_phase_rms_rad": pair_matrix.tolist(),
+        "pairwise_zero_point_phase_rms_rad": zero_pair_matrix.tolist(),
         "scope_limits": [
             "The symmetrized fluctuation-dissipation spectrum is used as the conservative phase-variance model.",
             "Every channel shares the same ideal R and C; real multiport impedance remains a measurement input.",

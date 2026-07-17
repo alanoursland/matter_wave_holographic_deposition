@@ -416,6 +416,21 @@ conditioning, and the crosstalk-honest current model.
   floor for the fixed 50 ohm circuit. Thus cooling alone does not close the
   phase budget under the conservative quantum model; the circuit still needs
   no more than 1.954 ohm at 4 K or at least 0.91950 common correlation.
+  **Influence-functional gate added 2026-07-16 (T47)** — the quantum variance
+  is now mapped to path coherence without treating zero-point fluctuations as
+  classical jitter. The strict visibility allocation still fails, but the
+  exact T32 noisy-ensemble detector image retains about 0.999996 SSIM and
+  5.9e-4 relative intensity departure. Accordingly, the 50 ohm circuit is
+  rejected against its subsystem allocation but is not yet shown to cause a
+  functional printing failure. The next decisive simulation is the unchanged
+  T40 electrical gate under this dephasing ensemble.
+  **Electrical dephasing gate added 2026-07-16 (T48)** — the unchanged T40
+  device extraction does not falsify the nominal T46/T47 noise point. The
+  fixed 1.45 dose remains functional and the dose window changes only from
+  1.45–2.75 to 1.45–2.70. Fixed-dose failure is bracketed between 16x and 32x
+  nominal phase RMS, while every tested dose window disappears between 32x
+  and 64x. The 0.05 rad allocation should therefore remain a design target,
+  not be cited as an architecture-level functional boundary.
 - **T20. Landing stage.** Neutralization energy release, sticking,
   thermal hopping vs substrate T, template site quantization; replaces
   the diamond-caging stage in the chip-printing configuration (T15

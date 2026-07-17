@@ -1,0 +1,91 @@
+{
+  "study": "T47 influence-functional quantum dephasing visibility",
+  "sources": {
+    "quantum_noise": "results/t46_quantum_thermal_noise.json",
+    "checkerboard_phases": "results/t31_segmented_basis.npz",
+    "optimized_phases": "results/t32_physical_hologram.npz"
+  },
+  "result": {
+    "phase_budget_rad": 0.05,
+    "required_minimum_pair_visibility": 0.9987507809245809,
+    "strict_4k_decision": "falsified",
+    "strict_zero_temperature_decision": "falsified",
+    "state_metrics_4k": {
+      "minimum_pair_visibility": 0.9845942866660242,
+      "maximum_pair_visibility_loss": 0.015405713333975779,
+      "ideal_state_fidelity": 0.987286080538931,
+      "purity": 0.9747546361106222,
+      "effective_mode_number": 1.0258991985820243,
+      "von_neumann_entropy_nats": 0.09443837444368938
+    },
+    "state_metrics_zero_temperature": {
+      "minimum_pair_visibility": 0.997789098496709,
+      "maximum_pair_visibility_loss": 0.002210901503290952,
+      "ideal_state_fidelity": 0.998157841190007,
+      "purity": 0.996319509863434,
+      "effective_mode_number": 1.003694086184331,
+      "von_neumann_entropy_nats": 0.017257365138610484
+    },
+    "checkerboard_array_factor": {
+      "at_4k": {
+        "ssim_to_coherent": 0.9929291531712734,
+        "normalized_nrmse": 0.006288018056473708,
+        "peak_intensity_ratio": 0.9872860805389312,
+        "coherent_contrast": 0.9998160513840221,
+        "dephased_contrast": 0.9951747305897252
+      },
+      "at_zero_temperature": {
+        "ssim_to_coherent": 0.9998422954338863,
+        "normalized_nrmse": 0.0009011663752547437,
+        "peak_intensity_ratio": 0.9981578411900072,
+        "coherent_contrast": 0.9998160513840221,
+        "dephased_contrast": 0.9991565833175077
+      }
+    },
+    "t32_phase_array_factor": {
+      "at_4k": {
+        "ssim_to_coherent": 0.998702681562773,
+        "normalized_nrmse": 0.008169338990497717,
+        "peak_intensity_ratio": 0.9876927376995175,
+        "coherent_contrast": 0.9528861315285894,
+        "dephased_contrast": 0.9451711241617927
+      },
+      "at_zero_temperature": {
+        "ssim_to_coherent": 0.9999713466341927,
+        "normalized_nrmse": 0.0011670723657527108,
+        "peak_intensity_ratio": 0.9982223565465583,
+        "coherent_contrast": 0.9528861315285894,
+        "dephased_contrast": 0.9517727438783562
+      }
+    },
+    "t32_full_propagation": {
+      "at_4k": {
+        "ssim_to_coherent": 0.9999956760600449,
+        "normalized_nrmse": 0.0006194711438617548,
+        "peak_intensity_ratio": 0.9997363698787091,
+        "coherent_contrast": 0.9888923853152328,
+        "dephased_contrast": 0.9888769937613466,
+        "raw_relative_intensity_departure": 0.0005924616894814549,
+        "ensemble_half_to_full_relative_change": 0.00010770598912849832,
+        "sample_count": 256
+      },
+      "at_zero_temperature": {
+        "ssim_to_coherent": 0.9999999037620447,
+        "normalized_nrmse": 9.924167450461718e-05,
+        "peak_intensity_ratio": 0.9999430170235516,
+        "coherent_contrast": 0.9888923853152328,
+        "dephased_contrast": 0.988890120792203,
+        "raw_relative_intensity_departure": 8.834963252900761e-05,
+        "ensemble_half_to_full_relative_change": 1.464658072912159e-05,
+        "sample_count": 256
+      }
+    },
+    "functional_verdict": "inconclusive_without_a_pattern-level acceptance threshold"
+  },
+  "interpretation": [
+    "For a Gaussian bath, an off-diagonal path coherence is multiplied by exp[-Var(delta phase)/2].",
+    "The strict 0.05 rad allocation is exactly equivalent to a 0.998751 minimum pair visibility requirement.",
+    "Array-factor SSIM is diagnostic only; the project has no universal pattern-level acceptance threshold.",
+    "The influence-functional result makes zero-point noise a coherence loss without calling it classical voltage jitter."
+  ]
+}

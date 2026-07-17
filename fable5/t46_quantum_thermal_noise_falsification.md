@@ -53,7 +53,9 @@ the low-resistance branch containing the intended fast electrode drive.
   relative; a separate 8x check changes the 4x result by about 1.1e-5.
 - Symmetrized noise is the conservative phase-variance/decoherence input.
   A full open-quantum-system treatment is required before interpreting the
-  zero-point term as directly observable classical phase jitter.
+  zero-point term as directly observable classical phase jitter. T47 supplies
+  the Gaussian influence-functional treatment: the strict visibility gate
+  still fails, while the exact T32 detector pattern remains nearly unchanged.
 - Real qualification still requires the measured multiport impedance and
   CSD supported by T45.
 
