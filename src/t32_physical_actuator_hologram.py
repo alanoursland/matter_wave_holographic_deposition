@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-from inverse_holography import (
+from iqs.holography import (
     InverseHolographySolver,
     SQUIDArray,
     bandlimit_target,

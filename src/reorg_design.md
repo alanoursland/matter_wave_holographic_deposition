@@ -1,5 +1,11 @@
 # Reorganization Design: Library-Oriented Integrated Quantum Substrate Codebase
 
+> Implementation status (2026-07-16): the active source, holography, and v9/v10
+> pipeline implementations now live under `iqs`; top-level historical modules
+> are compatibility wrappers. Dedicated experiment, plotting, and demo modules
+> expose the package-oriented API. See `docs/architecture.md` for the current
+> dependency map. This document is retained as the migration rationale.
+
 ## Purpose
 
 This document proposes a staged reorganization of the current simulation code into a reusable library with thin experiment scripts. The goal is not to rewrite the physics model first. The goal is to separate stable computational components from versioned demos so that future physics improvements can be made without repeatedly untangling pipeline code, plotting code, validation code, and experiment harnesses.

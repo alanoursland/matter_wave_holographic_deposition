@@ -21,7 +21,8 @@ from iqs.lattices.diamond import DiamondNetwork
 class TestInductance:
 
     @pytest.fixture(scope='class')
-    def squid(self):
+    @classmethod
+    def squid(cls):
         s = SQUIDArray(N_loops=8, N_grid=64, L_grid=100e-9)
         s.build_inductance_matrix(wire_width_frac=0.1)
         return s

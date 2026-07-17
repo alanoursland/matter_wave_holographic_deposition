@@ -22,11 +22,11 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 
-from coherent_matterwave_beam import (
+from iqs.sources.coherent_matterwave import (
     CoherentMatterwaveBeam, CavityGeometry, SPECIES,
     hbar, k_B, e_C, eps_0,
 )
-from inverse_holography import (
+from iqs.holography import (
     SQUIDArray, InverseHolographySolver,
     target_grid_of_dots, target_line, target_letter,
     smooth_target, compute_metrics,

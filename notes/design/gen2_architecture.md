@@ -386,6 +386,12 @@ conditioning, and the crosstalk-honest current model.
   comfortable at gen-2 (drive 0.76% of the 2π current; defocus in μm at
   NA ~ 10⁻⁵; stray-B in gauss). T18 inherits the short-throw
   constraint.
+  **Measurement gate added 2026-07-16 (T42)** — the T19 inversion is now a
+  three-outcome time-series test with explicit duration and instrument-floor
+  requirements. Synthetic positive and negative controls validate the gate;
+  the architecture remains unqualified until surface-sensitive or beam-phase
+  data are supplied. See
+  [the protocol](../experiments/phase_stability_falsification_protocol.md).
 - **T20. Landing stage.** Neutralization energy release, sticking,
   thermal hopping vs substrate T, template site quantization; replaces
   the diamond-caging stage in the chip-printing configuration (T15
@@ -428,7 +434,8 @@ column/lens design to confirm T18's C_c assumptions.
 - A patch-potential/charging measurement showing keV columns cannot
   hold sub-radian hologram phase over minutes at μm apertures (kills
   the charged branch's stability premise; §2.2 margins are ~10×, not
-  ~10³×).
+  ~10³×). T42 defines the required CSV input, resolution checks, and
+  falsification threshold for this measurement.
 - Decel-optics aberration budgets that cannot reach NA sufficient for
   10 nm at any (M, C_c, C_s) — T18 is designed to check this first in
   simulation.

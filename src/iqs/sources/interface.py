@@ -115,8 +115,8 @@ class KuramotoPatentSource:
     external A-field cannot synchronize relative phases) — kept as one
     clearly-labeled option, not the foundation.
 
-    Note: imports the top-level `coherent_matterwave_beam` module lazily;
-    the full move of the CMWB model into iqs/sources is reorg milestone 3.
+    The concrete beam implementation lives in ``iqs.sources``; this provider
+    only relies on its small synchronization interface.
     """
 
     def __init__(self, cmwb, xi_perp):

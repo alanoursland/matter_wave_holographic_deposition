@@ -16,7 +16,7 @@ import numpy as np
 from scipy.ndimage import zoom
 import torch
 
-from inverse_holography import (
+from iqs.holography import (
     InverseHolographySolver,
     SQUIDArray,
     bandlimit_target,

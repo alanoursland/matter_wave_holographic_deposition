@@ -358,6 +358,17 @@ landing stage, closed-loop printing simulation) — is written up in
       yield. However, 21.4% of conducting pixels are disconnected halo outside
       nominal windows, making interlayer residue the next risk.*
 
+## Falsification gate
+
+- [x] **T42. Electrostatic phase-stability measurement gate.** — **DONE
+      2026-07-16**
+      Converts differential-voltage time series into a conservative
+      charged-particle phase verdict. Requires a resolved instrument floor
+      and at least 20 complete recalibration cycles; returns `falsified`,
+      `not_falsified`, or `inconclusive`. Synthetic positive and negative
+      controls pass. The architecture itself remains unqualified until a
+      surface-sensitive or beam-phase measurement is supplied.
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).

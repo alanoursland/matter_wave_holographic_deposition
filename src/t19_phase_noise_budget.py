@@ -43,10 +43,10 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 
-from inverse_holography import SQUIDArray, InverseHolographySolver, \
+from iqs.holography import SQUIDArray, InverseHolographySolver, \
     target_grid_of_dots, smooth_target
-from coherent_matterwave_beam import sample_phase_noise, hbar, e_C
-from iqs.constants import k_B, m_He
+from iqs.sources import sample_phase_noise
+from iqs.constants import e_C, hbar, k_B, m_He
 from iqs.numerics.metrics import ssim_score
 from iqs.numerics.device import get_device
 

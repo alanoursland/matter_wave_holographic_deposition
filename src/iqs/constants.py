@@ -14,6 +14,7 @@ k_B  = 1.380649e-23     # Boltzmann constant       [J/K]
 # ── Electromagnetism ─────────────────────────────────────────────────────────
 e_C  = 1.602176634e-19  # elementary charge        [C]
 mu_0 = 4e-7 * 3.14159265358979323846  # vacuum permeability  [H/m]
+eps_0 = 8.8541878128e-12              # vacuum permittivity  [F/m]
 Phi_0     = 2.067833848e-15  # magnetic flux quantum  h/(2e)  [Wb]
 Phi_0_e   = 4.135667696e-15  # single-charge flux quantum  h/e  [Wb]
 c    = 2.99792458e8     # speed of light           [m/s]
