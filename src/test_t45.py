@@ -8,6 +8,7 @@ from iqs.experiments.spectral_phase_noise import (
     SpectralPhaseNoiseConfig,
     analyze_spectral_phase_noise,
     phase_transfer_matrix,
+    quantum_rc_voltage_csd,
     spectral_phase_covariance,
 )
 from iqs.experiments.thermal_phase_noise import (
@@ -120,3 +121,28 @@ def test_npz_interchange_loader_accepts_complex_csd(tmp_path):
     assert np.array_equal(loaded_frequency, frequency)
     assert np.array_equal(loaded_measured, measured)
     assert np.array_equal(loaded_instrument, instrument)
+
+
+def test_quantum_rc_spectrum_has_classical_low_frequency_limit():
+    frequency = np.array([0.0, 1e6])
+    correlation = np.eye(2)
+    quantum = quantum_rc_voltage_csd(
+        frequency, 300.0, 50.0, 100e-15, correlation
+    )
+    classical_dc = 4 * k_B * 300.0 * 50.0
+    assert np.isclose(quantum[0, 0, 0], classical_dc, rtol=1e-14)
+    assert np.isclose(quantum[1, 0, 0], classical_dc, rtol=1e-8)
+
+
+def test_zero_temperature_quantum_rc_spectrum_matches_zero_point_limit():
+    frequency = np.array([0.0, 1e9, 1e11])
+    resistance = 50.0
+    capacitance = 100e-15
+    spectrum = quantum_rc_voltage_csd(
+        frequency, 0.0, resistance, capacitance, np.eye(1)
+    )[:, 0, 0]
+    expected = (
+        2 * resistance * 6.62607015e-34 * frequency
+        / (1 + (2 * np.pi * frequency * resistance * capacitance) ** 2)
+    )
+    assert np.allclose(spectrum, expected, rtol=1e-14, atol=0.0)

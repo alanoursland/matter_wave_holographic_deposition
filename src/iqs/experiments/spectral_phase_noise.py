@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass
 
 import numpy as np
 
-from iqs.constants import e_C, hbar, m_He
+from iqs.constants import e_C, h, hbar, k_B, m_He
 from iqs.experiments.phase_stability import particle_velocity
 from iqs.experiments.thermal_phase_noise import pairwise_differential_phase_rms
 
@@ -173,6 +173,49 @@ def spectral_phase_covariance(
     return integrate_phase_covariance(frequency, phase_csd)
 
 
+def quantum_rc_voltage_csd(
+    frequency_Hz,
+    temperature_K,
+    resistance_ohm,
+    capacitance_F,
+    electrode_correlation,
+):
+    """Symmetrized one-sided quantum RC voltage CSD in V^2/Hz.
+
+    The resistor spectrum is ``2 R h f coth(hf/(2 k_B T))`` and the
+    capacitance supplies the usual ``1 / (1 + (2 pi f R C)^2)`` filter.
+    Its high-temperature limit is the classical one-sided ``4 k_B T R``.
+    """
+    frequency = np.asarray(frequency_Hz, dtype=float)
+    correlation = np.asarray(electrode_correlation, dtype=float)
+    if frequency.ndim != 1 or np.any(frequency < 0) or not np.all(np.isfinite(frequency)):
+        raise ValueError("frequency_Hz must be finite, nonnegative, and one dimensional")
+    if correlation.ndim != 2 or correlation.shape[0] != correlation.shape[1]:
+        raise ValueError("electrode correlation must be square")
+    if not np.allclose(correlation, correlation.T, rtol=1e-10, atol=1e-12):
+        raise ValueError("electrode correlation must be symmetric")
+    if not np.allclose(np.diag(correlation), 1.0, rtol=1e-10, atol=1e-12):
+        raise ValueError("electrode correlation must have a unit diagonal")
+    if np.linalg.eigvalsh(correlation).min() < -1e-10:
+        raise ValueError("electrode correlation must be positive semidefinite")
+    settings = (temperature_K, resistance_ohm, capacitance_F)
+    if not all(np.isfinite(value) for value in settings):
+        raise ValueError("quantum RC settings must be finite")
+    if temperature_K < 0 or resistance_ohm <= 0 or capacitance_F <= 0:
+        raise ValueError("temperature must be nonnegative and R, C must be positive")
+
+    denominator = 1.0 + (2 * np.pi * frequency * resistance_ohm * capacitance_F) ** 2
+    if temperature_K == 0:
+        density = 2 * resistance_ohm * h * frequency / denominator
+    else:
+        x = h * frequency / (2 * k_B * temperature_K)
+        correction = np.ones_like(x)
+        nonzero = x > 0
+        correction[nonzero] = x[nonzero] / np.tanh(x[nonzero])
+        density = 4 * k_B * temperature_K * resistance_ohm * correction / denominator
+    return density[:, None, None] * correlation[None, :, :]
+
+
 def _worst_pair(pair_rms):
     upper = np.triu_indices(pair_rms.shape[0], k=1)
     flat = int(np.argmax(pair_rms[upper]))
@@ -295,5 +338,6 @@ __all__ = [
     "integrate_phase_covariance",
     "phase_covariance_spectral_density",
     "phase_transfer_matrix",
+    "quantum_rc_voltage_csd",
     "spectral_phase_covariance",
 ]

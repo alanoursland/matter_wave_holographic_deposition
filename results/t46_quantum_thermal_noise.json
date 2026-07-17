@@ -1,0 +1,158 @@
+{
+  "study": "T46 symmetrized quantum thermal-noise falsification",
+  "response_source": "results/t44_multielectrode_noise.npz",
+  "spectral_config": {
+    "energy_eV": 30000.0,
+    "phase_budget_rad": 0.05,
+    "mass_kg": 6.6464731e-27,
+    "charge_e": 1.0,
+    "minimum_bandwidth_factor": 10.0,
+    "maximum_gap_factor": 0.2,
+    "maximum_instrument_fraction": 0.2
+  },
+  "axial_refinement": 4,
+  "frequency_samples": 4001,
+  "maximum_frequency_Hz": 3207036691096.2944,
+  "maximum_frequency_times_transit": 80.0,
+  "result": {
+    "decision": "falsified",
+    "temperature_K": 4.0,
+    "resistance_ohm": 50.0,
+    "capacitance_F": 1e-13,
+    "electrode_correlation": 0.0,
+    "worst_pair": [
+      2,
+      6
+    ],
+    "quantum_phase_rms_rad": 0.17621358841110288,
+    "classical_phase_rms_rad": 0.17513926567421975,
+    "quantum_to_classical_rms_ratio": 1.0061341055230955,
+    "classical_worst_pair": [
+      2,
+      6
+    ],
+    "zero_point_worst_pair": [
+      2,
+      6
+    ],
+    "zero_point_phase_rms_rad": 0.06653343752372907,
+    "cooling_alone_can_reach_budget": false,
+    "phase_budget_rad": 0.05,
+    "quantum_budget_ratio": 3.5242717682220572,
+    "low_resistance_pass_ceiling_ohm": 1.954472737108861,
+    "zero_temperature_low_resistance_pass_ceiling_ohm": 9.185641131747333,
+    "required_electrode_correlation": 0.9194953407609389,
+    "rms_at_40_inverse_transit_rad": 0.17621358836227005,
+    "upper_band_40_to_80_relative_change": 2.7712293422743364e-10,
+    "previous_axial_refinement": 2,
+    "previous_axial_refinement_rms_rad": 0.17622154540487053,
+    "axial_refinement_relative_change": 4.515539260849394e-05
+  },
+  "pairwise_quantum_phase_rms_rad": [
+    [
+      0.0,
+      0.16477621216356284,
+      0.17593237652111207,
+      0.16477621216356284,
+      0.1697839058148869,
+      0.173859312460978,
+      0.17593237652111204,
+      0.173859312460978,
+      0.1762097687037334
+    ],
+    [
+      0.16477621216356284,
+      0.0,
+      0.1649684456248487,
+      0.16987576801865936,
+      0.1603230467570553,
+      0.16986938148934394,
+      0.17387546632311784,
+      0.17133512116087415,
+      0.17383689729595722
+    ],
+    [
+      0.17593237652111207,
+      0.1649684456248487,
+      0.0,
+      0.1738754663231179,
+      0.16979931077221747,
+      0.16465618083198338,
+      0.17621358841110288,
+      0.17382307764400123,
+      0.17585195282368585
+    ],
+    [
+      0.16477621216356284,
+      0.16987576801865936,
+      0.1738754663231179,
+      0.0,
+      0.16032304675705533,
+      0.17133512116087418,
+      0.1649684456248487,
+      0.16986938148934397,
+      0.17383689729595725
+    ],
+    [
+      0.1697839058148869,
+      0.1603230467570553,
+      0.16979931077221747,
+      0.16032304675705533,
+      0.0,
+      0.16057035669257233,
+      0.16979931077221747,
+      0.16057035669257233,
+      0.16981189783675474
+    ],
+    [
+      0.173859312460978,
+      0.16986938148934394,
+      0.16465618083198338,
+      0.17133512116087418,
+      0.16057035669257233,
+      0.0,
+      0.17382307764400123,
+      0.16981003908869813,
+      0.1647414473823993
+    ],
+    [
+      0.17593237652111204,
+      0.17387546632311784,
+      0.17621358841110288,
+      0.1649684456248487,
+      0.16979931077221747,
+      0.17382307764400123,
+      0.0,
+      0.16465618083198338,
+      0.17585195282368582
+    ],
+    [
+      0.173859312460978,
+      0.17133512116087415,
+      0.17382307764400123,
+      0.16986938148934397,
+      0.16057035669257233,
+      0.16981003908869813,
+      0.16465618083198338,
+      0.0,
+      0.1647414473823993
+    ],
+    [
+      0.1762097687037334,
+      0.17383689729595722,
+      0.17585195282368585,
+      0.17383689729595725,
+      0.16981189783675474,
+      0.1647414473823993,
+      0.17585195282368582,
+      0.1647414473823993,
+      0.0
+    ]
+  ],
+  "scope_limits": [
+    "The symmetrized fluctuation-dissipation spectrum is used as the conservative phase-variance model.",
+    "Every channel shares the same ideal R and C; real multiport impedance remains a measurement input.",
+    "The ideal RC zero-point spectrum needs the trajectory transfer as its high-frequency cutoff.",
+    "A full open-quantum-system calculation could distinguish decoherence from directly observable classical phase jitter."
+  ]
+}

@@ -411,6 +411,11 @@ conditioning, and the crosstalk-honest current model.
   gate has explicit instrument-floor and transit-band coverage checks and
   returns `falsified`, `not_falsified`, or `inconclusive`. Synthetic 1 ohm
   and 50 ohm controls land on the expected sides of the 0.05 rad boundary.
+  **Quantum-noise gate added 2026-07-16 (T46)** — the symmetrized quantum
+  spectrum raises the 4 K RMS only 0.61%, but leaves a 0.06653 rad zero-point
+  floor for the fixed 50 ohm circuit. Thus cooling alone does not close the
+  phase budget under the conservative quantum model; the circuit still needs
+  no more than 1.954 ohm at 4 K or at least 0.91950 common correlation.
 - **T20. Landing stage.** Neutralization energy release, sticking,
   thermal hopping vs substrate T, template site quantization; replaces
   the diamond-caging stage in the chip-printing configuration (T15

@@ -397,6 +397,14 @@ landing stage, closed-loop printing simulation) — is written up in
       The gate is now waiting on measured cold multiport data, not another
       free noise parameter.
 
+- [x] **T46. Quantum thermal-noise cooling gate.** — **DONE 2026-07-16**
+      Replaces the classical Johnson spectrum with the symmetrized quantum
+      fluctuation-dissipation spectrum. At 4 K the correction is only 0.61%,
+      but the fixed-50-ohm zero-temperature floor is 0.06653 rad and therefore
+      exceeds the 0.05 rad allocation. Cooling alone cannot rescue that
+      circuit under the conservative quantum model; the 4 K low-resistance
+      ceiling tightens to 1.954 ohm or 0.91950 common correlation.
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).

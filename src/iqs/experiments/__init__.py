@@ -25,6 +25,7 @@ from .spectral_phase_noise import (
     SpectralPhaseNoiseConfig,
     SpectralPhaseNoiseResult,
     analyze_spectral_phase_noise,
+    quantum_rc_voltage_csd,
 )
 
 __all__ = [
@@ -49,4 +50,5 @@ __all__ = [
     "SpectralPhaseNoiseConfig",
     "SpectralPhaseNoiseResult",
     "analyze_spectral_phase_noise",
+    "quantum_rc_voltage_csd",
 ]

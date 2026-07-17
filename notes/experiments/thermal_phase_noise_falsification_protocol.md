@@ -37,3 +37,5 @@ against a 0.05 rad allocation. That operating point is falsified.
 Cooling below approximately 1.9 K crosses the default transit quantum scale.
 Below that point, use the quantum fluctuation-dissipation spectrum of the
 actual network rather than extrapolating the classical Johnson formula.
+T46 performs this calculation for the ideal equal-RC model: the fixed 50 ohm
+circuit retains a conservative 0.06653 rad zero-point floor, above budget.

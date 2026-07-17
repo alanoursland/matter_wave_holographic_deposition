@@ -48,7 +48,9 @@ claim that every phase-plate circuit fails. It says the nominal independent
   the transit-weighted bandwidth.
 - A classical cooling-only extrapolation reaches the budget at 0.368 K, but
   this lies below the 1.924 K scale `h/(k_B tau)`. A quantum circuit-noise
-  model is therefore required before claiming cooling as the solution.
+  model is therefore required before claiming cooling as the solution. T46
+  supplies that model and finds a 0.06653 rad zero-temperature floor for the
+  fixed 50 ohm circuit, so cooling alone does not pass.
 - The current result treats two equal path channels. It does not yet assemble
   all nine electrode transfer profiles and their measured cross-spectral
   density matrix.
