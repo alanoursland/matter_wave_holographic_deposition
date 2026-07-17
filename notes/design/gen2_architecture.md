@@ -392,6 +392,20 @@ conditioning, and the crosstalk-honest current model.
   the architecture remains unqualified until surface-sensitive or beam-phase
   data are supplied. See
   [the protocol](../experiments/phase_stability_falsification_protocol.md).
+  **Thermal-noise gate added 2026-07-16 (T43)** — equilibrium electrode
+  noise is now integrated against the solved T31 axial field response. A
+  nominal 50 ohm, 100 fF, 4 K independent-channel circuit gives 0.1648 rad
+  RMS, 3.296 times the allocation, and is falsified. The classical circuit
+  must reach at most 2.254 ohm or at least 0.908 transit-band path
+  correlation. See
+  [the protocol](../experiments/thermal_phase_noise_falsification_protocol.md).
+  **Full-array gate added 2026-07-16 (T44)** — all nine electrode noise
+  sources and all 36 aperture pairs are now included. The worst opposite-
+  corner pair reaches 0.1751 rad RMS (3.502 times budget), tightening the
+  classical 4 K resistance ceiling to 2.026 ohm or the required common
+  correlation to 0.91846. The next decisive input is a measured complex
+  nine-channel cross-spectrum; see
+  [the matrix protocol](../experiments/multielectrode_noise_matrix_protocol.md).
 - **T20. Landing stage.** Neutralization energy release, sticking,
   thermal hopping vs substrate T, template site quantization; replaces
   the diamond-caging stage in the chip-printing configuration (T15

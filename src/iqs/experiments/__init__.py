@@ -11,6 +11,14 @@ from .phase_stability import (
     analyze_phase_stability,
     load_voltage_csv,
 )
+from .thermal_phase_noise import (
+    ThermalPhaseNoiseConfig,
+    ThermalPhaseNoiseResult,
+    analyze_thermal_phase_noise,
+    multi_electrode_phase_covariance,
+    pairwise_differential_phase_rms,
+    weighted_integrated_voltage_variance,
+)
 from .pressure_sweep import pressure_sweep
 from .sideband_selectivity import sideband_selectivity_sweep
 
@@ -25,6 +33,12 @@ __all__ = [
     "PhaseStabilityResult",
     "analyze_phase_stability",
     "load_voltage_csv",
+    "ThermalPhaseNoiseConfig",
+    "ThermalPhaseNoiseResult",
+    "analyze_thermal_phase_noise",
+    "multi_electrode_phase_covariance",
+    "pairwise_differential_phase_rms",
+    "weighted_integrated_voltage_variance",
     "pressure_sweep",
     "sideband_selectivity_sweep",
 ]

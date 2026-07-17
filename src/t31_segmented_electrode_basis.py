@@ -17,45 +17,28 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from iqs.actuators import (
-    ElectrostaticDomain,
     ElectrostaticSolveConfig,
-    segmented_three_plate_aperture_array,
     solve_electrostatics,
 )
 from iqs.constants import e_C, hbar, m_He
-
-
-UM = 1e-6
-ARRAY_SHAPE = (3, 3)
-PITCH_M = 8 * UM
-APERTURE_RADIUS_M = 2.5 * UM
+from iqs.devices.segmented_phase_plate import (
+    APERTURE_RADIUS_M,
+    ARRAY_SHAPE,
+    DOMAIN_SHAPE,
+    PITCH_M,
+    UM,
+    aperture_averaged_profiles,
+    aperture_centers,
+    segmented_phase_plate_model,
+)
 
 
 def _centers():
-    x = (np.arange(ARRAY_SHAPE[0]) - 1) * PITCH_M
-    y = (np.arange(ARRAY_SHAPE[1]) - 1) * PITCH_M
-    return tuple((float(xi), float(yi)) for xi in x for yi in y)
+    return aperture_centers()
 
 
 def _model(voltages):
-    domain = ElectrostaticDomain(
-        extent=((-16 * UM, 16 * UM), (-16 * UM, 16 * UM),
-                (-15 * UM, 15 * UM)),
-        shape=(65, 65, 97),
-        boundary_policy="grounded_box",
-    )
-    return segmented_three_plate_aperture_array(
-        domain,
-        plate_z_m=(-6.25 * UM, 0.0, 6.25 * UM),
-        plate_thickness_m=1.25 * UM,
-        center_voltages_V=np.asarray(voltages).reshape(ARRAY_SHAPE),
-        aperture_radius_m=APERTURE_RADIUS_M,
-        pitch_m=PITCH_M,
-        array_shape=ARRAY_SHAPE,
-        segment_gap_m=1.0 * UM,
-        outer_plate_half_width_m=(14 * UM, 14 * UM),
-        metadata={"study": "T31 segmented electrode basis"},
-    )
+    return segmented_phase_plate_model(voltages)
 
 
 def _solve(voltages, tolerance):
@@ -71,14 +54,11 @@ def _solve(voltages, tolerance):
 
 
 def _aperture_readouts(field_map, kinetic_energy_eV):
-    integrated = np.trapezoid(field_map.potential_V, field_map.z_m, axis=0)
-    xx, yy = np.meshgrid(field_map.x_m, field_map.y_m, indexing="xy")
     velocity = np.sqrt(2 * kinetic_energy_eV * e_C / m_He)
     factor = -e_C / (hbar * velocity)
-    values = []
-    for cx, cy in _centers():
-        mask = (xx - cx) ** 2 + (yy - cy) ** 2 <= APERTURE_RADIUS_M ** 2
-        values.append(float(factor * integrated[mask].mean()))
+    profiles = aperture_averaged_profiles(field_map)
+    values = factor * np.trapezoid(profiles, field_map.z_m, axis=1)
+    integrated = np.trapezoid(field_map.potential_V, field_map.z_m, axis=0)
     return np.asarray(values), integrated
 
 
@@ -193,7 +173,7 @@ def main():
 
     report = {
         "kinetic_energy_eV": args.kinetic_energy_eV,
-        "grid_shape": [65, 65, 97],
+        "grid_shape": list(DOMAIN_SHAPE),
         "array_shape": list(ARRAY_SHAPE),
         "pitch_m": PITCH_M,
         "aperture_radius_m": APERTURE_RADIUS_M,

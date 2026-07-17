@@ -369,6 +369,25 @@ landing stage, closed-loop printing simulation) — is written up in
       controls pass. The architecture itself remains unqualified until a
       surface-sensitive or beam-phase measurement is supplied.
 
+- [x] **T43. Field-weighted thermal phase-noise gate.** — **DONE 2026-07-16**
+      Uses the solved T31 center-segment potential profile rather than a
+      full-coupling column-length approximation. The nominal 50 ohm, 100 fF,
+      4 K independent-channel circuit produces 0.1648 rad RMS against the
+      0.05 rad allocation and is therefore falsified by 3.296x. The classical
+      escape is at most 2.254 ohm or at least 0.908 path correlation; cooling
+      alone crosses into the quantum-noise regime before reaching the budget.
+      Next: measure the full electrode cross-spectral matrix and propagate it
+      through all nine spatial response profiles.
+
+- [x] **T44. Full-array thermal phase-noise gate.** — **DONE 2026-07-16**
+      Nine field solves assemble the complete aperture/electrode/axial
+      response tensor and reproduce T31's DC influence matrix to 1.35e-16
+      relative error. Independent 50 ohm, 100 fF, 4 K channels produce
+      0.1751 rad RMS for opposite-corner apertures, 3.502x the allocation.
+      The circuit requires at most 2.026 ohm or at least 0.91846 transit-band
+      equicorrelation. Perfect common mode leaves 7.74 mrad, so correlation is
+      a modeled escape that must now be tested with a measured cross-spectrum.
+
 ## Dependency notes
 
 - T1 before T6/T7 (noise results are meaningless on the tilted beam).
